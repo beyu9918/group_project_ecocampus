@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "title": "Computer Textbook",
+    "category": "textbook",
+    "price": 80,
+    "description": "CS101 textbook in good condition.",
+    "sellerId": 2,
+    "avgRating": 4.5
+  },
+  {
+    "id": 2,
+    "title": "Old Laptop",
+    "category": "digital",
+    "price": 300,
+    "description": "Used laptop, works fine but battery is weak.",
+    "sellerId": 3,
+    "avgRating": 3.8
+  }
+]

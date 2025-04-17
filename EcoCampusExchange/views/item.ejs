@@ -1,0 +1,51 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title><%= item.title %> - Details</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <h1><%= item.title %></h1>
+  <p><strong>Price:</strong> ¥<%= item.price %></p>
+  <p><strong>Description:</strong> <%= item.description %></p>
+  <p><strong>Seller:</strong> <%= seller?.name %> | Rating: <%= seller?.avgRating %>★</p>
+  <p><strong>Product Rating:</strong> <%= item.avgRating %>★</p>
+
+  <h2>Submit Your Review</h2>
+  <form action="/item/<%= item.id %>/review" method="post">
+    <label>Rating:
+      <select name="rating" required>
+        <option value="">--Select--</option>
+        <% for(let i = 1; i <= 5; i++) { %>
+          <option value="<%= i %>"><%= i %>★</option>
+        <% } %>
+      </select>
+    </label>
+    <br />
+    <label>Comment:
+      <textarea name="comment" rows="4" cols="40" maxlength="300" required></textarea>
+    </label>
+    <br />
+    <button type="submit">Submit Review</button>
+  </form>
+
+  <h2>Reviews</h2>
+  <% if (reviews.length === 0) { %>
+    <p>No reviews yet.</p>
+  <% } else { %>
+    <% reviews.forEach(review => { %>
+      <div class="review">
+        <p><strong>Rating:</strong> <%= review.rating %>★</p>
+        <p><%= review.comment %></p>
+        <p><small><%= new Date(review.createTime).toLocaleString() %></small></p>
+      </div>
+      <hr />
+    <% }) %>
+  <% } %>
+
+  <a href="/search">← Back to Search</a>
+</body>
+</html>
