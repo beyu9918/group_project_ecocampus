@@ -5,7 +5,7 @@ const itemsPath = path.join(__dirname, '../data/items.json');
 const reviewsPath = path.join(__dirname, '../data/reviews.json');
 const usersPath = path.join(__dirname, '../data/users.json');
 
-// 获取商品详情和评论
+//reviews
 exports.getItemDetails = (req, res) => {
   const itemId = parseInt(req.params.id);
   const items = JSON.parse(fs.readFileSync(itemsPath, 'utf-8'));
@@ -24,13 +24,13 @@ exports.getItemDetails = (req, res) => {
   });
 };
 
-// 提交评论
+// submit review
 exports.submitReview = (req, res) => {
   const itemId = parseInt(req.params.id);
   const { rating, comment } = req.body;
   const reviews = JSON.parse(fs.readFileSync(reviewsPath, 'utf-8'));
 
-  // 限制只能提交一次
+  // limit one time
   const existing = reviews.find(r => r.itemId === itemId && r.reviewerId === req.user.id);
   if (existing) {
     return res.status(400).send('You already submitted a review.');
@@ -48,7 +48,7 @@ exports.submitReview = (req, res) => {
   reviews.push(newReview);
   fs.writeFileSync(reviewsPath, JSON.stringify(reviews, null, 2), 'utf-8');
 
-  // 更新商品平均评分
+  
   const items = JSON.parse(fs.readFileSync(itemsPath, 'utf-8'));
   const item = items.find(i => i.id === itemId);
   const related = reviews.filter(r => r.itemId === itemId);

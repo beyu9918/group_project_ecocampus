@@ -12,17 +12,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// 模拟用户登录
+// login
 app.use((req, res, next) => {
-  req.user = { id: 1, name: 'TestUser' }; // 假设登录的用户 ID 为 1
+  req.user = { id: 1, name: 'TestUser' }; // user ID is 1
   next();
 });
 
-// 路由
+
 app.use('/search', searchRoutes);
 app.use('/item', reviewRoutes);
 
-// 首页跳转到搜索
+//router
 app.get('/', (req, res) => res.redirect('/search'));
 
 app.listen(PORT, () => {
