@@ -21,6 +21,13 @@ app.get('/test', (req, res) => {
   res.send('Test');
 });
 
+
+
+import productRoutes from './routes/product.js';
+app.use('/', productRoutes);
+
+
+
 // ####################################### No need to modify below this line #######################################
 // Start the server
 server.errorHandling(app);
