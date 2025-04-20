@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+  <h1><%= title %></h1>
+  <section>
+    <h2>Shopping Cart</h2>
+    <ul id="cart"></ul>
+    <input type="text" id="itemName" placeholder="Item name" />
+    <button id="addItem">Add Item</button>
+  </section>
+  <section>
+    <h2>Order Status</h2>
+    <ul id="orders"></ul>
+    <button id="placeOrder">Place Order</button>
+  </section>
+  <script>
+    const socket = io();
+    const cartUl = document.getElementById('cart');
+    const ordersUl = document.getElementById('orders');
+    const addItemBtn = document.getElementById('addItem');
+    const placeOrderBtn = document.getElementById('placeOrder');
+    const itemNameInput = document.getElementById('itemName');
+
+    function renderCart(items) {
+      cartUl.innerHTML = '';
+      items.forEach(i => {
+        const li = document.createElement('li');
+        li.textContent = i.name;
+        cartUl.appendChild(li);
+      });
+    }
+
+    socket.on('cartUpdated', renderCart);
+    socket.on('cartItemAdded', item => {
+      const li = document.createElement('li');
+      li.textContent = item.name;
+      cartUl.appendChild(li);
+    });
+    socket.on('orderProcessed', ({ orderId, status }) => {
+      const li = document.createElement('li');
+      li.textContent = `Order ${orderId}: ${status}`;
+      ordersUl.appendChild(li);
+    });
+
+    addItemBtn.addEventListener('click', () => {
+      const name = itemNameInput.value.trim();
+      if (!name) return;
+      fetch('/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: Date.now().toString(), name })
+      }).then(res => res.json()).then(renderCart);
+      itemNameInput.value = '';
+    });
+
+    placeOrderBtn.addEventListener('click', () => {
+      fetch('/api/order', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+        .then(res => res.json())
+        .then(order => console.log('Order placed', order));
+    });
+  </script>
+</body>
+</html>
