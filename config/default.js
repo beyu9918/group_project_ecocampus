@@ -1,4 +1,1 @@
-module.exports = {
-    port: 3000,
-    /* other environment-specific settings */
-  };
+module.exports = { port: 3000 };

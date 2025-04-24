@@ -11,36 +11,38 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// Load config
 envConfig = require('./config/default');
 
-// Middleware
 app.use(express.json());
+// Serve public assets if needed (e.g., CSS/JS)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes
+// API routes
 app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
 
-// Template engine setup
+// View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// Render home page
+// Render main page via EJS
 app.get('/', (req, res) => {
   res.render('index', { title: 'EcoCampus Exchange' });
 });
 
 // Socket.IO real-time
-io.on('connection', (socket) => {
+io.on('connection', socket => {
   console.log('Client connected');
   const cartController = require('./controllers/cartController');
   const cart = cartController.getCartInstance();
-  // initial state
+
+  // Initial state
   socket.emit('cartUpdated', cart.getCart());
-  // real-time events
+
+  // Real-time events
   eventBus.on('cartItemAdded', item => socket.emit('cartItemAdded', item));
   eventBus.on('orderProcessed', status => socket.emit('orderProcessed', status));
+
   socket.on('disconnect', () => {
     eventBus.removeAllListeners('cartItemAdded');
     eventBus.removeAllListeners('orderProcessed');
@@ -48,5 +50,5 @@ io.on('connection', (socket) => {
 });
 
 // Start server
-const PORT = process.env.PORT || envConfig.port;
-server.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+server.listen(process.env.PORT || envConfig.port,
+  () => console.log(`Server running at http://localhost:${process.env.PORT||envConfig.port}`));
