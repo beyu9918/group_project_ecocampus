@@ -1,12 +1,11 @@
 import express from 'express';
-
 import cors from 'cors';
 import path from 'path';
-import { fileURLToPath } from 'url'; // Use to solve __dirname
+import { fileURLToPath } from 'url'; //  __dirname
 import { dirname } from 'path';
 
-import userRoutes from './routes/userRoutes.js'; // 
-import { registerForm, loginForm } from './controllers/userController.js'; // 2 functions
+import userRoutes from './routes/userRoutes.js'; 
+import { registerForm, loginForm } from './controllers/userController.js'; 
 
 const app = express();
 
@@ -44,5 +43,4 @@ app.post('/login', loginForm);
 
 // Launch server
 const PORT = 3000;
-app.listen(PORT, () => console.log(` Server running at http://localhost:${PORT}`));
-
+app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
