@@ -14,9 +14,9 @@ async function testSearchNoKeyword() {
     const text = await response.text();
 
     if (response.status === 200 && text.includes('EcoCampus')) {
-      console.log('✅ GET /search without keyword works correctly');
+      console.log('GET /search without keyword works correctly');
     } else {
-      console.error('❌ GET /search without keyword failed');
+      console.error(' GET /search without keyword failed');
     }
   } catch (error) {
     console.error('Error testing /search without keyword:', error);
@@ -29,9 +29,9 @@ async function testSearchWithKeyword() {
     const text = await response.text();
 
     if (response.status === 200 && text.includes('Physics')) {
-      console.log('✅ GET /search with keyword "Physics" works correctly');
+      console.log('GET /search with keyword "Physics" works correctly');
     } else {
-      console.error('❌ GET /search with keyword "Physics" failed');
+      console.error(' GET /search with keyword "Physics" failed');
     }
   } catch (error) {
     console.error('Error testing /search with keyword:', error);
