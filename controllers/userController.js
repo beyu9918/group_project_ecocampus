@@ -1,7 +1,12 @@
-const fs = require('fs');
-const path = require('path');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+import fs from 'fs';
+import path from 'path';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { fileURLToPath } from 'url'; // 处理 __dirname
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const usersPath = path.join(__dirname, '../data/users.json');
 
@@ -18,7 +23,8 @@ const generateToken = (user) => {
   return jwt.sign({ email: user.email, role: user.role }, 'secret123', { expiresIn: '1d' });
 };
 
-exports.register = (req, res) => {
+// 注册接口（返回JSON）
+export function register(req, res) {
   const { email, password, name } = req.body;
   const users = readUsers();
 
@@ -39,9 +45,10 @@ exports.register = (req, res) => {
   writeUsers(users);
 
   res.status(201).json({ msg: 'User registered successfully', user: { email, name } });
-};
+}
 
-exports.login = (req, res) => {
+// 登录接口（返回token）
+export function login(req, res) {
   const { email, password } = req.body;
   const users = readUsers();
   const user = users.find(u => u.email === email);
@@ -52,9 +59,10 @@ exports.login = (req, res) => {
 
   const token = generateToken(user);
   res.json({ msg: 'Login successful', token });
-};
+}
 
-exports.registerForm = (req, res) => {
+// 注册表单接口（返回EJS页面）
+export function registerForm(req, res) {
   const { email, password, name } = req.body;
   const users = readUsers();
 
@@ -75,9 +83,10 @@ exports.registerForm = (req, res) => {
   writeUsers(users);
 
   res.render('success', { message: '✅ Registered successfully!' });
-};
+}
 
-exports.loginForm = (req, res) => {
+// 登录表单接口（返回EJS页面）
+export function loginForm(req, res) {
   const { email, password } = req.body;
   const users = readUsers();
   const user = users.find(u => u.email === email);
@@ -87,4 +96,4 @@ exports.loginForm = (req, res) => {
   }
 
   res.render('success', { message: `🎉 Welcome back, ${user.name}` });
-};
+}
