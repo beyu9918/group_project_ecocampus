@@ -31,6 +31,8 @@ app.use('/item', reviewRoutes);
 //router
 app.get('/', (req, res) => res.redirect('/search'));
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Server running at http://localhost:${PORT}`);
+// });
+
+export default app;
