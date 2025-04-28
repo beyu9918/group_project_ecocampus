@@ -5,5 +5,12 @@
     "name": "Yuan",
     "role": "normal",
     "createdAt": "2025-04-17T05:01:45.758Z"
+  },
+  {
+    "email": "1440972139@qq.com",
+    "password": "$2b$10$ANe6DFj4cs7ueElkDWVVR.xfTTOy2dC35Ru0D8YObmMcmebg.OxMW",
+    "name": "Yuan",
+    "role": "normal",
+    "createdAt": "2025-04-24T10:41:51.613Z"
   }
 ]

@@ -28,5 +28,5 @@ app.get('/login', (req, res) => {
 app.post('/register', require('./controllers/userController').registerForm);
 app.post('/login', require('./controllers/userController').loginForm);
 
-const PORT = 5000;
+const PORT = 3000;
 app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
