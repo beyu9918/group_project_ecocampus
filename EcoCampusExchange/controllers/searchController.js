@@ -1,84 +1,58 @@
-
 // Import required modules
-import sqlite3Pkg from 'sqlite3';
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 
-// Define __filename and __dirname first
+// 使用 import.meta.url 获取当前模块的 URL，并转换为文件路径
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = path.dirname(__filename);
 
-// Now connect to the database
-const sqlite3 = sqlite3Pkg.verbose();
-const dbPath = path.join(__dirname, '../data/EcoCampus.db');
-const db = new sqlite3.Database(dbPath);
+const dataPath = path.join(__dirname, '../data/items.json');  // 指向你的 JSON 数据文件
 
-// Fetch items based on filters (keyword, category, price, rating, sort)
-function getFilteredItems(query, callback) {
-  const { keyword = '', category, minPrice, maxPrice, minRating, sort } = query;
+// 其他代码...
+export function searchItems(req, res) {
+  const { keyword = '', category, minPrice, maxPrice, minRating, sort } = req.query;
   
   const safeKeyword = keyword.trim();
-  
-  if (keyword !== safeKeyword) {
-    console.log('The keyword contains blank characters, which have been automatically removed');
+
+  // 读取本地 JSON 文件的数据
+  const rawData = fs.readFileSync(dataPath);
+  const data = JSON.parse(rawData);
+
+  let filteredItems = data.items;
+
+  // 根据关键词过滤商品
+  if (safeKeyword) {
+    filteredItems = filteredItems.filter(item =>
+      item.title.toLowerCase().includes(safeKeyword.toLowerCase()) ||
+      item.description.toLowerCase().includes(safeKeyword.toLowerCase())
+    );
   }
 
-
-  // Build SQL query dynamically
-  let sql = `SELECT * FROM items WHERE (title LIKE ? OR description LIKE ?)`;
-  const params = [`%${safeKeyword}%`, `%${safeKeyword}%`];
-
+  // 其他过滤条件（分类、价格、评分等）
   if (category) {
-    sql += ` AND category = ?`;
-    params.push(category);
+    filteredItems = filteredItems.filter(item => item.category === category);
   }
 
   if (minPrice) {
-    sql += ` AND price >= ?`;
-    params.push(parseFloat(minPrice));
+    filteredItems = filteredItems.filter(item => item.price >= parseFloat(minPrice));
   }
 
   if (maxPrice) {
-    sql += ` AND price <= ?`;
-    params.push(parseFloat(maxPrice));
+    filteredItems = filteredItems.filter(item => item.price <= parseFloat(maxPrice));
   }
 
   if (minRating) {
-    sql += ` AND avgRating >= ?`;
-    params.push(parseFloat(minRating));
+    filteredItems = filteredItems.filter(item => item.avgRating >= parseFloat(minRating));
   }
 
-  
-  // Add sorting if needed
+  // 排序
   if (sort === 'price') {
-    sql += ` ORDER BY price ASC`;
+    filteredItems.sort((a, b) => a.price - b.price);
   } else if (sort === 'rating') {
-    sql += ` ORDER BY avgRating DESC`;
-  } else if (sort === 'newest') {
-    sql += ` ORDER BY id DESC`;
+    filteredItems.sort((a, b) => b.avgRating - a.avgRating);
   }
 
-  
-  // 调试输出前端提交的 keyword
-  console.log('Search Keyword:', keyword);
-  // Execute SQL query
-  db.all(sql, params, (err, rows) => {
-    if (err) {
-      console.error('Error during query:', err);
-      callback([]);
-    } else {
-      
-      console.log('Number of items found:', rows.length);
-      callback(rows);
-    }
-  });
-}
-
-
-// Handle search page request
-export function searchItems(req, res) {
-  getFilteredItems(req.query, (items) => {
-    res.render('search', { items, query: req.query });
-  });
+  // 渲染搜索页面并传递过滤后的商品数据
+  res.render('search', { title: 'Search Results', items: filteredItems, query: req.query });
 }

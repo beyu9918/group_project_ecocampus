@@ -6,19 +6,18 @@ import { dirname } from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-
 import searchRoutes from './routes/searchRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 
 const app = express();
 const PORT = 3000;
 
+app.use('/search', searchRoutes);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use(express.static(path.join(__dirname, 'public'))); 
 
 // login
 app.use((req, res, next) => {
@@ -26,6 +25,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// Use the search and review routes
 app.use('/search', searchRoutes);
 app.use('/item', reviewRoutes);
 
