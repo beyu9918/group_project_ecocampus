@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title><%= title %></title>
   <link rel="stylesheet" href="/stylesheets/style.css" />
   <script src="/socket.io/socket.io.js"></script>
@@ -24,6 +24,14 @@
   </section>
 
   <section>
+    <h2>Social</h2>
+    <input type="text" id="followSellerId" placeholder="Seller ID to follow" />
+    <button id="followBtn">Follow</button>
+    <input type="text" id="shareListingId" placeholder="Listing ID to share" />
+    <button id="shareBtn">Share</button>
+  </section>
+
+  <section>
     <h2>Notifications</h2>
     <ul id="notifications"></ul>
   </section>
@@ -33,46 +41,86 @@
     const cartUl = document.getElementById('cart');
     const ordersUl = document.getElementById('orders');
     const notificationsUl = document.getElementById('notifications');
+
     const addItemBtn = document.getElementById('addItem');
     const placeOrderBtn = document.getElementById('placeOrder');
-    const itemNameInput = document.getElementById('itemName');
+    const followBtn = document.getElementById('followBtn');
+    const shareBtn = document.getElementById('shareBtn');
 
-    function renderCart(items) {
+    // Update shopping cart
+    socket.on('cartUpdated', (items) => {
       cartUl.innerHTML = '';
       items.forEach(i => {
         const li = document.createElement('li');
         li.textContent = i.name;
         cartUl.appendChild(li);
       });
-    }
-    socket.on('cartUpdated', renderCart);
+    });
+
     socket.on('cartItemAdded', ({ item, timestamp }) => {
       const li = document.createElement('li');
-      li.textContent = `${timestamp} - ${item.name}`;
+      li.textContent = `${timestamp} — ${item.name}`;
       cartUl.appendChild(li);
     });
 
+    // Order updates
     socket.on('orderProcessed', ({ orderId, status, timestamp }) => {
       const li = document.createElement('li');
-      li.textContent = `${timestamp} - Order ${orderId}: ${status}`;
+      li.textContent = `${timestamp} — Order ${orderId}: ${status}`;
       ordersUl.appendChild(li);
     });
 
+    // General notifications
     socket.on('notification', ({ type, message, timestamp }) => {
       const li = document.createElement('li');
       li.textContent = `[${timestamp}] [${type}] ${message}`;
       notificationsUl.appendChild(li);
     });
 
+    // Social events
+    socket.on('newFollower', ({ sellerId, userId, timestamp }) => {
+      const li = document.createElement('li');
+      li.textContent = `${timestamp} — User ${userId} followed seller ${sellerId}`;
+      notificationsUl.appendChild(li);
+    });
+
+    socket.on('listingShared', ({ userId, listingId, timestamp }) => {
+      const li = document.createElement('li');
+      li.textContent = `${timestamp} — Listing ${listingId} shared by user ${userId}`;
+      notificationsUl.appendChild(li);
+    });
+
+    // UI interactions
     addItemBtn.addEventListener('click', () => {
-      const name = itemNameInput.value.trim(); if (!name) return;
-      fetch('/api/cart', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: Date.now().toString(), name }) })
-        .then(res => res.json()).then(renderCart);
-      itemNameInput.value = '';
+      const name = document.getElementById('itemName').value.trim();
+      if (!name) return;
+      fetch('/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: Date.now().toString(), name })
+      });
     });
 
     placeOrderBtn.addEventListener('click', () => {
       fetch('/api/order', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    });
+
+    followBtn.addEventListener('click', () => {
+      const sellerId = document.getElementById('followSellerId').value.trim();
+      fetch('/api/social/follow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: 'user42', sellerId })
+      });
+    });
+
+    shareBtn.addEventListener('click', () => {
+      const listingId = document.getElementById('shareListingId').value.trim();
+      fetch('/api/social/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: 'user42', listingId })
+      });
     });
   </script>
 </body>

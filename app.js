@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 
 import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/order.js';
+import socialRoutes from './routes/social.js';
 import eventBus from './controllers/eventBus.js';
 import * as cartController from './controllers/cartController.js';
 
@@ -25,36 +26,35 @@ app.use(express.static(path.join(__dirname, 'public')));
 // API routes
 app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
+app.use('/api/social', socialRoutes);
 
-// View engine setup
+// View engine
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// Root route
+// Root endpoint
 app.get('/', (req, res) => {
   res.render('index', { title: 'EcoCampus Exchange' });
 });
 
-// Socket.IO real-time bridge
-io.on('connection', socket => {
-  console.log('Client connected');
+// Real-time via Socket.IO
+io.on('connection', (socket) => {
   const cart = cartController.getCartInstance();
-
-  // Initial state
   socket.emit('cartUpdated', cart.getCart());
 
-  // Forward server events
-  eventBus.on('cartItemAdded', item => socket.emit('cartItemAdded', item));
-  eventBus.on('orderProcessed', status => socket.emit('orderProcessed', status));
-  eventBus.on('notification', note => socket.emit('notification', note));
+  // Forward events to client
+  ['cartItemAdded', 'orderProcessed', 'notification', 'newFollower', 'listingShared']
+    .forEach((evt) => {
+      eventBus.on(evt, (data) => socket.emit(evt, data));
+    });
 
   socket.on('disconnect', () => {
-    eventBus.removeAllListeners('cartItemAdded');
-    eventBus.removeAllListeners('orderProcessed');
-    eventBus.removeAllListeners('notification');
+    eventBus.removeAllListeners();
   });
 });
 
 // Start server
 const PORT = process.env.PORT || envConfig.port;
-server.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+server.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
