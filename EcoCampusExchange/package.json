@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "description": "[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/ak3FWN-l)",
   "main": "app.js",
+  
   "type": "module",
-  "scripts": {},
+  "scripts": {
+    "start": "node app.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wsu-scc-comp3028/assessment-3-group-project-comp3028-hank-s-group.git"

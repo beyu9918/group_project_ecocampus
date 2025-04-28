@@ -10,12 +10,10 @@
   <!-- Main title for the search page -->
   <h1>EcoCampus Search</h1>
 
-  
   <!-- Search form: keyword input, category filter, price range, rating, and sort options -->
   <form method="get" action="/search">
     <input type="text" name="keyword" placeholder="Keyword" value="<%= query.keyword || '' %>"/>
     
-   
     <!-- Category dropdown -->
     <select name="category">
       <option value="">All Categories</option>
@@ -23,12 +21,10 @@
       <option value="digital" <%= query.category === 'digital' ? 'selected' : '' %>>Digital</option>
     </select>
 
-   
     <!-- Minimum and maximum price input -->
     <input type="number" name="minPrice" placeholder="Min Price" value="<%= query.minPrice || '' %>" />
     <input type="number" name="maxPrice" placeholder="Max Price" value="<%= query.maxPrice || '' %>" />
 
- 
     <!-- Minimum rating filter -->
     <select name="minRating">
       <option value="">Any Rating</option>
@@ -54,20 +50,18 @@
   <% } %>
   <div class="item-list">
     <% if (items.length === 0) { %>
-      
       <!-- Show message when no matching items are found -->
       <p>No matching results.</p>
     <% } else { %>
       <% items.forEach(item => { %>
-        
         <!-- Display single item card -->
         <div class="item">
           <h2><a href="/item/<%= item.id %>"><%= item.title %></a></h2>
           <p><%= item.description %></p>
-          <p>Price: ¥<%= item.price %> | Rating: <%= item.avgRating %>★</p>
+          <p>Price: ¥<%= item.price.toFixed(2) %> | Rating: <%= item.avgRating %>★</p>
         </div>
       <% }) %>
     <% } %>
   </div>
 </body>
-</html> 
+</html>

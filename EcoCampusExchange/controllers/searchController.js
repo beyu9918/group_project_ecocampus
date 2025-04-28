@@ -52,7 +52,7 @@ export function searchItems(req, res) {
   } else if (sort === 'rating') {
     filteredItems.sort((a, b) => b.avgRating - a.avgRating);
   }
-
+  console.log('Filtered Items:', filteredItems);
   // 渲染搜索页面并传递过滤后的商品数据
   res.render('search', { title: 'Search Results', items: filteredItems, query: req.query });
 }
