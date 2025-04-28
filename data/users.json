@@ -12,5 +12,19 @@
     "name": "Yuan",
     "role": "normal",
     "createdAt": "2025-04-24T10:41:51.613Z"
+  },
+  {
+    "email": "test@example.com",
+    "password": "$2b$10$j7iAuALJop8qJBr/Qc7oX.Y4yYGWz.kEea5qCX4qmjfSSSuVDk6/O",
+    "name": "1",
+    "role": "normal",
+    "createdAt": "2025-04-28T06:47:58.244Z"
+  },
+  {
+    "email": "user1745822901670@example.com",
+    "password": "$2b$10$WNs6AY0h.H1/NYr5UVZcVOsDqtX3S6PHKqGtKvCjT6ykABKOPvCHa",
+    "name": "UniqueUser",
+    "role": "normal",
+    "createdAt": "2025-04-28T06:48:21.735Z"
   }
 ]
