@@ -22,5 +22,13 @@
     "name": "UniqueUser",
     "role": "normal",
     "createdAt": "2025-04-28T09:23:44.797Z"
+  },
+  {
+    "userID": "user_1745833464663",
+    "email": "user1745833464599@example.com",
+    "password": "$2b$10$zyDRRcwsugaNTGkh3sjwJOHkx8WU73BjAnDyF2v21K2cU76khEyj2",
+    "name": "UniqueUser",
+    "role": "normal",
+    "createdAt": "2025-04-28T09:44:24.663Z"
   }
 ]
