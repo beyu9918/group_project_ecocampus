@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "name": "assessment-3-group-project-comp3028-hank-s-group",
   "version": "1.0.0",
   "description": "[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/ak3FWN-l)",
@@ -34,21 +33,4 @@
   "open": "^10.1.1",
   "socket.io": "^4.6.1"
 }
-=======
-  "name": "comp3028",
-  "version": "0.0.0",
-  "private": true,
-  "scripts": {
-    "start": "DEBUG=* node app.js"
-  },
-  "dependencies": {
-    "cookie-parser": "~1.4.4",
-    "debug": "~2.6.9",
-    "ejs": "^3.1.10",
-    "express": "^5.1.0",
-    "http-errors": "~1.6.3",
-    "morgan": "~1.9.1"
-  },
-  "type": "module"
->>>>>>> flyfly
 }
