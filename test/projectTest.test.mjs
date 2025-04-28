@@ -2,7 +2,7 @@ import { addNewProduct } from '../controllers/product.js';
 import test from 'node:test';
 import assert from 'node:assert';
 
-test('addNewProduct should add product and redirect', () => {
+test('addNewProduct should add product and redirect to product page', () => {
   const mockReq = {
     body: {
       goodsName: 'Test Item',
