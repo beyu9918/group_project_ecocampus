@@ -23,6 +23,10 @@ const generateToken = (user) => {
   return jwt.sign({ email: user.email, role: user.role }, 'secret123', { expiresIn: '1d' });
 };
 
+const generateId = (prefix) => {
+  return `${prefix}_${Date.now()}`;
+};
+
 // 注册接口（返回JSON）
 export function register(req, res) {
   const { email, password, name } = req.body;
@@ -65,6 +69,7 @@ export function login(req, res) {
 export function registerForm(req, res) {
   const { email, password, name } = req.body;
   const users = readUsers();
+  
 
   if (users.find(u => u.email === email)) {
     return res.render('success', { message: '⚠️ Email already registered.' });
@@ -72,6 +77,7 @@ export function registerForm(req, res) {
 
   const hashedPassword = bcrypt.hashSync(password, 10);
   const newUser = {
+    userID: generateId('user'), // 新加的行！
     email,
     password: hashedPassword,
     name,
@@ -90,7 +96,6 @@ export function loginForm(req, res) {
   const { email, password } = req.body;
   const users = readUsers();
   const user = users.find(u => u.email === email);
-
   if (!user || !bcrypt.compareSync(password, user.password)) {
     return res.render('success', { message: '❌ Invalid email or password' });
   }

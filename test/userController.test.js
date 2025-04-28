@@ -40,7 +40,7 @@ test('Login Form - Should Fail if wrong credentials', () => {
 
 test('Login Form - Should Succeed if credentials correct', () => {
   // require tester to create a user
-  const req = { body: { email: 'test@example.com', password: '123456' } };
+  const req = { body: { email: 'yuanliu92308687@gmail.com', password: '102910' } };
   const res = createMockRes();
 
   loginForm(req, res);
