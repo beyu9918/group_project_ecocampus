@@ -9,21 +9,21 @@ import { registerForm, loginForm } from './controllers/userController.js'; // �
 
 const app = express();
 
-// 处理 __dirname 的替代方案
+// handle __dirname 的替代方案
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// 中间件
+// middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 设置 EJS 视图引擎
+// set ejs views engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// 路由
+// routes
 app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
@@ -41,6 +41,6 @@ app.get('/login', (req, res) => {
 app.post('/register', registerForm);
 app.post('/login', loginForm);
 
-// 启动服务器
+// Launch server
 const PORT = 3000;
 app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
