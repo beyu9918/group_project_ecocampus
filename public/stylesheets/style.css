@@ -3,7 +3,7 @@
 body {
   font-family: Arial;
   margin: 0;
-  background-color: #e6f2f8; 
+  background-color: #bceadd; 
   color: #333;
 }
 
@@ -23,7 +23,7 @@ ul {
 }
 
 li {
-  background-color: #f0f8ff;
+  background-color: #cce6d3;
   padding: 10px;
   margin-bottom: 8px;
   border-radius: 6px;
@@ -40,7 +40,7 @@ input {
 }
 
 button {
-  background-color: #3498db;
+  background-color: #4CAF50;
   color: white;
   padding: 10px 20px;
   border: none;
@@ -51,7 +51,7 @@ button {
 }
 
 button:hover {
-  background-color: #2980b9;
+  background-color: #1d872d;
   transform: translateY(-2px);
 }
 
