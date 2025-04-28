@@ -1,15 +1,16 @@
 import express from 'express';
+
 import cors from 'cors';
 import path from 'path';
-import { fileURLToPath } from 'url'; // ⬅️ 用于解决 __dirname
+import { fileURLToPath } from 'url'; // Use to solve __dirname
 import { dirname } from 'path';
 
-import userRoutes from './routes/userRoutes.js'; // ⬅️ 注意加.js后缀
-import { registerForm, loginForm } from './controllers/userController.js'; // ⬅️ 解构引入两个函数
+import userRoutes from './routes/userRoutes.js'; // 
+import { registerForm, loginForm } from './controllers/userController.js'; // 2 functions
 
 const app = express();
 
-// handle __dirname 的替代方案
+// handle __dirname replacement
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -43,4 +44,5 @@ app.post('/login', loginForm);
 
 // Launch server
 const PORT = 3000;
-app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(` Server running at http://localhost:${PORT}`));
+
