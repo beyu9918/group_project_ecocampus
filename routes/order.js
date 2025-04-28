@@ -1,5 +1,5 @@
-const express = require('express');
-const orderController = require('../controllers/orderController');
+import express from 'express';
+import { placeOrderHandler } from '../controllers/orderController.js';
 const router = express.Router();
-router.post('/', orderController.placeOrder);
-module.exports = router;
+router.post('/', placeOrderHandler);
+export default router;

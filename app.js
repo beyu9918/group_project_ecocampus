@@ -1,17 +1,22 @@
-const path = require('path');
-const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
+import express from 'express';
+import http from 'http';
+import { Server as SocketIOServer } from 'socket.io';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const cartRoutes = require('./routes/cart');
-const orderRoutes = require('./routes/order');
-const eventBus = require('./controllers/eventBus');
+import cartRoutes from './routes/cart.js';
+import orderRoutes from './routes/order.js';
+import eventBus from './controllers/eventBus.js';
+import * as cartController from './controllers/cartController.js';
+
+import envConfig from './config/default.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
-
-envConfig = require('./config/default');
+const io = new SocketIOServer(server);
 
 // Middleware
 app.use(express.json());
@@ -21,7 +26,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
 
-// View engine
+// View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
@@ -33,16 +38,15 @@ app.get('/', (req, res) => {
 // Socket.IO real-time bridge
 io.on('connection', socket => {
   console.log('Client connected');
-  const cartController = require('./controllers/cartController');
   const cart = cartController.getCartInstance();
 
   // Initial state
   socket.emit('cartUpdated', cart.getCart());
 
-  // Forward events to client
-  eventBus.on('cartItemAdded', item      => socket.emit('cartItemAdded',      item));
-  eventBus.on('orderProcessed', status   => socket.emit('orderProcessed',     status));
-  eventBus.on('notification',      note     => socket.emit('notification',      note));
+  // Forward server events
+  eventBus.on('cartItemAdded', item    => socket.emit('cartItemAdded',    item));
+  eventBus.on('orderProcessed', status => socket.emit('orderProcessed',     status));
+  eventBus.on('notification',    note   => socket.emit('notification',      note));
 
   socket.on('disconnect', () => {
     eventBus.removeAllListeners('cartItemAdded');

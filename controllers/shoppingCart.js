@@ -1,5 +1,5 @@
-const eventBus = require('./eventBus');
-class ShoppingCart {
+import eventBus from './eventBus.js';
+export default class ShoppingCart {
   constructor() { this.items = []; }
   addItem(item) {
     this.items.push(item);
@@ -10,4 +10,3 @@ class ShoppingCart {
     return this.items;
   }
 }
-module.exports = ShoppingCart;

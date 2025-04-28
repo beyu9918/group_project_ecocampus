@@ -1,3 +1,3 @@
-const EventEmitter = require('events');
+import { EventEmitter } from 'events';
 class EcoCampusEmitter extends EventEmitter {}
-module.exports = new EcoCampusEmitter();
+export default new EcoCampusEmitter();
