@@ -44,9 +44,9 @@ io.on('connection', socket => {
   socket.emit('cartUpdated', cart.getCart());
 
   // Forward server events
-  eventBus.on('cartItemAdded', item    => socket.emit('cartItemAdded',    item));
-  eventBus.on('orderProcessed', status => socket.emit('orderProcessed',     status));
-  eventBus.on('notification',    note   => socket.emit('notification',      note));
+  eventBus.on('cartItemAdded', item => socket.emit('cartItemAdded', item));
+  eventBus.on('orderProcessed', status => socket.emit('orderProcessed', status));
+  eventBus.on('notification', note => socket.emit('notification', note));
 
   socket.on('disconnect', () => {
     eventBus.removeAllListeners('cartItemAdded');

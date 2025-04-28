@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="/stylesheets/style.css">
   <title><%= title %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css" />
   <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
@@ -46,16 +46,22 @@
       });
     }
     socket.on('cartUpdated', renderCart);
-    socket.on('cartItemAdded', item => {
-      const li = document.createElement('li'); li.textContent = item.name; cartUl.appendChild(li);
+    socket.on('cartItemAdded', ({ item, timestamp }) => {
+      const li = document.createElement('li');
+      li.textContent = `${timestamp} - ${item.name}`;
+      cartUl.appendChild(li);
     });
 
-    socket.on('orderProcessed', ({ orderId, status }) => {
-      const li = document.createElement('li'); li.textContent = `Order ${orderId}: ${status}`; ordersUl.appendChild(li);
+    socket.on('orderProcessed', ({ orderId, status, timestamp }) => {
+      const li = document.createElement('li');
+      li.textContent = `${timestamp} - Order ${orderId}: ${status}`;
+      ordersUl.appendChild(li);
     });
 
-    socket.on('notification', ({ type, message }) => {
-      const li = document.createElement('li'); li.textContent = `[${type}] ${message}`; notificationsUl.appendChild(li);
+    socket.on('notification', ({ type, message, timestamp }) => {
+      const li = document.createElement('li');
+      li.textContent = `[${timestamp}] [${type}] ${message}`;
+      notificationsUl.appendChild(li);
     });
 
     addItemBtn.addEventListener('click', () => {
@@ -66,8 +72,7 @@
     });
 
     placeOrderBtn.addEventListener('click', () => {
-      fetch('/api/order', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
-        .then(res => res.json());
+      fetch('/api/order', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
     });
   </script>
 </body>
