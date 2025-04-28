@@ -1,7 +1,14 @@
-const express = require('express');
-const path = require('path');
-const searchRoutes = require('./routes/searchRoutes');
-const reviewRoutes = require('./routes/reviewRoutes');
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+
+import searchRoutes from './routes/searchRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 
 const app = express();
 const PORT = 3000;
@@ -17,7 +24,6 @@ app.use((req, res, next) => {
   req.user = { id: 1, name: 'TestUser' }; // user ID is 1
   next();
 });
-
 
 app.use('/search', searchRoutes);
 app.use('/item', reviewRoutes);

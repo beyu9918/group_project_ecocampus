@@ -1,47 +1,84 @@
-const fs = require('fs');
-const path = require('path');
 
-const itemsPath = path.join(__dirname, '../data/items.json');
+// Import required modules
+import sqlite3Pkg from 'sqlite3';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-function getFilteredItems(query) {
+// Define __filename and __dirname first
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Now connect to the database
+const sqlite3 = sqlite3Pkg.verbose();
+const dbPath = path.join(__dirname, '../data/EcoCampus.db');
+const db = new sqlite3.Database(dbPath);
+
+// Fetch items based on filters (keyword, category, price, rating, sort)
+function getFilteredItems(query, callback) {
   const { keyword = '', category, minPrice, maxPrice, minRating, sort } = query;
-  let items = JSON.parse(fs.readFileSync(itemsPath, 'utf-8'));
-
   
-  items = items.filter(item =>
-    item.title.toLowerCase().includes(keyword.toLowerCase()) ||
-    item.description.toLowerCase().includes(keyword.toLowerCase())
-  );
+  const safeKeyword = keyword.trim();
+  
+  if (keyword !== safeKeyword) {
+    console.log('The keyword contains blank characters, which have been automatically removed');
+  }
+
+
+  // Build SQL query dynamically
+  let sql = `SELECT * FROM items WHERE (title LIKE ? OR description LIKE ?)`;
+  const params = [`%${safeKeyword}%`, `%${safeKeyword}%`];
 
   if (category) {
-    items = items.filter(item => item.category === category);
+    sql += ` AND category = ?`;
+    params.push(category);
   }
 
   if (minPrice) {
-    items = items.filter(item => item.price >= parseFloat(minPrice));
+    sql += ` AND price >= ?`;
+    params.push(parseFloat(minPrice));
   }
 
   if (maxPrice) {
-    items = items.filter(item => item.price <= parseFloat(maxPrice));
+    sql += ` AND price <= ?`;
+    params.push(parseFloat(maxPrice));
   }
 
   if (minRating) {
-    items = items.filter(item => item.avgRating >= parseFloat(minRating));
+    sql += ` AND avgRating >= ?`;
+    params.push(parseFloat(minRating));
   }
 
-
+  
+  // Add sorting if needed
   if (sort === 'price') {
-    items.sort((a, b) => a.price - b.price);
+    sql += ` ORDER BY price ASC`;
   } else if (sort === 'rating') {
-    items.sort((a, b) => b.avgRating - a.avgRating);
+    sql += ` ORDER BY avgRating DESC`;
   } else if (sort === 'newest') {
-    items.sort((a, b) => b.id - a.id); 
+    sql += ` ORDER BY id DESC`;
   }
 
-  return items;
+  
+  // 调试输出前端提交的 keyword
+  console.log('Search Keyword:', keyword);
+  // Execute SQL query
+  db.all(sql, params, (err, rows) => {
+    if (err) {
+      console.error('Error during query:', err);
+      callback([]);
+    } else {
+      
+      console.log('Number of items found:', rows.length);
+      callback(rows);
+    }
+  });
 }
 
-exports.searchItems = (req, res) => {
-  const results = getFilteredItems(req.query);
-  res.render('search', { items: results, query: req.query });
-};
+
+// Handle search page request
+export function searchItems(req, res) {
+  getFilteredItems(req.query, (items) => {
+    res.render('search', { items, query: req.query });
+  });
+}

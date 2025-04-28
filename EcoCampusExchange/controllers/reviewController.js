@@ -1,12 +1,12 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 const itemsPath = path.join(__dirname, '../data/items.json');
 const reviewsPath = path.join(__dirname, '../data/reviews.json');
 const usersPath = path.join(__dirname, '../data/users.json');
 
 //reviews
-exports.getItemDetails = (req, res) => {
+export function getItemDetails(req, res) {
   const itemId = parseInt(req.params.id);
   const items = JSON.parse(fs.readFileSync(itemsPath, 'utf-8'));
   const reviews = JSON.parse(fs.readFileSync(reviewsPath, 'utf-8'));
@@ -25,7 +25,7 @@ exports.getItemDetails = (req, res) => {
 };
 
 // submit review
-exports.submitReview = (req, res) => {
+export function submitReview(req, res) {
   const itemId = parseInt(req.params.id);
   const { rating, comment } = req.body;
   const reviews = JSON.parse(fs.readFileSync(reviewsPath, 'utf-8'));
