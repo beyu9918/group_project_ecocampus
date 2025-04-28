@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login } from '../controllers/userController.js'; // 注意加 .js 后缀
+import { register, login } from '../controllers/userController.js'; 
 
 const router = express.Router();
 

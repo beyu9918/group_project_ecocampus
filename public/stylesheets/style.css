@@ -1,4 +1,4 @@
-/* 通用 body 样式 */
+/* general body stlye */
 body {
     font-family: Arial, sans-serif;
     background: #f2f2f2;
@@ -9,7 +9,7 @@ body {
     margin: 0;
   }
   
-  /* 通用盒子样式 */
+  /* general box style */
   .box {
     background: white;
     padding: 30px;
@@ -19,13 +19,13 @@ body {
     text-align: center;
   }
   
-  /* 标题 */
+  /* title */
   .box h2 {
     color: #333;
     margin-bottom: 20px;
   }
   
-  /* 输入框 */
+  /* input box */
   .box input[type="text"],
   .box input[type="email"],
   .box input[type="password"] {
@@ -36,7 +36,7 @@ body {
     border: 1px solid #ccc;
   }
   
-  /* 按钮 */
+  /* button */
   .box button,
   .box a.button {
     width: 100%;
@@ -50,12 +50,12 @@ body {
     display: inline-block;
   }
   
-  /* 按钮 hover 效果 */
+  /* hover */
   .box a.button:hover {
     background: #45a049;
   }
   
-  /* 底部链接 */
+  /* button link */
   .box a.link {
     display: block;
     margin-top: 10px;

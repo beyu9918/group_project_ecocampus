@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { fileURLToPath } from 'url'; // 处理 __dirname
+import { fileURLToPath } from 'url'; // Handle __dirname
 import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -27,7 +27,7 @@ const generateId = (prefix) => {
   return `${prefix}_${Date.now()}`;
 };
 
-// 注册接口（返回JSON）
+// register prot（return JSON）
 export function register(req, res) {
   const { email, password, name } = req.body;
   const users = readUsers();
@@ -51,7 +51,7 @@ export function register(req, res) {
   res.status(201).json({ msg: 'User registered successfully', user: { email, name } });
 }
 
-// 登录接口（返回token）
+// login port（return token）
 export function login(req, res) {
   const { email, password } = req.body;
   const users = readUsers();
@@ -65,7 +65,7 @@ export function login(req, res) {
   res.json({ msg: 'Login successful', token });
 }
 
-// 注册表单接口（返回EJS页面）
+// registering（return EJS page）
 export function registerForm(req, res) {
   const { email, password, name } = req.body;
   const users = readUsers();
@@ -77,7 +77,7 @@ export function registerForm(req, res) {
 
   const hashedPassword = bcrypt.hashSync(password, 10);
   const newUser = {
-    userID: generateId('user'), // 新加的行！
+    userID: generateId('user'), // new user id
     email,
     password: hashedPassword,
     name,
@@ -88,10 +88,10 @@ export function registerForm(req, res) {
   users.push(newUser);
   writeUsers(users);
 
-  res.render('success', { message: '✅ Registered successfully!' });
+  res.render('success', { message: ' Registered successfully!' });
 }
 
-// 登录表单接口（返回EJS页面）
+// login table port（return EJS page）
 export function loginForm(req, res) {
   const { email, password } = req.body;
   const users = readUsers();

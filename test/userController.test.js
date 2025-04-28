@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { test } from 'node:test';
 import { registerForm, loginForm } from '../controllers/userController.js';
 
-// 模拟响应对象
+// emulate
 function createMockRes() {
   return {
     renderCalled: false,
@@ -22,7 +22,7 @@ test('Register Form - Should Succeed if email not exists', () => {
 
   registerForm(req, res);
 
-  // 应该注册成功，返回注册成功的提示
+  //should be successful return Registered successfully
   assert.ok(res.renderCalled, 'Render function should be called');
   assert.ok(res.data.message.includes('✅ Registered successfully'), 'Should show registration success message');
 });
