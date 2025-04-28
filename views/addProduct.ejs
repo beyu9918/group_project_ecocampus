@@ -5,20 +5,20 @@
   <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 <body>
-  <h1>Add a New Product</h1>
+  <h1>Add a Product</h1>
 
   <form action="/product/addProduct" method="POST">
     <label>Product Name:</label><br>
     <input type="text" name="goodsName" required><br>
 
     <label>Product Price:</label><br>
-    <input type="number" name="goodsPrice" step="0.01" required><br><br>
+    <input type="number" name="goodsPrice" step="1" required><br><br>
 
     <button type="submit">Submit</button>
   </form>
 
   <br>
-  <a href="/product"><button>← Back</button></a>
+  <a href="/product"><button>Back</button></a>
 </body>
 </html>
 

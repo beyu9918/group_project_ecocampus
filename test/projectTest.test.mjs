@@ -5,8 +5,8 @@ import assert from 'node:assert';
 test('addNewProduct should add product and redirect to product page', () => {
   const mockReq = {
     body: {
-      goodsName: 'Test Item',
-      goodsPrice: 99.99
+      goodsName: 'test goods',
+      goodsPrice: 20
     }
   };
 
