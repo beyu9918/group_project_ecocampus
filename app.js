@@ -14,7 +14,6 @@ import session from 'express-session';
 import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/order.js';
 import socialRoutes from './routes/social.js';
-import productRoutes from './routes/product.js';
 import userRoutes from './routes/userRoutes.js';
 import { registerForm, loginForm } from './controllers/userController.js';
 import eventBus from './controllers/eventBus.js';
