@@ -28,7 +28,7 @@ app.set('views', path.join(__dirname, 'views'));
 // routes
 app.use('/api/users', userRoutes);
 app.use(session({
-  secret: 'your_secret_key',    // 随便填，后期可以提到.env
+  secret: 'your_secret_key',    // 
   resave: false,
   saveUninitialized: true
 }));
