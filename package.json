@@ -6,7 +6,7 @@
   "main": "index.js",
 
   "scripts": {
-    "test": "node --test --experimental-test-coverage"
+    "test": "node --test --experimental-test-coverage",
     "start": "node app.js"
   },
   "repository": {
@@ -28,14 +28,12 @@
     "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
-
     "express-session": "^1.18.1",
-
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
     "open": "^10.1.1",
-    "socket.io": "^4.6.1"
+    "socket.io": "^4.6.1",
     "supertest": "^7.1.0"
   }
 }
