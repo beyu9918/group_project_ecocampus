@@ -48,3 +48,4 @@ export function errorHandling(app) {
         res.render('error', { title: 'Error' });
     });
 }
+
