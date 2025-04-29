@@ -1,10 +1,15 @@
 import express from 'express';
+
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
+
 import cors from 'cors';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from 'url'; //  __dirname
 import { dirname } from 'path';
+import productRoutes from './routes/product.js';
+import session from 'express-session';
+
 
 import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/order.js';
@@ -28,6 +33,11 @@ const io = new SocketIOServer(server);
 
 // Middleware
 app.use(cors());
+app.use(session({
+  secret: 'your_secret_key',  // ]
+  resave: false,
+  saveUninitialized: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -69,6 +79,12 @@ io.on('connection', (socket) => {
   });
 });
 
-// Start server
-const PORT = process.env.PORT || envConfig.port;
-server.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+
+app.post('/register', registerForm);
+app.post('/login', loginForm);
+app.get('/profile', (req, res) => {
+  res.render('profile', { user: req.session.user });
+});
+// Launch server
+const PORT = 3000;
+app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));

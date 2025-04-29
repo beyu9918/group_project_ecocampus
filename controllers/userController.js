@@ -99,6 +99,33 @@ export function loginForm(req, res) {
   if (!user || !bcrypt.compareSync(password, user.password)) {
     return res.render('success', { message: '❌ Invalid email or password' });
   }
+  req.session.user = user; // 如果你有session，可以存起来，后面profile页用
+  res.redirect('/profile');
+}
 
-  res.render('success', { message: `🎉 Welcome back, ${user.name}` });
+export function updateProfile(req, res) {
+  const { email, phone, avatar, bio, address, gender, birthday } = req.body;
+  const users = readUsers();
+  
+  // 这里假设登录用户通过 req.user 识别 (需要模拟登录状态或token解析)
+  const userId = req.session.user.userID;
+
+  const user = users.find(u => u.userID === userId);
+
+  if (!user) {
+    return res.status(404).json({ msg: 'User not found' });
+  }
+
+  // 更新字段（只更新有传入的）
+  user.email = email || user.email;
+  user.phone = phone || user.phone;
+  user.avatar = avatar || user.avatar;
+  user.bio = bio || user.bio;
+  user.address = address || user.address;
+  user.gender = gender || user.gender;
+  user.birthday = birthday || user.birthday;
+
+  writeUsers(users);
+
+  res.json({ msg: 'Profile updated successfully', user });
 }
