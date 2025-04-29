@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url'; // Use to solve __dirname
 import { dirname } from 'path';
+import productRoutes from './routes/product.js';
 
 import userRoutes from './routes/userRoutes.js'; // 
 import { registerForm, loginForm } from './controllers/userController.js'; // 2 functions
@@ -26,13 +27,27 @@ app.set('views', path.join(__dirname, 'views'));
 
 // routes
 app.use('/api/users', userRoutes);
+app.use('/', productRoutes);
 
 app.get('/', (req, res) => {
   res.redirect('/register');
 });
 
+
+
+
+
+
+
+
+
+
+
+
+
 app.get('/register', (req, res) => {
   res.render('register');
+
 });
 
 app.get('/login', (req, res) => {

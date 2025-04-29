@@ -7,5 +7,12 @@ export const homeRouter = express.Router()
 homeRouter.get('/', home.index);
 
 
+/*
 
+//new default launch page (from hank's code)
+homeRouter.get('/', (req, res) => {
+    res.render('login', { title: 'Login Page' });
+  });
+  
+*/
 
