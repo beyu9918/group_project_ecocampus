@@ -5,7 +5,13 @@
     "password": "$2b$10$cXxCu5vNBhg4CBL6DgKZhuoiUJwGEUy2i4WCcJiZslPjhSV/Kruuu",
     "name": "Yuan",
     "role": "normal",
-    "createdAt": "2025-04-28T09:20:40.448Z"
+    "createdAt": "2025-04-28T09:20:40.448Z",
+    "phone": "",
+    "avatar": "",
+    "bio": "",
+    "address": "",
+    "gender": "",
+    "birthday": ""
   },
   {
     "userID": "user_1745832179521",
