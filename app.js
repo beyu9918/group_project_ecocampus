@@ -3,7 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url'; //  __dirname
 import { dirname } from 'path';
-
+import session from 'express-session';
 import userRoutes from './routes/userRoutes.js'; 
 import { registerForm, loginForm } from './controllers/userController.js'; 
 
@@ -15,6 +15,11 @@ const __dirname = dirname(__filename);
 
 // middleware
 app.use(cors());
+app.use(session({
+  secret: 'your_secret_key',  // ]
+  resave: false,
+  saveUninitialized: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -40,7 +45,9 @@ app.get('/login', (req, res) => {
 
 app.post('/register', registerForm);
 app.post('/login', loginForm);
-
+app.get('/profile', (req, res) => {
+  res.render('profile', { user: req.session.user });
+});
 // Launch server
 const PORT = 3000;
 app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
