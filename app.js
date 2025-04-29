@@ -19,8 +19,6 @@ import { registerForm, loginForm } from './controllers/userController.js';
 import eventBus from './controllers/eventBus.js';
 import * as cartController from './controllers/cartController.js';
 
-import envConfig from './config/default.js';
-
 // __dirname setup
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
