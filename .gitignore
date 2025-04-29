@@ -1,5 +1,11 @@
+#should ignore node modules and env file
 node_modules/
 .env
-npm-debug.log*
-yarn-debug.log*
+#log file
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+#sys file
 .DS_Store
+Thumbs.db
+
