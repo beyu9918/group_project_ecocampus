@@ -1,8 +1,65 @@
+/* general body stlye */
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-}
+    font-family: Arial, sans-serif;
+    background: #f2f2f2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  /* general box style */
+  .box {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    width: 300px;
+    text-align: center;
+  }
+  
+  /* title */
+  .box h2 {
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  /* input box */
+  .box input[type="text"],
+  .box input[type="email"],
+  .box input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  /* button */
+  .box button,
+  .box a.button {
+    width: 100%;
+    padding: 10px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  /* hover */
+  .box a.button:hover {
+    background: #45a049;
+  }
+  
+  /* button link */
+  .box a.link {
+    display: block;
+    margin-top: 10px;
+    color: #4CAF50;
+    text-decoration: none;
+  }
 
-a {
-  color: #00B7FF;
-}
