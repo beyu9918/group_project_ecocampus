@@ -7,7 +7,6 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url'; //  __dirname
 import { dirname } from 'path';
-import productRoutes from './routes/product.js';
 import session from 'express-session';
 
 
@@ -48,7 +47,6 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/social', socialRoutes);
 app.use('/api/users', userRoutes);
-app.use('/', productRoutes);
 
 // Root endpoint - main UI
 app.get('/', (req, res) => {
