@@ -1,0 +1,12 @@
+[
+  {
+    "goodsID": 1,
+    "goodsName": "book",
+    "goodsPrice": "20"
+  },
+  {
+    "goodsID": 2,
+    "goodsName": "pack",
+    "goodsPrice": "15"
+  }
+]
