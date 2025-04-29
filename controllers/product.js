@@ -17,7 +17,6 @@ const readGoods = () => {
   }
 };
 
-
 const writeGoods = (goods) => {
   fs.writeFileSync(goodsPath, JSON.stringify(goods, null, 2));
 };
@@ -27,6 +26,7 @@ const getNextGoodsID = (goodsList) => {
   return Math.max(...goodsList.map(g => g.goodsID)) + 1;
 };
 
+// view all product
 export function showProductPage(req, res) {
   const goodsList = readGoods();
   res.render('product', {
@@ -39,15 +39,17 @@ export function showAddProductPage(req, res) {
   res.render('addProduct', { title: 'Add New Product' });
 }
 
+//add new product
 export function addNewProduct(req, res) {
-  const { goodsName, goodsPrice } = req.body;
+  const { goodsName, goodsPrice, Description } = req.body;
   const goodsList = readGoods();
 
   if (goodsName && goodsPrice) {
     const newGoods = {
       goodsID: getNextGoodsID(goodsList),
       goodsName,
-      goodsPrice
+      goodsPrice,
+      Description: Description || ''  
     };
     goodsList.push(newGoods);
     writeGoods(goodsList);
@@ -55,4 +57,5 @@ export function addNewProduct(req, res) {
 
   res.redirect('/product');
 }
+
 

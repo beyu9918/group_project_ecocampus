@@ -14,7 +14,11 @@
   <ul>
     <% if (goods && goods.length > 0) { %>
       <% goods.forEach(g => { %>
-        <li>Name: <%= g.goodsName %>, Price: $<%= g.goodsPrice %></li>
+        <li>
+          <strong>Name:</strong> <%= g.goodsName %><br/>
+          <strong>Price:</strong> $<%= g.goodsPrice %><br/>
+          <strong>Description:</strong> <%= g.Description %>
+        </li>
       <% }) %>
     <% } else { %>
       <li>No product added yet.</li>

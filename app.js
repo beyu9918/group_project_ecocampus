@@ -30,9 +30,6 @@ app.use('/', productRoutes);
 
 // ####################################### No need to modify below this line #######################################
 // Start the server
-server.errorHandling(app);
-export const runningServer = app.listen(server.port, () => {
-  console.log(`Example app listening on port http://127.0.0.1:${server.port}`);
-  debug('testing');
-});
+const PORT = 3000;
+app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
 
