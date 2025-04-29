@@ -3,8 +3,6 @@ import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import express from 'express';
 import path from 'path';
-
-// Set the server port
 export const port = 3000;
 
 
@@ -48,4 +46,3 @@ export function errorHandling(app) {
         res.render('error', { title: 'Error' });
     });
 }
-
