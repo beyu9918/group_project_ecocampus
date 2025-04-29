@@ -1,12 +1,12 @@
 [
   {
-    "goodsID": 1,
-    "goodsName": "book",
-    "goodsPrice": "20"
+    "productID": 1,
+    "productName": "book",
+    "productPrice": "20"
   },
   {
-    "goodsID": 2,
-    "goodsName": "pack",
-    "goodsPrice": "15"
+    "productID": 2,
+    "productName": "pack",
+    "productPrice": "15"
   }
 ]

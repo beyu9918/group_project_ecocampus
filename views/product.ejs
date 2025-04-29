@@ -12,11 +12,11 @@
 
   <h2>All Products:</h2>
   <ul>
-    <% if (goods && goods.length > 0) { %>
-      <% goods.forEach(g => { %>
+    <% if (product && product.length > 0) { %>
+      <% product.forEach(g => { %>
         <li>
-          <strong>Name:</strong> <%= g.goodsName %><br/>
-          <strong>Price:</strong> $<%= g.goodsPrice %><br/>
+          <strong>Name:</strong> <%= g.productName %><br/>
+          <strong>Price:</strong> $<%= g.productPrice %><br/>
           <strong>Description:</strong> <%= g.Description %>
         </li>
       <% }) %>

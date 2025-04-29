@@ -5,33 +5,33 @@ import { dirname } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const goodsPath = path.join(__dirname, '../data/goods.json');
+const productPath = path.join(__dirname, '../data/product.json');
 
-const readGoods = () => {
+const readProduct = () => {
   try {
-    const data = fs.readFileSync(goodsPath, 'utf-8');
+    const data = fs.readFileSync(productPath, 'utf-8');
     return data ? JSON.parse(data) : [];
   } catch (err) {
-    console.error('Error reading goods.json:', err);
+    console.error('Error reading product.json:', err);
     return [];
   }
 };
 
-const writeGoods = (goods) => {
-  fs.writeFileSync(goodsPath, JSON.stringify(goods, null, 2));
+const writeProduct = (product) => {
+  fs.writeFileSync(productPath, JSON.stringify(product, null, 2));
 };
 
-const getNextGoodsID = (goodsList) => {
-  if (goodsList.length === 0) return 1;
-  return Math.max(...goodsList.map(g => g.goodsID)) + 1;
+const getNextProductID = (productList) => {
+  if (productList.length === 0) return 1;
+  return Math.max(...productList.map(g => g.productID)) + 1;
 };
 
 // view all product
 export function showProductPage(req, res) {
-  const goodsList = readGoods();
+  const productList = readProduct();
   res.render('product', {
     title: 'Product Management',
-    goods: goodsList
+    product: productList
   });
 }
 
@@ -41,18 +41,18 @@ export function showAddProductPage(req, res) {
 
 //add new product
 export function addNewProduct(req, res) {
-  const { goodsName, goodsPrice, Description } = req.body;
-  const goodsList = readGoods();
+  const { productName, productPrice, Description } = req.body;
+  const productList = readProduct();
 
-  if (goodsName && goodsPrice) {
-    const newGoods = {
-      goodsID: getNextGoodsID(goodsList),
-      goodsName,
-      goodsPrice,
+  if (productName && productPrice) {
+    const newProduct = {
+      productID: getNextProductID(productList),
+      productName,
+      productPrice,
       Description: Description || ''  
     };
-    goodsList.push(newGoods);
-    writeGoods(goodsList);
+    productList.push(newProduct);
+    writeProduct(productList);
   }
 
   res.redirect('/product');
