@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+  <h1>Product Management Page</h1>
+  <a href="/">
+    <button>Back to Home</button>
+  </a>
+
+  <h2>All Products:</h2>
+  <ul>
+    <% if (product && product.length > 0) { %>
+      <% product.forEach(g => { %>
+        <li>
+          <strong>Name:</strong> <%= g.productName %><br/>
+          <strong>Price:</strong> $<%= g.productPrice %><br/>
+          <strong>Description:</strong> <%= g.Description %>
+        </li>
+      <% }) %>
+    <% } else { %>
+      <li>No product added yet.</li>
+    <% } %>
+  </ul>
+
+  <form action="/product/addProduct">
+    <button type="submit">Add Product</button>
+  </form>
+
+</body>
+</html>
+
+
+
+  
+
+
+  
+  

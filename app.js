@@ -1,68 +1,35 @@
 import express from 'express';
-import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url'; //  __dirname
-import { dirname } from 'path';
-import session from 'express-session';
+import debug from 'debug';
+import * as server from './config/server.js';
+import { homeRouter } from './routes/home.js';
 
+// Setup debug module to spit out all messages
+// Do `npn start` to see the debug messages
+export const codeTrace = debug('comp3028:server');
 
-import userRoutes from './routes/userRoutes.js'; // 
-import { registerForm, loginForm } from './controllers/userController.js'; // 2 functions
+// Start the app
+export const app = express();
+server.setup(app)
 
-const app = express();
+// Register any middleware here
 
-// handle __dirname replacement
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Register routers here
+app.use('/', homeRouter);
 
-// middleware
-app.use(cors());
-app.use(session({
-  secret: 'your_secret_key',  // ]
-  resave: false,
-  saveUninitialized: true
-}));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
-
-// set ejs views engine
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-
-// routes
-app.use('/api/users', userRoutes);
-
-app.get('/', (req, res) => {
-  res.redirect('/register');
+// Not encouraged, but this is a simple example of how to register a route without a router.
+app.get('/test', (req, res) => {
+  res.send('Test');
 });
 
 
 
+import productRoutes from './routes/product.js';
+app.use('/', productRoutes);
 
 
 
-
-
-
-
-
-
-
-app.get('/register', (req, res) => {
-  res.render('register');
-
-});
-
-app.get('/login', (req, res) => {
-  res.render('login');
-});
-
-app.post('/register', registerForm);
-app.post('/login', loginForm);
-app.get('/profile', (req, res) => {
-  res.render('profile', { user: req.session.user });
-});
-// Launch server
+// ####################################### No need to modify below this line #######################################
+// Start the server
 const PORT = 3000;
 app.listen(PORT, () => console.log(`✅ Server running at http://localhost:${PORT}`));
+
