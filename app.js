@@ -3,7 +3,6 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url'; //  __dirname
 import { dirname } from 'path';
-import productRoutes from './routes/product.js';
 import session from 'express-session';
 
 
@@ -33,7 +32,6 @@ app.set('views', path.join(__dirname, 'views'));
 
 // routes
 app.use('/api/users', userRoutes);
-app.use('/', productRoutes);
 
 app.get('/', (req, res) => {
   res.redirect('/register');
