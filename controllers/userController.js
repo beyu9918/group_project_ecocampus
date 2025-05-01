@@ -88,7 +88,7 @@ export function registerForm(req, res) {
   users.push(newUser);
   writeUsers(users);
 
-  res.render('success', { message: ' Registered successfully!' });
+  res.render('success', { message: 'Registered successfully!' });
 }
 
 // login table port（return EJS page）
