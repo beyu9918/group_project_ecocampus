@@ -1,0 +1,39 @@
+{
+  "name": "assessment-3-group-project-comp3028-hank-s-group",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/ak3FWN-l)",
+  "main": "index.js",
+
+  "scripts": {
+    "test": "node --test --experimental-test-coverage",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wsu-scc-comp3028/assessment-3-group-project-comp3028-hank-s-group.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wsu-scc-comp3028/assessment-3-group-project-comp3028-hank-s-group/issues"
+  },
+  "homepage": "https://github.com/wsu-scc-comp3028/assessment-3-group-project-comp3028-hank-s-group#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "debug": "~2.6.9",
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "http-errors": "~1.6.3",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "~1.9.1",
+    "open": "^10.1.1",
+    "socket.io": "^4.6.1",
+    "supertest": "^7.1.0"
+  }
+}
