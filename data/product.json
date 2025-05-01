@@ -1,0 +1,32 @@
+[
+  {
+    "productID": 1,
+    "productName": "test product",
+    "productPrice": 20,
+    "Description": ""
+  },
+  {
+    "productID": 2,
+    "productName": "test product",
+    "productPrice": 20,
+    "Description": ""
+  },
+  {
+    "productID": 3,
+    "productName": "test product",
+    "productPrice": 20,
+    "Description": ""
+  },
+  {
+    "productID": 4,
+    "productName": "test product",
+    "productPrice": 20,
+    "Description": ""
+  },
+  {
+    "productID": 5,
+    "productName": "test product",
+    "productPrice": 20,
+    "Description": ""
+  }
+]

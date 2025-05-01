@@ -24,7 +24,7 @@ test('Register Form - Should Succeed if email not exists', () => {
 
   //should be successful return Registered successfully
   assert.ok(res.renderCalled, 'Render function should be called');
-  assert.ok(res.data.message.includes('✅ Registered successfully'), 'Should show registration success message');
+  assert.ok(res.data.message.includes('User registered successfully'), 'Should show registration success message');
 });
 
 test('Login Form - Should Fail if wrong credentials', () => {
