@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Search</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+
+  <!-- Main title for the search page -->
+  <h1>EcoCampus Search</h1>
+
+  <!-- Search form: keyword input, category filter, price range, rating, and sort options -->
+  <form method="get" action="/search">
+    <input type="text" name="keyword" placeholder="Keyword" value="<%= query.keyword || '' %>"/>
+    
+    <!-- Category dropdown -->
+    <select name="category">
+      <option value="">All Categories</option>
+      <option value="textbook" <%= query.category === 'textbook' ? 'selected' : '' %>>Textbook</option>
+      <option value="digital" <%= query.category === 'digital' ? 'selected' : '' %>>Digital</option>
+    </select>
+
+    <!-- Minimum and maximum price input -->
+    <input type="number" name="minPrice" placeholder="Min Price" value="<%= query.minPrice || '' %>" />
+    <input type="number" name="maxPrice" placeholder="Max Price" value="<%= query.maxPrice || '' %>" />
+
+    <!-- Minimum rating filter -->
+    <select name="minRating">
+      <option value="">Any Rating</option>
+      <option value="4" <%= query.minRating == 4 ? 'selected' : '' %>>4★+</option>
+      <option value="3" <%= query.minRating == 3 ? 'selected' : '' %>>3★+</option>
+    </select>
+
+    <!-- Sorting method selection -->
+    <select name="sort">
+      <option value="">Default</option>
+      <option value="rating" <%= query.sort === 'rating' ? 'selected' : '' %>>Rating ↓</option>
+      <option value="price" <%= query.sort === 'price' ? 'selected' : '' %>>Price ↑</option>
+      <option value="newest" <%= query.sort === 'newest' ? 'selected' : '' %>>Newest</option>
+    </select>
+
+    <!-- Search button -->
+    <button type="submit">Search</button>
+  </form>
+
+  <!-- Display search results -->
+  <% if (query.keyword && query.keyword.trim() !== '') { %>
+    <h2>Results for "<%= query.keyword %>"</h2>
+  <% } %>
+  <div class="item-list">
+    <% if (items.length === 0) { %>
+      <!-- Show message when no matching items are found -->
+      <p>No matching results.</p>
+    <% } else { %>
+      <% items.forEach(item => { %>
+        <!-- Display single item card -->
+        <div class="item">
+          <h2><a href="/item/<%= item.id %>"><%= item.title %></a></h2>
+          <p><%= item.description %></p>
+          <p>Price: ¥<%= item.price.toFixed(2) %> | Rating: <%= item.avgRating %>★</p>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</body>
+</html>

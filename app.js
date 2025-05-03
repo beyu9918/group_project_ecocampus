@@ -6,7 +6,8 @@ import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-
+import searchRoutes from './routes/searchRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 import productRoutes from './routes/product.js';
 import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/order.js';
@@ -53,6 +54,11 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/social', socialRoutes);
 app.use('/', productRoutes);
+
+app.use('/search', searchRoutes);
+app.use(express.urlencoded({ extended: true }));
+
+
 
 // Authentication
 app.get('/register', (req, res) => res.render('register'));
