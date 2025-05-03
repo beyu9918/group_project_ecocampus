@@ -31,12 +31,16 @@ export function showProductPage(req, res) {
   const productList = readProduct();
   res.render('product', {
     title: 'Product Management',
-    product: productList
+    product: productList,
+    items: productList, 
+    query: req.query || {} 
   });
 }
 
+
 export function showAddProductPage(req, res) {
   res.render('addProduct', { title: 'Add New Product' });
+  
 }
 
 //add new product
