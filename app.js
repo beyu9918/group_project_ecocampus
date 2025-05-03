@@ -24,15 +24,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 // set ejs views engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
-// routes
-app.use('/api/users', userRoutes);
+//session
 app.use(session({
   secret: 'your_secret_key',    // 
   resave: false,
   saveUninitialized: true
 }));
 
+// routes
+app.use('/', userRoutes);
 app.get('/', (req, res) => {
   res.redirect('/register');
 });

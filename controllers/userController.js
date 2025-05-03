@@ -127,5 +127,26 @@ export function updateProfile(req, res) {
 
   writeUsers(users);
 
-  res.json({ msg: 'Profile updated successfully', user });
+  req.session.user = user; // 更新 session 中的数据
+
+  // ✅ 渲染成功页面
+  res.render('success', {
+    message: '✅ Profile updated successfully.',
+    backLink: '/profile'
+  });
+}
+
+export function renderProfilePage(req, res) {
+  if (!req.session || !req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const users = readUsers();
+  const user = users.find(u => u.userID === req.session.user.userID);
+
+  if (!user) {
+    return res.render('success', { message: 'User not found.' });
+  }
+
+  res.render('profile', { user });
 }

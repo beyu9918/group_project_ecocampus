@@ -1,11 +1,20 @@
 import express from 'express';
-import { register, login } from '../controllers/userController.js'; 
-import { updateProfile } from '../controllers/userController.js';
+import {
+    register,
+    login,
+    registerForm,
+    loginForm,
+    updateProfile,
+    renderProfilePage
+  } from '../controllers/userController.js';
 
 const router = express.Router();
 
+router.post('/register', registerForm);
+router.post('/login', loginForm);
+
+// Profile 展示与更新
+router.get('/profile', renderProfilePage);
 router.post('/profile/update', updateProfile);
-router.post('/register', register);
-router.post('/login', login);
 
 export default router;
