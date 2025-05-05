@@ -14,3 +14,6 @@ router.post('/product/addProduct', addNewProduct);
 
 export default router;
 
+router.get('/login', (req, res) => {
+  res.render('login', { title: 'Login' });
+});
