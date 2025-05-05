@@ -83,6 +83,7 @@ export async function registerForm(req, res) {
     res.render('success', { message: 'Internal error occurred.' });
   }
 }
+
 // ✅ Login via EJS form
 export async function loginForm(req, res) {
   const { email, password } = req.body;
@@ -108,7 +109,7 @@ export async function loginForm(req, res) {
 // ✅ Update user profile
 export async function updateProfile(req, res) {
   const { email, phone, avatar, bio, address, gender, birthday } = req.body;
-
+  const parsedBirthday = birthday && !isNaN(new Date(birthday)) ? new Date(birthday) : null;
   if (!req.session.user) {
     return res.redirect('/login');
   }
@@ -125,7 +126,7 @@ export async function updateProfile(req, res) {
         bio = ${bio},
         address = ${address},
         gender = ${gender},
-        birthday = ${birthday}
+        birthday = ${parsedBirthday}
       WHERE userID = ${userId}`;
 
     // Re-fetch updated user
