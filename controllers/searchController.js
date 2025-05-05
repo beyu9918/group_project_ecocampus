@@ -1,64 +1,68 @@
-// Import required modules
-import { readFile } from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import pg from 'pg';
+const { Pool } = pg;
 
+const pool = new Pool({
+  user: 'postgres',
+  host: 'host.docker.internal',
+  database: 'eco_campus',
+  password: 'password',
+  port: 5432,
+});
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const dataPath = path.join(__dirname, '../data/items.json');  
-
-
-export async function searchItems(req, res) {
+export async function searchProducts(req, res) {
   const { keyword = '', category, minPrice, maxPrice, minRating, sort } = req.query;
-
-  
   const safeKeyword = (keyword || '').trim().toLowerCase();
 
-  
-  let data;
-  try {
-    
-    const rawData = await readFile(dataPath, 'utf-8');
-    data = JSON.parse(rawData);
-  } catch (error) {
-    
-    console.error('Error reading or parsing items.json:', error.message);
-    return res.status(500).send('Failed to load product data.');
-  }
+  let queryText = 'SELECT * FROM product';
+  let conditions = [];
+  let values = [];
 
-  let filteredItems = data.items || [];
-
-  
   if (safeKeyword) {
-    filteredItems = filteredItems.filter(item =>
-      (item.title && item.title.toLowerCase().includes(safeKeyword)) ||
-      (item.description && item.description.toLowerCase().includes(safeKeyword))
-    );
+    values.push(`%${safeKeyword}%`);
+    conditions.push(`(LOWER(title) LIKE $${values.length} OR LOWER(description) LIKE $${values.length})`);
   }
-
-  
   if (category) {
-    filteredItems = filteredItems.filter(item => item.category === category);
+    values.push(category);
+    conditions.push(`category = $${values.length}`);
   }
   if (minPrice) {
-    filteredItems = filteredItems.filter(item => item.price >= parseFloat(minPrice));
+    values.push(parseFloat(minPrice));
+    conditions.push(`price >= $${values.length}`);
   }
   if (maxPrice) {
-    filteredItems = filteredItems.filter(item => item.price <= parseFloat(maxPrice));
+    values.push(parseFloat(maxPrice));
+    conditions.push(`price <= $${values.length}`);
   }
   if (minRating) {
-    filteredItems = filteredItems.filter(item => item.avgRating >= parseFloat(minRating));
+    values.push(parseFloat(minRating));
+    conditions.push(`avgRating >= $${values.length}`);
   }
 
-  
+  if (conditions.length > 0) {
+    queryText += ' WHERE ' + conditions.join(' AND ');
+  }
+
   if (sort === 'price') {
-    filteredItems.sort((a, b) => a.price - b.price);
+    queryText += ' ORDER BY price ASC';
   } else if (sort === 'rating') {
-    filteredItems.sort((a, b) => b.avgRating - a.avgRating);
+    queryText += ' ORDER BY avgRating DESC';
   }
 
-  
-  res.render('search', { title: 'Search Results', items: filteredItems, query: req.query });
+  try {
+    const result = await pool.query(queryText, values);
+    const products = result.rows.map(p => ({
+      ...p,
+      price: parseFloat(p.price),
+      avgRating: parseFloat(p.avgRating)
+    }));
+
+    res.render('search', {
+      title: 'Search Results',
+      product: products,
+      query: req.query
+    });
+  } catch (error) {
+    console.error('Database query failed:', error.message);
+    res.status(500).send('Failed to load product data from database.');
+  }
 }

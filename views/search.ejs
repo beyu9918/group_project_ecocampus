@@ -48,17 +48,17 @@
   <% if (query.keyword && query.keyword.trim() !== '') { %>
     <h2>Results for "<%= query.keyword %>"</h2>
   <% } %>
-  <div class="item-list">
-    <% if (items.length === 0) { %>
-      <!-- Show message when no matching items are found -->
+  <div class="product-list">
+    <% if (product.length === 0) { %>
+      <!-- Show message when no matching product are found -->
       <p>No matching results.</p>
     <% } else { %>
-      <% items.forEach(item => { %>
-        <!-- Display single item card -->
-        <div class="item">
-          <h2><a href="/item/<%= item.id %>"><%= item.title %></a></h2>
-          <p><%= item.description %></p>
-          <p>Price: ¥<%= item.price.toFixed(2) %> | Rating: <%= item.avgRating %>★</p>
+      <% product.forEach(product => { %>
+        <!-- Display single product card -->
+        <div class="product">
+          <h2><a href="/product/<%= product.id %>"><%= product.title %></a></h2>
+          <p><%= product.description %></p>
+          <p>Price: ¥<%= product.price.toFixed(2) %> | Rating: <%= product.avgRating %>★</p>
         </div>
       <% }) %>
     <% } %>

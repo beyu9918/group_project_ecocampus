@@ -2,24 +2,24 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title><%= item.title %> - Details</title>
+  <title><%= product.title %> - Details</title>
   <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 <body>
-<div class="item-details">
+<div class="product-details">
 
-  <h1 class="item-title"><%= item.title %></h1>
+  <h1 class="product-title"><%= product.title %></h1>
 
-  <div class="item-info">
-    <p><strong>Price:</strong> ¥<%= item.price %></p>
-    <p><strong>Description:</strong> <%= item.description %></p>
+  <div class="product-info">
+    <p><strong>Price:</strong> ¥<%= product.price %></p>
+    <p><strong>Description:</strong> <%= product.description %></p>
     <p><strong>Seller:</strong> <%= seller?.name %> | Rating: <%= seller?.avgRating %>★</p>
-    <p><strong>Product Rating:</strong> <%= item.avgRating %>★</p>
+    <p><strong>Product Rating:</strong> <%= product.avgRating %>★</p>
   </div>
 
   <h2 class="review-section-title">Submit Your Review</h2>
 
-  <form action="/item/<%= item.id %>/review" method="post" class="review-form">
+  <form action="/product/<%= product.id %>/review" method="post" class="review-form">
     <label>Rating:
       <select name="rating" required>
         <option value="">--Select--</option>

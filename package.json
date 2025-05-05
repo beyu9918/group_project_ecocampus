@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/ak3FWN-l)",
   "main": "app.js",
-  
   "type": "module",
   "scripts": {
     "start": "node app.js"
@@ -31,8 +30,8 @@
     "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
     "open": "^10.1.1",
+    "postgre": "^0.1.8",
     "socket.io": "^4.6.1",
     "sqlite3": "^5.1.7"
-  },
-  "devDependencies": {}
+  }
 }
