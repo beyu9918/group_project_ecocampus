@@ -74,7 +74,7 @@ app.get('/profile', (req, res) => {
 
 // Homepage UI
 app.get('/', (req, res) => {
-  res.render('index', { title: 'EcoCampus Exchange' });
+  res.redirect('/product');
 });
 
 // Optional test route
