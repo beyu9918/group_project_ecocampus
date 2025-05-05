@@ -158,6 +158,9 @@ export async function renderProfilePage(req, res) {
     if (!user) {
       return res.render('success', { message: 'User not found.' });
     }
+      if (user.birthday) {
+      user.birthday = new Date(user.birthday).toISOString().split('T')[0];
+    }
 
     res.render('profile', { user });
   } catch (err) {
