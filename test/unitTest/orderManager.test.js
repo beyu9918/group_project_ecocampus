@@ -1,7 +1,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import eventBus from '../controllers/eventBus.js';
-import { placeOrder } from '../controllers/orderManager.js';
+import eventBus from '../../controllers/eventBus.js';
+import { placeOrder } from '../../controllers/orderManager.js';
 
 describe('OrderManager', () => {
   test('placeOrder returns an order with id and emits orderProcessed', async () => {

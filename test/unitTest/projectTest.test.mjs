@@ -1,4 +1,4 @@
-import { addNewProduct } from '../controllers/product.js';
+import { addNewProduct } from '../../controllers/product.js';
 import test from 'node:test';
 import assert from 'node:assert';
 
