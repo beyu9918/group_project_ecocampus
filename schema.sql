@@ -2,7 +2,7 @@
 -- EcoCampus Exchange Schema
 -- =========================
 
--- 用户表（注册 / 登录用）
+-- users
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   userID TEXT UNIQUE NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 商品表
+-- product
 CREATE TABLE IF NOT EXISTS product (
   id SERIAL PRIMARY KEY,
   title VARCHAR(255) NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS product (
   avgRating NUMERIC(3, 2) DEFAULT 0
 );
 
--- 评论表
+-- review
 CREATE TABLE IF NOT EXISTS reviews (
   id SERIAL PRIMARY KEY,
   product_id INTEGER NOT NULL REFERENCES product(id) ON DELETE CASCADE,

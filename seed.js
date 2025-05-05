@@ -33,9 +33,9 @@ async function seed() {
       (2, 'u001', 4, 'Nice brush!');
     `);
 
-    console.log('✅ Seeding completed!');
+    console.log(' Seeding completed!');
   } catch (err) {
-    console.error('❌ Seeding error:', err);
+    console.error(' Seeding error:', err);
   } finally {
     await pool.end();
   }

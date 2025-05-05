@@ -2,14 +2,14 @@ import pg from 'pg';
 const { Pool } = pg;
 
 const pool = new Pool({
-  user: 'postgres',             // ← 替换为你的用户名
-  host: 'host.docker.internal',            // ← Docker 环境用 host.docker.internal
-  database: 'eco_campus',       // ← 替换为你的数据库名
-  password: 'password',    // ← 替换为你的密码
+  user: 'postgres',             
+  host: 'host.docker.internal',            
+  database: 'eco_campus',       
+  password: 'password',    
   port: 5432,
 });
 
-// GET: 产品详情与评论
+// GET: comment and details
 export async function getProductDetails(req, res) {
   const productID = parseInt(req.params.id);
 
@@ -33,14 +33,14 @@ export async function getProductDetails(req, res) {
   }
 }
 
-// POST: 提交评论
+// POST: submit
 export async function submitReview(req, res) {
   const productID = parseInt(req.params.id);
   const { rating, comment } = req.body;
   const reviewerId = req.user.id;
 
   try {
-    // 检查是否已评论
+    // check
     const existing = await pool.query(
       'SELECT * FROM reviews WHERE product_id = $1 AND reviewer = $2',
       [productID, reviewerId]
@@ -50,13 +50,13 @@ export async function submitReview(req, res) {
       return res.status(400).send('You already submitted a review.');
     }
 
-    // 插入新评论
+    // insert
     await pool.query(
       'INSERT INTO reviews (product_id, reviewer, rating, comment) VALUES ($1, $2, $3, $4)',
       [productID, reviewerId, parseInt(rating), comment]
     );
 
-    // 更新平均评分
+    // update
     const avgResult = await pool.query(
       'SELECT AVG(rating)::numeric(3,2) AS avg FROM reviews WHERE product_id = $1',
       [productID]

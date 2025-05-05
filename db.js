@@ -3,7 +3,7 @@ const { Pool } = pkg;
 
 const pool = new Pool({
     user: 'postgres',
-    host: 'host.docker.internal',  // ✅ 改为连接主机
+    host: 'host.docker.internal',  
     database: 'eco_campus',
     password: 'password',
     port: 5432,
