@@ -11,7 +11,7 @@
     <form action="/profile/update" method="POST">
 
       <div class="form-row">
-        <label>User ID (不可更改):</label>
+        <label>User ID (Cannot change):</label>
         <input type="text" value="<%= user.userID %>" disabled />
       </div>
 
@@ -37,7 +37,7 @@
 
       <div class="form-row">
         <label>Address:</label>
-        <input type="text" name="address" value="<%= user.address || '' %>" />
+        <input type="text" name="address" value="<%= user.address || '' %>" placeholder="Used for shipment" />
       </div>
 
       <div class="form-row">

@@ -8,81 +8,9 @@
     "createdAt": "2025-04-28T09:20:40.448Z",
     "phone": "0487 234 601",
     "avatar": "None",
-    "bio": "111123112123123213123213213213121111",
+    "bio": "This is a test text for Bio",
     "address": "",
     "gender": "male",
-    "birthday": "2025-05-01"
-  },
-  {
-    "userID": "user_1745832179521",
-    "email": "user1745832179450@example.com",
-    "password": "$2b$10$cU3BGMkQdaldCXtgqjipD.xkj16qfGsZ.VTsOYchZBWY0BwCDgKXy",
-    "name": "UniqueUser",
-    "role": "normal",
-    "createdAt": "2025-04-28T09:22:59.521Z"
-  },
-  {
-    "userID": "user_1745832224797",
-    "email": "user1745832224734@example.com",
-    "password": "$2b$10$zMgskH6Ml4pka/POrw.d6er.P2szN78L8CPzQp/v6qPmi42N9iwiS",
-    "name": "UniqueUser",
-    "role": "normal",
-    "createdAt": "2025-04-28T09:23:44.797Z"
-  },
-  {
-    "userID": "user_1746084325160",
-    "email": "user1746084325100@example.com",
-    "password": "$2b$10$.knoTXmM1kjVu/v.xSWgduCcpSW6zw7Yqtoky9S4qM40Ob8dj1Qtq",
-    "name": "UniqueUser",
-    "role": "normal",
-    "createdAt": "2025-05-01T07:25:25.160Z"
-  },
-  {
-    "userID": "user_1746084555944",
-    "email": "user1746084555883@example.com",
-    "password": "$2b$10$IfkWk/j37vJgY93RtW6tEeUP6KNMuWSKsCe6e6uCvIV6otnj3NF5m",
-    "name": "UniqueUser",
-    "role": "normal",
-    "createdAt": "2025-05-01T07:29:15.944Z"
-  },
-  {
-    "userID": "user_1746084721560",
-    "email": "user1746084721500@example.com",
-    "password": "$2b$10$kerub347esdY9QFBbnRMZODdrvNy2rwkqt6f4IZ/gM4f3IxvTegya",
-    "name": "UniqueUser",
-    "role": "normal",
-    "createdAt": "2025-05-01T07:32:01.560Z"
-  },
-  {
-    "userID": "user_1746085133284",
-    "email": "user1746085133225@example.com",
-    "password": "$2b$10$EzcH9lrkOasefDxawNDdhOzon/aIrtViNodXntp9pc7t82Yjtncaq",
-    "name": "UniqueUser",
-    "role": "normal",
-    "createdAt": "2025-05-01T07:38:53.284Z"
-  },
-  {
-    "userID": "user_1746085184556",
-    "email": "user1746085184497@example.com",
-    "password": "$2b$10$QCUDG1FIgOMIXSd3O7sryev56h38mvRtFQAjNwVPjXw0VePUB29O.",
-    "name": "UniqueUser",
-    "role": "normal",
-    "createdAt": "2025-05-01T07:39:44.556Z"
-  },
-  {
-    "userID": "user_1746085625526",
-    "email": "user1746085625465@example.com",
-    "password": "$2b$10$mPExRaS/6vP9OAXLGuBoqu2ijbs.6zhAkEj50D5uq1syZQY7Pqx2G",
-    "name": "UniqueUser",
-    "role": "normal",
-    "createdAt": "2025-05-01T07:47:05.526Z"
-  },
-  {
-    "userID": "user_1746085861001",
-    "email": "user1746085860940@example.com",
-    "password": "$2b$10$opmEKWPOndpplPks.7Ufw..f501l/MI11fcOiF03WREF30EKcLdt6",
-    "name": "UniqueUser",
-    "role": "normal",
-    "createdAt": "2025-05-01T07:51:01.001Z"
+    "birthday": "2000-01-02"
   }
 ]
