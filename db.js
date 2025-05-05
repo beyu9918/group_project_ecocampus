@@ -1,6 +1,14 @@
 import postgres from 'postgres';
+import dotenv from 'dotenv';
+dotenv.config();
 
-// Connect using a connection string that matches your Docker setup
-const sql = postgres('postgres://admin:admin@localhost:5432/mydb');
+const sql = postgres({
+  host: process.env.DB_HOST || 'host.docker.internal',
+  port: process.env.DB_PORT || 5432,
+  database: process.env.DB_NAME || 'mydb',
+  username: process.env.DB_USER || 'admin',
+  password: process.env.DB_PASS || 'admin',
+  ssl: false, // may 
+});
 
 export default sql;

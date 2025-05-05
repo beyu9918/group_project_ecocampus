@@ -1,152 +1,166 @@
-import fs from 'fs';
-import path from 'path';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { fileURLToPath } from 'url'; // Handle __dirname
-import { dirname } from 'path';
+import sql from '../db.js'; // PostgreSQL connection
+import { v4 as uuidv4 } from 'uuid'; // For generating unique userID
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const usersPath = path.join(__dirname, '../data/users.json');
-
-const readUsers = () => {
-  const data = fs.readFileSync(usersPath);
-  return JSON.parse(data);
-};
-
-const writeUsers = (users) => {
-  fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
-};
-
+// Generate JWT token for authenticated users
 const generateToken = (user) => {
   return jwt.sign({ email: user.email, role: user.role }, 'secret123', { expiresIn: '1d' });
 };
 
-const generateId = (prefix) => {
-  return `${prefix}_${Date.now()}`;
-};
-
-// register prot（return JSON）
-export function register(req, res) {
+// Register user and return JSON response
+export async function register(req, res) {
   const { email, password, name } = req.body;
-  const users = readUsers();
 
-  if (users.find(u => u.email === email)) {
-    return res.status(400).json({ msg: 'Email already exists' });
+  try {
+    // Check if email already exists
+    const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
+    if (existing.length > 0) {
+      return res.status(400).json({ msg: 'Email already exists' });
+    }
+
+    // Hash password and insert user
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    const newUserID = `user_${Date.now()}`;
+
+    await sql`
+      INSERT INTO users (
+        userID, email, password, name, role, createdAt
+      ) VALUES (
+        ${newUserID}, ${email}, ${hashedPassword}, ${name}, 'normal', NOW()
+      )`;
+
+    res.status(201).json({ msg: 'User registered successfully', user: { email, name } });
+  } catch (err) {
+    console.error('Register error:', err);
+    res.status(500).json({ msg: 'Internal server error' });
   }
-
-  const hashedPassword = bcrypt.hashSync(password, 10);
-  const newUser = {
-    email,
-    password: hashedPassword,
-    name,
-    role: 'normal',
-    createdAt: new Date().toISOString(),
-  };
-
-  users.push(newUser);
-  writeUsers(users);
-
-  res.status(201).json({ msg: 'User registered successfully', user: { email, name } });
 }
 
-// login port（return token）
-export function login(req, res) {
+// ✅ Login and return JWT token
+export async function login(req, res) {
   const { email, password } = req.body;
-  const users = readUsers();
-  const user = users.find(u => u.email === email);
 
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    return res.status(401).json({ msg: 'Invalid credentials' });
+  try {
+    const result = await sql`SELECT * FROM users WHERE email = ${email}`;
+    const user = result[0];
+
+    if (!user || !bcrypt.compareSync(password, user.password)) {
+      return res.status(401).json({ msg: 'Invalid credentials' });
+    }
+
+    const token = generateToken(user);
+    res.json({ msg: 'Login successful', token });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ msg: 'Internal server error' });
   }
-
-  const token = generateToken(user);
-  res.json({ msg: 'Login successful', token });
 }
 
-// registering（return EJS page）
-export function registerForm(req, res) {
+// ✅ Register via EJS form
+export async function registerForm(req, res) {
   const { email, password, name } = req.body;
-  const users = readUsers();
-  
 
-  if (users.find(u => u.email === email)) {
-    return res.render('success', { message: '⚠️ Email already registered.' });
+  try {
+    const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
+    if (existing.length > 0) {
+      return res.render('success', { message: '⚠️ Email already registered.' });
+    }
+
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    const newUserID = `user_${Date.now()}`;
+
+    await sql`
+      INSERT INTO users (
+        userID, email, password, name, role, createdAt
+      ) VALUES (
+        ${newUserID}, ${email}, ${hashedPassword}, ${name}, 'normal', NOW()
+      )`;
+
+    res.render('success', { message: 'Registered successfully!' });
+  } catch (err) {
+    console.error('RegisterForm error:', err);
+    res.render('success', { message: 'Internal error occurred.' });
   }
-
-  const hashedPassword = bcrypt.hashSync(password, 10);
-  const newUser = {
-    userID: generateId('user'), // new user id
-    email,
-    password: hashedPassword,
-    name,
-    role: 'normal',
-    createdAt: new Date().toISOString(),
-  };
-
-  users.push(newUser);
-  writeUsers(users);
-
-  res.render('success', { message: 'Registered successfully!' });
 }
-
-// login table port（return EJS page）
-export function loginForm(req, res) {
+// ✅ Login via EJS form
+export async function loginForm(req, res) {
   const { email, password } = req.body;
-  const users = readUsers();
-  const user = users.find(u => u.email === email);
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    return res.render('success', { message: 'Invalid email or password' });
+
+  try {
+    const result = await sql`SELECT * FROM users WHERE email = ${email}`;
+    const user = result[0];
+
+    // If user not found or password mismatch
+    if (!user || !bcrypt.compareSync(password, user.password)) {
+      return res.render('success', { message: 'Invalid email or password' });
+    }
+
+    // Store user in session
+    req.session.user = user;
+    res.redirect('/profile');
+  } catch (err) {
+    console.error('LoginForm error:', err);
+    res.render('success', { message: 'Login failed due to server error.' });
   }
-  req.session.user = user; //
-  res.redirect('/profile');
 }
 
-export function updateProfile(req, res) {
+// ✅ Update user profile
+export async function updateProfile(req, res) {
   const { email, phone, avatar, bio, address, gender, birthday } = req.body;
-  const users = readUsers();
-  
-  // 
-  const userId = req.session.user.userID;
 
-  const user = users.find(u => u.userID === userId);
-
-  if (!user) {
-    return res.status(404).json({ msg: 'User not found' });
-  }
-
-  // updated information
-  user.email = email || user.email;
-  user.phone = phone || user.phone;
-  user.avatar = avatar || user.avatar;
-  user.bio = bio || user.bio;
-  user.address = address || user.address;
-  user.gender = gender || user.gender;
-  user.birthday = birthday || user.birthday;
-
-  writeUsers(users);
-
-  req.session.user = user; // 更新 session 中的数据
-
-  // ✅ 渲染成功页面
-  res.render('success', {
-    message: '✅ Profile updated successfully.',
-    backLink: '/profile'
-  });
-}
-
-export function renderProfilePage(req, res) {
-  if (!req.session || !req.session.user) {
+  if (!req.session.user) {
     return res.redirect('/login');
   }
 
-  const users = readUsers();
-  const user = users.find(u => u.userID === req.session.user.userID);
+  const userId = req.session.user.userid;
 
-  if (!user) {
-    return res.render('success', { message: 'User not found.' });
+  try {
+    // Update only non-null fields
+    await sql`
+      UPDATE users SET
+        email = ${email},
+        phone = ${phone},
+        avatar = ${avatar},
+        bio = ${bio},
+        address = ${address},
+        gender = ${gender},
+        birthday = ${birthday}
+      WHERE userID = ${userId}`;
+
+    // Re-fetch updated user
+    const result = await sql`SELECT * FROM users WHERE userID = ${userId}`;
+    req.session.user = result[0]; // Update session
+
+    res.render('success', {
+      message: '✅ Profile updated successfully.',
+      backLink: '/profile'
+    });
+  } catch (err) {
+    console.error('UpdateProfile error:', err);
+    res.render('success', { message: 'Profile update failed due to server error.' });
+  }
+}
+
+// ✅ Render profile page
+export async function renderProfilePage(req, res) {
+  if (!req.session.user) {
+    return res.redirect('/login');
   }
 
-  res.render('profile', { user });
+  const userId = req.session.user.userid;
+
+  try {
+    const result = await sql`SELECT * FROM users WHERE userID = ${userId}`;
+    const user = result[0];
+
+    if (!user) {
+      return res.render('success', { message: 'User not found.' });
+    }
+
+    res.render('profile', { user });
+  } catch (err) {
+    console.error('RenderProfilePage error:', err);
+    res.render('success', { message: 'Failed to load profile.' });
+  }
 }
