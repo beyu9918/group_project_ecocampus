@@ -55,11 +55,23 @@
         <input type="date" name="birthday" value="<%= user.birthday || '' %>" />
       </div>
 
+      <div class="form-row">
+        <label>User Group:</label>
+        <input type="text" value="<%= user.role || 'user' %>" disabled />
+      </div>
+
       <div class="form-actions">
         <button type="submit" class="btn-green">Save Changes</button>
         <a href="/profile" class="link">← Back to Profile</a>
       </div>
     </form>
+
+    <% if (user.role === 'admin') { %>
+      <div style="margin-top: 30px; text-align: right;">
+        <a href="/admin/users" class="btn-green">🔍 View All Users</a>
+      </div>
+    <% } %>
+
   </div>
 </body>
 </html>

@@ -5,7 +5,8 @@ import {
     registerForm,
     loginForm,
     updateProfile,
-    renderProfilePage
+    renderProfilePage,
+    viewAllUsers 
   } from '../controllers/userController.js';
 
 const router = express.Router();
@@ -17,4 +18,6 @@ router.post('/login', loginForm);
 router.get('/profile', renderProfilePage);
 router.post('/profile/update', updateProfile);
 
+// Page redirect from profile if usergroup is admin
+router.get('/admin/users', viewAllUsers);
 export default router;

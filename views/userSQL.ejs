@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Users Table</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+  <div class="form-wrapper">
+    <a href="/profile" class="link back-link">← Back to Profile</a>
+    <h2>User Management</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Email</th>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Address</th>
+          <th>Gender</th>
+          <th>Birthday</th>
+          <th>Role</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% users.forEach(user => { %>
+          <tr>
+            <td><%= user.userid %></td>
+            <td><%= user.email %></td>
+            <td><%= user.name %></td>
+            <td><%= user.phone %></td>
+            <td><%= user.address %></td>
+            <td><%= user.gender %></td>
+            <td><%= user.birthday ? new Date(user.birthday).toISOString().split('T')[0] : '' %></td>
+            <td><%= user.role %></td>
+            <td><%= new Date(user.created_at).toLocaleString() %></td>
+            <td>
+              <div class="actions">
+                <button class="btn-red">Delete</button>
+                <button class="btn-green">Change Role</button>
+                <div class="dropdown">
+                  <button class="dropdown-button">⋮</button>
+                  <div class="dropdown-content">
+                    <a href="#">View Orders</a>
+                    <a href="#">View Products</a>
+                    <a href="#">View Cart</a>
+                    <a href="#">View Reviews</a>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

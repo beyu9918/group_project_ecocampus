@@ -1,34 +1,31 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import sql from '../db.js'; // PostgreSQL connection
-import { v4 as uuidv4 } from 'uuid'; // For generating unique userID
 
 // Generate JWT token for authenticated users
 const generateToken = (user) => {
   return jwt.sign({ email: user.email, role: user.role }, 'secret123', { expiresIn: '1d' });
 };
 
-// Register user and return JSON response
+// Register via JSON API
 export async function register(req, res) {
   const { email, password, name } = req.body;
 
   try {
-    // Check if email already exists
     const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
     if (existing.length > 0) {
       return res.status(400).json({ msg: 'Email already exists' });
     }
 
-    // Hash password and insert user
     const hashedPassword = bcrypt.hashSync(password, 10);
-    const newUserID = `user_${Date.now()}`;
 
     await sql`
       INSERT INTO users (
-        userID, email, password, name, role, createdAt
+        email, password, name, role
       ) VALUES (
-        ${newUserID}, ${email}, ${hashedPassword}, ${name}, 'normal', NOW()
-      )`;
+        ${email}, ${hashedPassword}, ${name}, 'user'
+      )
+    `;
 
     res.status(201).json({ msg: 'User registered successfully', user: { email, name } });
   } catch (err) {
@@ -37,7 +34,7 @@ export async function register(req, res) {
   }
 }
 
-// ✅ Login and return JWT token
+// ✅ Login via JSON
 export async function login(req, res) {
   const { email, password } = req.body;
 
@@ -68,14 +65,14 @@ export async function registerForm(req, res) {
     }
 
     const hashedPassword = bcrypt.hashSync(password, 10);
-    const newUserID = `user_${Date.now()}`;
 
     await sql`
       INSERT INTO users (
-        userID, email, password, name, role, createdAt
+        email, password, name, role
       ) VALUES (
-        ${newUserID}, ${email}, ${hashedPassword}, ${name}, 'normal', NOW()
-      )`;
+        ${email}, ${hashedPassword}, ${name}, 'user'
+      )
+    `;
 
     res.render('success', { message: 'Registered successfully!' });
   } catch (err) {
@@ -92,12 +89,10 @@ export async function loginForm(req, res) {
     const result = await sql`SELECT * FROM users WHERE email = ${email}`;
     const user = result[0];
 
-    // If user not found or password mismatch
     if (!user || !bcrypt.compareSync(password, user.password)) {
       return res.render('success', { message: 'Invalid email or password' });
     }
 
-    // Store user in session
     req.session.user = user;
     res.redirect('/profile');
   } catch (err) {
@@ -110,6 +105,7 @@ export async function loginForm(req, res) {
 export async function updateProfile(req, res) {
   const { email, phone, avatar, bio, address, gender, birthday } = req.body;
   const parsedBirthday = birthday && !isNaN(new Date(birthday)) ? new Date(birthday) : null;
+
   if (!req.session.user) {
     return res.redirect('/login');
   }
@@ -117,7 +113,6 @@ export async function updateProfile(req, res) {
   const userId = req.session.user.userid;
 
   try {
-    // Update only non-null fields
     await sql`
       UPDATE users SET
         email = ${email},
@@ -127,11 +122,11 @@ export async function updateProfile(req, res) {
         address = ${address},
         gender = ${gender},
         birthday = ${parsedBirthday}
-      WHERE userID = ${userId}`;
+      WHERE userID = ${userId}
+    `;
 
-    // Re-fetch updated user
     const result = await sql`SELECT * FROM users WHERE userID = ${userId}`;
-    req.session.user = result[0]; // Update session
+    req.session.user = result[0];
 
     res.render('success', {
       message: '✅ Profile updated successfully.',
@@ -158,7 +153,8 @@ export async function renderProfilePage(req, res) {
     if (!user) {
       return res.render('success', { message: 'User not found.' });
     }
-      if (user.birthday) {
+
+    if (user.birthday) {
       user.birthday = new Date(user.birthday).toISOString().split('T')[0];
     }
 
@@ -166,5 +162,21 @@ export async function renderProfilePage(req, res) {
   } catch (err) {
     console.error('RenderProfilePage error:', err);
     res.render('success', { message: 'Failed to load profile.' });
+  }
+}
+
+// ✅ [NEW] Admin-only: View all users
+export async function viewAllUsers(req, res) {
+  try {
+    if (!req.session.user || req.session.user.role !== 'admin') {
+      return res.status(403).send('Access denied.');
+    }
+
+    const users = await sql`SELECT * FROM users ORDER BY created_at DESC`;
+
+    res.render('userSQL', { users });
+  } catch (err) {
+    console.error('ViewAllUsers error:', err);
+    res.status(500).send('Server error');
   }
 }
