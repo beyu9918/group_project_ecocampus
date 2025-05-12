@@ -9,11 +9,11 @@ import {
   } from '../controllers/userController.js';
 
 const router = express.Router();
-
+//register and login page
 router.post('/register', registerForm);
 router.post('/login', loginForm);
 
-// Profile 展示与更新
+// Profile display and update
 router.get('/profile', renderProfilePage);
 router.post('/profile/update', updateProfile);
 
