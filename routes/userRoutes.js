@@ -1,16 +1,21 @@
 import express from 'express';
 import {
-    register,
-    login,
-    registerForm,
-    loginForm,
-    updateProfile,
-    renderProfilePage,
-    viewAllUsers 
-  } from '../controllers/userController.js';
+  register,
+  login,
+  registerForm,
+  loginForm,
+  updateProfile,
+  renderProfilePage,
+  viewAllUsers,
+  viewUserOrders,
+  viewUserProducts,
+  viewUserCart,
+  viewUserReviews
+} from '../controllers/userController.js';
 
 const router = express.Router();
-//register and login page
+
+// Register and login
 router.post('/register', registerForm);
 router.post('/login', loginForm);
 
@@ -18,6 +23,13 @@ router.post('/login', loginForm);
 router.get('/profile', renderProfilePage);
 router.post('/profile/update', updateProfile);
 
-// Page redirect from profile if usergroup is admin
+// Admin views
 router.get('/admin/users', viewAllUsers);
+
+// [NEW] Admin: View specific user's data
+router.get('/admin/user/:id/orders', viewUserOrders);
+router.get('/admin/user/:id/products', viewUserProducts);
+router.get('/admin/user/:id/cart', viewUserCart);
+router.get('/admin/user/:id/reviews', viewUserReviews);
+
 export default router;

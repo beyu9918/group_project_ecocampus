@@ -179,4 +179,56 @@ export async function viewAllUsers(req, res) {
     console.error('ViewAllUsers error:', err);
     res.status(500).send('Server error');
   }
+  
+}
+// ✅ Admin-only: View orders of a user
+export async function viewUserOrders(req, res) {
+  const { id } = req.params;
+
+  try {
+    const orders = await sql`SELECT * FROM orders WHERE buyerid = ${id}`;
+    res.render('orderSQL', { orders });
+  } catch (err) {
+    console.error('ViewUserOrders error:', err);
+    res.status(500).send('Failed to load orders.');
+  }
+}
+
+// ✅ Admin-only: View products posted by a user
+export async function viewUserProducts(req, res) {
+  const { id } = req.params;
+
+  try {
+    const products = await sql`SELECT * FROM product WHERE sellerid = ${id}`;
+    res.render('productSQL', { products });
+  } catch (err) {
+    console.error('ViewUserProducts error:', err);
+    res.status(500).send('Failed to load products.');
+  }
+}
+
+// ✅ Admin-only: View cart content of a user
+export async function viewUserCart(req, res) {
+  const { id } = req.params;
+
+  try {
+    const cart = await sql`SELECT * FROM cart WHERE buyerid = ${id}`;
+    res.render('cartSQL', { cart });
+  } catch (err) {
+    console.error('ViewUserCart error:', err);
+    res.status(500).send('Failed to load cart.');
+  }
+}
+
+// ✅ Admin-only: View reviews made by a user
+export async function viewUserReviews(req, res) {
+  const { id } = req.params;
+
+  try {
+    const reviews = await sql`SELECT * FROM reviews WHERE reviewerid = ${id}`;
+    res.render('reviewsSQL', { reviews });
+  } catch (err) {
+    console.error('ViewUserReviews error:', err);
+    res.status(500).send('Failed to load reviews.');
+  }
 }
