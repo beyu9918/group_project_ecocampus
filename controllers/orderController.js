@@ -1,53 +1,40 @@
-import { DataTypes }       from 'sequelize';
-import { sequelize }       from '../config/database.js';
-import { CartItem }        from './cartController.js';
-import eventBus            from './eventBus.js';
+import { DataTypes } from 'sequelize';
+import { sequelize }  from '../config/database.js';
+import { Cart }      from './cartController.js';
+import eventBus       from './eventBus.js';
 
-// Order master table
+// Map to `orders` table
 export const Order = sequelize.define('orders', {
-  id:        { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  user_id:   { type: DataTypes.INTEGER, allowNull: false },
-  status:    { type: DataTypes.STRING, defaultValue: 'Pending' }
+  orderID:     { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+  buyerID:     { type: DataTypes.INTEGER, allowNull: false },
+  productID:   { type: DataTypes.INTEGER, allowNull: false },
+  totalAmount: { type: DataTypes.DECIMAL(10,2), allowNull: false },
+  status: { type: DataTypes.STRING, allowNull: false, defaultValue: 'Pending' },
 }, {
+  tableName: 'orders',
   timestamps: true,
-  underscored: true,
+  createdAt: 'placed_at',
+  updatedAt: false,
+  underscored: true
 });
 
-// Line items
-export const OrderItem = sequelize.define('order_items', {
-  id:         { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  order_id:   { type: DataTypes.UUID, allowNull: false },
-  product_id: { type: DataTypes.INTEGER, allowNull: false },
-  quantity:   { type: DataTypes.INTEGER, allowNull: false },
-  price_each: { type: DataTypes.DECIMAL(10,2), allowNull: false }
-}, {
-  timestamps: false,
-  underscored: true,
-});
-
-Order.hasMany(OrderItem,  { foreignKey: 'order_id', onDelete: 'CASCADE' });
-OrderItem.belongsTo(Order, { foreignKey: 'order_id' });
-
-// Place an order: move items from cart_items to orders/order_items
+// POST /api/order
+// body: { buyerID, productID, totalAmount }
 export async function placeOrderHandler(req, res) {
-  const { userId } = req.body;
-  if (!userId) return res.status(400).json({ error: 'userId is required' });
+  const { buyerID, productID, totalAmount } = req.body;
+  if (!buyerID || !productID || !totalAmount) {
+    return res.status(400).json({ error: 'buyerID, productID, totalAmount required' });
+  }
+  // Create order
+  const order = await Order.create({ buyerID, productID, totalAmount });
+  // Clear cart for this buyer/product
+  await Cart.destroy({ where: { buyerID, productID } });
+  eventBus.emit('orderProcessed', { order, timestamp: new Date().toISOString() });
+  res.status(201).json({ orderID: order.orderID });
+}
 
-  const cartItems = await CartItem.findAll({ where: { user_id: userId } });
-  if (!cartItems.length) return res.status(400).json({ error: 'cart is empty' });
-
-  const order = await Order.create({ user_id: userId });
-
-  const lineItems = cartItems.map(ci => ({
-    order_id:   order.id,
-    product_id: ci.product_id,
-    quantity:   ci.quantity,
-    price_each: ci.price_each || 0 // assume product price lookup elsewhere
-  }));
-
-  await OrderItem.bulkCreate(lineItems);
-  await CartItem.destroy({ where: { user_id: userId } });
-
-  eventBus.emit('orderProcessed', { orderId: order.id, timestamp: new Date().toISOString() });
-  res.status(201).json({ orderId: order.id });
+export async function payOrderHandler(req, res) {
+  const { orderID } = req.params;
+  await Order.update({ status: 'Done' }, { where: { orderID } });
+  res.json({ success: true });
 }

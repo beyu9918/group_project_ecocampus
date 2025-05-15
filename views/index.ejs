@@ -1,133 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Shopping Page</title>
-  <link rel="stylesheet" href="/stylesheets/style.css" />
-  <script src="/socket.io/socket.io.js" defer></script>
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body {
+      display: block !important;
+      align-items: flex-start !important;
+      justify-content: flex-start !important;
+      height: auto !important;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-  <!-- Page Title -->
-  <h1 style="text-align:center; margin:20px 0;">Shopping Page</h1>
+  <h1 style="text-align:center; margin:20px 0;"><%= title %></h1>
 
-  <div style="display:flex; gap:16px; padding:20px; background:#f0f0f0; justify-content:center; flex-wrap:wrap;">
-    <!-- Add to Cart -->
-    <div style="background:#fff; padding:24px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); width:240px;">
-      <h3>Add to Cart</h3>
-      <input type="text" id="itemName" placeholder="Item name" style="width:100%; padding:8px; margin-bottom:10px;" />
-      <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:10px;">
-        <button id="decreaseQty" style="flex:1;">−</button>
-        <span id="qtyDisplay" style="display:inline-block; width:50px; text-align:center;">1</span>
-        <button id="increaseQty" style="flex:1;">+</button>
-      </div>
-      <button id="addItem" style="width:100%;">Add Items</button>
+  <section style="max-width:800px; margin:0 auto;">
+    <table style="width:100%; border-collapse:collapse;">
+      <thead>
+        <tr>
+          <th style="text-align:left; padding:8px;">Product</th>
+          <th style="text-align:center; padding:8px;">Quantity</th>
+          <th style="text-align:right; padding:8px;">Price</th>
+          <th style="text-align:right; padding:8px;">Subtotal</th>
+        </tr>
+      </thead>
+      <tbody id="cart-body">
+        <% items.forEach(function(item) { %>
+        <tr data-id="<%= item.productID %>">
+          <td style="padding:8px;"><%= item.productName %></td>
+          <td style="padding:8px; text-align:center;">
+            <button class="decrease" style="margin-right:4px;">−</button>
+            <input type="number" class="qty" value="<%= item.quantity %>" min="1"
+                   style="width:50px; text-align:center;" />
+            <button class="increase" style="margin-left:4px;">+</button>
+          </td>
+          <td style="padding:8px; text-align:right;">$<%= item.productPrice.toFixed(2) %></td>
+          <td style="padding:8px; text-align:right;" class="subtotal">
+            $<%= (item.productPrice * item.quantity).toFixed(2) %>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" style="padding:8px; text-align:right; font-weight:bold;">Total:</td>
+          <td id="total-price" style="padding:8px; text-align:right; font-weight:bold;">$0.00</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div style="text-align:center; margin:20px 0;">
+      <button id="placeOrder"
+              style="padding:12px 24px; font-size:16px; cursor:pointer;">
+        Place Order
+      </button>
     </div>
+  </section>
 
-    <!-- Shopping Cart -->
-    <div style="background:#fff; padding:24px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); width:240px;">
-      <h3>Shopping Cart</h3>
-      <ul id="cart" style="list-style:none; padding:0; max-height:200px; overflow:auto;"></ul>
-      <button id="shareBtn" style="width:100%; margin-top:10px;">Share Cart</button>
-    </div>
-
-    <!-- Order Status -->
-    <div style="background:#fff; padding:24px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); width:240px;">
-      <h3>Order Status</h3>
-      <ul id="orders" style="list-style:none; padding:0; max-height:200px; overflow:auto;"></ul>
-      <button id="placeOrder" style="width:100%; margin-top:10px;">Place Order</button>
-    </div>
-
-    <!-- Notifications -->
-    <div style="background:#fff; padding:24px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); width:240px;">
-      <h3>Notifications</h3>
-      <ul id="notifications" style="list-style:none; padding:0; max-height:200px; overflow:auto;"></ul>
-    </div>
-  </div>
-
-  <!-- Inline script runs after DOM is parsed -->
+  <!-- Toast notification -->
+  <div id="toast"></div>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const socket = io();
-      const cartUl = document.getElementById('cart');
-      const ordersUl = document.getElementById('orders');
-      const notificationsUl = document.getElementById('notifications');
+    const buyerID    = <%= JSON.stringify(buyerID) %>;
+    const socket     = io();
+    const cartBody   = document.getElementById('cart-body');
+    const totalPrice = document.getElementById('total-price');
+    const placeBtn   = document.getElementById('placeOrder');
+    const toastEl    = document.getElementById('toast');
 
-      const itemInput = document.getElementById('itemName');
-      const qtyDisplay = document.getElementById('qtyDisplay');
-      let qty = 1;
-      const decBtn = document.getElementById('decreaseQty');
-      const incBtn = document.getElementById('increaseQty');
-      const addBtn = document.getElementById('addItem');
-      const shareBtn = document.getElementById('shareBtn');
-      const placeBtn = document.getElementById('placeOrder');
-
-      // Quantity controls
-      decBtn.addEventListener('click', () => {
-        if (qty > 1) qty--;
-        qtyDisplay.textContent = qty;
+    function recalcTotal() {
+      let total = 0;
+      cartBody.querySelectorAll('tr').forEach(row => {
+        const price = parseFloat(row.children[2].textContent.replace('$',''));
+        const qty   = parseInt(row.querySelector('.qty').value, 10);
+        total += price * qty;
+        row.querySelector('.subtotal').textContent = '$' + (price * qty).toFixed(2);
       });
-      incBtn.addEventListener('click', () => {
-        qty++;
-        qtyDisplay.textContent = qty;
-      });
+      totalPrice.textContent = '$' + total.toFixed(2);
+    }
 
-      // Add items
-      addBtn.addEventListener('click', () => {
-        const name = itemInput.value.trim();
-        if (!name) return;
-        for (let i = 0; i < qty; i++) {
-          fetch('/api/cart', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: Date.now().toString(), name })
-          });
-        }
-        itemInput.value = '';
-        qty = 1;
-        qtyDisplay.textContent = qty;
-      });
+    cartBody.addEventListener('click', e => {
+      if (e.target.matches('.decrease, .increase')) {
+        const row = e.target.closest('tr');
+        const input = row.querySelector('.qty');
+        let v = parseInt(input.value, 10);
+        if (e.target.classList.contains('decrease') && v > 1) v--;
+        if (e.target.classList.contains('increase')) v++;
+        input.value = v;
+        recalcTotal();
+      }
+    });
 
-      // Share entire cart
-      shareBtn.addEventListener('click', () => {
-        const items = Array.from(cartUl.children).map(li => li.textContent);
-        if (!items.length) return alert('Cart is empty');
-        fetch('/api/social/share', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId: 'user42', listingIds: items })
+    function showToast(message) {
+      toastEl.textContent = message;
+      toastEl.className = 'show';
+      setTimeout(() => toastEl.className = '', 4000);
+    }
+
+    recalcTotal();
+
+    placeBtn.addEventListener('click', () => {
+      const items = [];
+      cartBody.querySelectorAll('tr').forEach(row => {
+        items.push({
+          productID: parseInt(row.dataset.id, 10),
+          quantity:  parseInt(row.querySelector('.qty').value, 10)
         });
       });
 
-      // Real-time updates
-      socket.on('cartUpdated', items => {
-        cartUl.innerHTML = '';
-        items.forEach(i => {
-          const li = document.createElement('li');
-          li.textContent = i.name;
-          cartUl.appendChild(li);
-        });
-      });
-      socket.on('cartItemAdded', ({ item, timestamp }) => {
-        const li = document.createElement('li');
-        li.textContent = `${timestamp} — ${item.name}`;
-        cartUl.appendChild(li);
-      });
-      socket.on('orderProcessed', ({ orderId, status, timestamp }) => {
-        const li = document.createElement('li');
-        li.textContent = `${timestamp} — Order ${orderId}: ${status}`;
-        ordersUl.appendChild(li);
-      });
-      socket.on('notification', ({ type, message, timestamp }) => {
-        const li = document.createElement('li');
-        li.textContent = `[${timestamp}] [${type}] ${message}`;
-        notificationsUl.appendChild(li);
-      });
-
-      // Place order
-      placeBtn.addEventListener('click', () => {
-        fetch('/api/order', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-      });
+      fetch('/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ buyerID, items })
+      })
+      .then(res => res.json())
+      .then(({ orderID }) => {
+        const ts = new Date()
+          .toLocaleTimeString('en-GB', { hour12:false, timeZone:'Australia/Sydney' });
+        showToast(`Order placed at ${ts}`);
+        setTimeout(() => location.href = `/order/${orderID}`, 2500);
+      })
+      .catch(console.error);
     });
   </script>
 </body>

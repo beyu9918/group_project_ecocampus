@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Order</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <style>
+    #order-summary { max-width:600px; margin:40px auto; padding:20px; border-radius:6px; background:#fff; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
+    #order-summary h2 { margin-top:0; }
+    #order-summary p { margin:8px 0; }
+    #payNow { padding:12px 24px; font-size:16px; cursor:pointer; background:#4CAF50; color:#fff; border:none; border-radius:4px; }
+    #payNow:disabled { background:#95a5a6; cursor:not-allowed; }
+  </style>
+</head>
+<body>
+  <div id="order-summary">
+    <h2>Your Order</h2>
+    <p><strong>Order ID:</strong> <%= order.orderID %></p>
+    <p><strong>Total Price:</strong> $<%= order.totalAmount.toFixed(2) %></p>
+    <p><strong>Placed At:</strong> <%= new Date(order.placed_at).toLocaleString('en-GB', { hour12:false, timeZone:'Australia/Sydney' }) %></p>
+    <p><strong>Status:</strong> <span id="status"><%= order.status %></span></p>
+    <div style="text-align:center; margin-top:20px;">
+      <button id="payNow" <% if(order.status!=='Pending'){ %>disabled<% } %>>Pay Now</button>
+    </div>
+  </div>
+
+  <script>
+    const orderID = <%= JSON.stringify(order.orderID) %>;
+    const statusEl = document.getElementById('status');
+    const payBtn    = document.getElementById('payNow');
+    const toastEl   = document.createElement('div');
+    toastEl.id = 'toast'; document.body.appendChild(toastEl);
+    
+    function showToast(msg){
+      toastEl.textContent=msg; toastEl.style.cssText='position:fixed;bottom:20px;right:20px;background:#333;color:#fff;padding:12px;border-radius:4px;';
+      setTimeout(()=>toastEl.remove(),3000);
+    }
+
+    payBtn.addEventListener('click',()=>{
+      fetch(`/api/order/${orderID}/pay`,{ method:'POST' })
+      .then(res=>res.json())
+      .then(()=>{
+        statusEl.textContent='Done';
+        payBtn.disabled=true;
+        const ts=new Date().toLocaleTimeString('en-GB',{hour12:false,timeZone:'Australia/Sydney'});
+        showToast(`Paid at ${ts}`);
+        setTimeout(()=> window.location.href=`/reviews?orderID=${orderID}`,3000);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,35 +1,37 @@
-import { DataTypes }       from 'sequelize';
-import { sequelize }       from '../config/database.js';
-import eventBus            from './eventBus.js';
+import { DataTypes } from 'sequelize';
+import { sequelize }  from '../config/database.js';
+import eventBus       from './eventBus.js';
 
-// Inline model mapping to cart_items table
-export const CartItem = sequelize.define('cart_items', {
-  id:         { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-  user_id:    { type: DataTypes.INTEGER, allowNull: false },
-  product_id: { type: DataTypes.INTEGER, allowNull: false },
-  quantity:   { type: DataTypes.INTEGER, defaultValue: 1 }
+// Map to `cart` table
+export const Cart = sequelize.define('cart', {
+  cartID:    { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+  buyerID:   { type: DataTypes.INTEGER, allowNull: false },
+  productID: { type: DataTypes.INTEGER, allowNull: false },
+  quantity:  { type: DataTypes.INTEGER, defaultValue: 1 }
 }, {
+  tableName: 'cart',
   timestamps: true,
-  underscored: true,
+  createdAt: 'added_at',
+  updatedAt: false,
+  underscored: true
 });
 
-// Get all items in a user's cart
+// GET /api/cart?buyerID=...
 export async function getCart(req, res) {
-  const userId = parseInt(req.query.userId, 10) || null;
-  if (!userId) return res.status(400).json({ error: 'userId query is required' });
-
-  const items = await CartItem.findAll({ where: { user_id: userId } });
+  const buyerID = parseInt(req.query.buyerID, 10);
+  if (!buyerID) return res.status(400).json({ error: 'buyerID query required' });
+  const items = await Cart.findAll({ where: { buyerID } });
   res.json(items);
 }
 
-// Add a product to cart
+// POST /api/cart
+// body: { buyerID, productID, quantity }
 export async function addCartItem(req, res) {
-  const { userId, productId, quantity = 1 } = req.body;
-  if (!userId || !productId) {
-    return res.status(400).json({ error: 'userId and productId are required' });
+  const { buyerID, productID, quantity = 1 } = req.body;
+  if (!buyerID || !productID) {
+    return res.status(400).json({ error: 'buyerID and productID required' });
   }
-
-  const item = await CartItem.create({ user_id: userId, product_id: productId, quantity });
+  const item = await Cart.create({ buyerID, productID, quantity });
   eventBus.emit('cartItemAdded', { item, timestamp: new Date().toISOString() });
   res.status(201).json(item);
 }
