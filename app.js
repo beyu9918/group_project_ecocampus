@@ -16,9 +16,9 @@ import userRoutes from './routes/userRoutes.js';
 import { registerForm, loginForm } from './controllers/userController.js';
 import eventBus from './controllers/eventBus.js';
 import * as cartController from './controllers/cartController.js';
-
+import fileUpload from 'express-fileupload'; // ✅ 新增
 import debug from 'debug';
-import * as customServer from './config/server.js'; // 
+import * as customServer from './config/server.js';
 
 // Setup paths
 const __filename = fileURLToPath(import.meta.url);
@@ -32,6 +32,12 @@ export const codeTrace = debug('comp3028:server');
 
 // Optional custom setup
 customServer.setup?.(app);
+
+// ✅ fileUpload middleware（必须放最前面）
+app.use(fileUpload({
+  useTempFiles: true,
+  parseNested: true
+}));
 
 // Middleware
 app.use(cors());
@@ -54,11 +60,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/social', socialRoutes);
 app.use('/', productRoutes);
-
 app.use('/search', searchRoutes);
-app.use(express.urlencoded({ extended: true }));
-
-
 
 // Authentication
 app.get('/register', (req, res) => res.render('register'));

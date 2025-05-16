@@ -1,7 +1,5 @@
-
 CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY,
-  userID TEXT UNIQUE NOT NULL,
+  userID SERIAL PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
   name TEXT,
   password TEXT NOT NULL,
@@ -11,26 +9,44 @@ CREATE TABLE IF NOT EXISTS users (
   address TEXT,
   gender TEXT,
   birthday DATE,
+  role TEXT CHECK (role IN ('admin', 'user')),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
-CREATE TABLE IF NOT EXISTS product (
-  id SERIAL PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
-  description TEXT,
-  price NUMERIC(10, 2) NOT NULL,
-  category VARCHAR(100),
-  image VARCHAR(255),
-  seller_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-  avgRating NUMERIC(3, 2) DEFAULT 0
+CREATE TABLE product (
+  productID SERIAL PRIMARY KEY,
+  sellerID INTEGER REFERENCES users(userID) ON DELETE SET NULL,
+  productName TEXT NOT NULL,
+  productPrice NUMERIC(10, 2) NOT NULL,
+  productPicture TEXT,
+  avgRating NUMERIC(2, 1) CHECK (avgRating BETWEEN 1 AND 5),
+  category TEXT,
+  description TEXT
 );
 
-
 CREATE TABLE IF NOT EXISTS reviews (
-  id SERIAL PRIMARY KEY,
-  product_id INTEGER NOT NULL REFERENCES product(id) ON DELETE CASCADE,
-  reviewer TEXT NOT NULL,
+  reviewID SERIAL PRIMARY KEY,
+  productID INTEGER NOT NULL REFERENCES product(productID) ON DELETE CASCADE,
+  reviewerID INTEGER NOT NULL REFERENCES users(userID) ON DELETE CASCADE,
   rating INTEGER CHECK (rating >= 1 AND rating <= 5),
-  comment TEXT
+  comment TEXT,
+  createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (productID, reviewerID)
+);
+
+CREATE TABLE orders (
+  orderID SERIAL PRIMARY KEY,
+  buyerID INTEGER REFERENCES users(userID),
+  productID INTEGER REFERENCES product(productID),
+  totalAmount NUMERIC(10,2) NOT NULL,
+  placed_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE cart (
+  cartID SERIAL PRIMARY KEY,
+  buyerID INTEGER NOT NULL REFERENCES users(userID) ON DELETE CASCADE,
+  productID INTEGER REFERENCES product(productID),
+  quantity INTEGER NOT NULL DEFAULT 1,
+  added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (buyerID, productID)
 );
