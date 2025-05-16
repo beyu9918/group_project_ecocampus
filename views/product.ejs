@@ -181,6 +181,9 @@
     </form>
   </div>
 
+  
+  
+
   <!-- Display Products -->
   <div class="product-section">
     <h2>All Products:</h2>
@@ -192,7 +195,7 @@
               <strong>Name:</strong> <%= g.productname %><br/>
               <strong>Price:</strong> $<%= g.productprice %><br/>
               <strong>Category:</strong> <%= g.category || 'N/A' %><br/>
-              <strong>Description:</strong> <%= g.description || 'No description' %><br/>
+              <!-- <strong>Description:</strong> <%= g.description || 'No description' %><br/> -->
               <% if (g.productpicture) { %>
                 <img src="<%= g.productpicture %>" alt="Product Image" width="150" style="margin-top: 10px;" />
               <% } %>
@@ -203,12 +206,13 @@
         <li>No product added yet.</li>
       <% } %>
     </ul>
-
-    <!-- Add Product Button -->
-    <form action="/product/addProduct" method="GET">
-      <button type="submit">Add Product</button>
-    </form>
   </div>
+
+
+  <!-- Add Product Button -->
+  <form action="/product/addProduct" method="GET">
+    <button type="submit">Add Product</button>
+  </form>
 
 </body>
 </html>
