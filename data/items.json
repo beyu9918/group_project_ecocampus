@@ -1,0 +1,30 @@
+{
+    "items": [
+      {
+        "id": 1,
+        "title": "Math Book",
+        "category": "Textbook",
+        "price": 50.00,
+        "description": "A comprehensive guide to mathematics.",
+        "avgRating": 4.5,
+        "user_id": { "name": "John Doe", "avgRating": 4.6 }
+      },
+      {
+        "id": 2,
+        "title": "Physics Textbook",
+        "category": "Textbook",
+        "price": 60.00,
+        "description": "An essential book for understanding physics.",
+        "avgRating": 4.2,
+        "user_id": { "name": "Jane Smith", "avgRating": 4.4 }
+      },
+      {
+        "id": 3,
+        "title": "English Textbook",
+        "category": "Textbook",
+        "price": 60.00,
+        "avgRating": 4.2
+        
+      }
+    ]
+  }
