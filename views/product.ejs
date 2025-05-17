@@ -51,8 +51,6 @@
       margin-top: 10px;
     }
 
-    .search-form h2 { text-align: left; }
-
     .search-form form {
       display: flex;
       flex-direction: column;
@@ -99,17 +97,68 @@
       text-align: left;
     }
 
-    ul {
-      list-style-type: none;
-      padding: 0;
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
     }
 
-    li {
+    .product-card {
       background-color: #cce6d3;
-      padding: 10px;
-      margin-bottom: 8px;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .product-card:hover {
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      transform: translateY(-3px);
+    }
+
+    .product-card img {
+      width: 240px;
+      height: 160px;
+      object-fit: cover;
       border-radius: 6px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      margin-bottom: 10px;
+    }
+
+    .product-card a {
+      text-decoration: none;
+      color: inherit;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .product-info {
+      text-align: left;
+      width: 100%;
+    }
+
+    .product-info p {
+      margin: 4px 0;
+    }
+
+    .contact-btn {
+      margin-top: 10px;
+      padding: 8px 14px;
+      background-color: #416858;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+    }
+
+    .contact-btn:hover {
+      background-color: #283b34;
     }
 
     form[action="/product/addProduct"] {
@@ -181,33 +230,31 @@
     </form>
   </div>
 
-  
-  
-
   <!-- Display Products -->
   <div class="product-section">
     <h2>All Products:</h2>
-    <ul>
+    <div class="product-grid">
       <% if (product && product.length > 0) { %>
         <% product.forEach(g => { %>
-          <li>
-            <a href="/product/<%= g.productid %>" style="text-decoration: none; color: inherit;">
-              <strong>Name:</strong> <%= g.productname %><br/>
-              <strong>Price:</strong> $<%= g.productprice %><br/>
-              <strong>Category:</strong> <%= g.category || 'N/A' %><br/>
-              <!-- <strong>Description:</strong> <%= g.description || 'No description' %><br/> -->
+          <div class="product-card">
+            <a href="/product/<%= g.productid %>">
               <% if (g.productpicture) { %>
-                <img src="<%= g.productpicture %>" alt="Product Image" width="150" style="margin-top: 10px;" />
+                <img src="<%= g.productpicture %>" alt="Product Image" />
               <% } %>
+              <div class="product-info">
+                <p><strong>Name:</strong> <%= g.productname %></p>
+                <p><strong>Price:</strong> $<%= g.productprice %></p>
+                <p><strong>Category:</strong> <%= g.category || 'N/A' %></p>
+              </div>
             </a>
-          </li>
+            <button class="contact-btn" type="button">Contact to Seller</button>
+          </div>
         <% }) %>
       <% } else { %>
-        <li>No product added yet.</li>
+        <p>No product added yet.</p>
       <% } %>
-    </ul>
+    </div>
   </div>
-
 
   <!-- Add Product Button -->
   <form action="/product/addProduct" method="GET">
@@ -216,6 +263,10 @@
 
 </body>
 </html>
+
+
+
+
 
 
 

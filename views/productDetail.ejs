@@ -66,11 +66,14 @@
       margin-bottom: 15px;
     }
 
-    .back-button {
+    .action-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
       margin-top: 20px;
     }
 
-    .back-button button {
+    .back-button-btn {
       padding: 10px 16px;
       background-color: #4CAF50;
       color: white;
@@ -80,7 +83,7 @@
       font-size: 16px;
     }
 
-    .back-button button:hover {
+    .back-button-btn:hover {
       background-color: #388e3c;
     }
   </style>
@@ -106,10 +109,18 @@
     <p><strong>Category:</strong> <%= product.category || 'N/A' %></p>
     <p><strong>Description:</strong> <%= product.description || 'No description' %></p>
 
-    <form action="/product" method="GET" class="back-button">
-      <button type="submit">Back</button>
-    </form>
+    <!-- Buttons -->
+    <div class="action-buttons">
+      <form action="/product" method="GET">
+        <button type="submit" class="back-button-btn">Back</button>
+      </form>
+
+      <form>
+        <button type="button" class="back-button-btn">Add to Cart</button>
+      </form>
+    </div>
   </div>
 
 </body>
 </html>
+
