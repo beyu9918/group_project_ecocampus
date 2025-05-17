@@ -1,26 +1,35 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <title>Order <%= order.id %></title>
-</head>
-<body>
-  <% if (confirmed) { %>
-    <h1>Order <%= order.id %> Confirmed</h1>
-    <p>Thank you! Your order has been confirmed.</p>
-    <a href="/" class="button">Back to Cart</a>
-  <% } else { %>
-    <h1>Order <%= order.id %> Details</h1>
-    <ul>
-      <% cart.forEach(item => { %>
-        <li>Product <%= item.productName %> — Quantity: <%= item.quantity %></li>
-      <% }); %>
-    </ul>
-    <p>Total Price: $<%= order.totalAmount %></p>
-    <form action="/order/<%= order.id %>/pay" method="POST">
-      <button type="submit">Checkout</button>
-    </form>
-    <a href="/" class="button">Back to Cart</a>
-  <% } %>
-</body>
+  <head>
+    <meta charset="utf-8">
+    <title>Your Order</title>
+  </head>
+  <body>
+    <% if (!confirmed) { %>
+      <h1>Your Order</h1>
+      <ul>
+        <% items.forEach(item => { %>
+          <li style="display:flex; align-items:center; margin-bottom:1em;">
+            <!-- placeholder for product image -->
+            <img src="" alt="<%= item.product.productName %>" width="50" height="50" style="margin-right:1em;">
+            <div>
+              <strong><%= item.product.productName %></strong><br/>
+              Price: $<%= parseFloat(item.product.productPrice).toFixed(2) %><br/>
+              Quantity: <%= item.quantity %>
+            </div>
+          </li>
+        <% }) %>
+      </ul>
+      <p><strong>Total: $<%= total.toFixed(2) %></strong></p>
+      <form action="/order/checkout" method="POST">
+        <button type="submit">Checkout</button>
+      </form>
+      <p><a href="/">Back to Cart</a></p>
+
+    <% } else { %>
+      <h1>Order Confirmed</h1>
+      <p>Thank you! Your order has been placed successfully.</p>
+      <p><a href="/">Back to Cart</a></p>
+    <% } %>
+  </body>
 </html>

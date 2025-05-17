@@ -9,73 +9,20 @@
 
   <ul>
     <% cart.forEach(item => { %>
-      <li>
-        <strong><%= item.Product.productName %></strong>
-        — Quantity: <%= item.quantity %>
-        — Price: $<%= item.Product.productPrice.toFixed(2) %>
+      <li style="display: flex; align-items: center;">
+        <img src="" alt="<%= item.product.productName %>" style="width:50px;height:50px;margin-right:10px;" />
+        <div>
+          <strong><%= item.product.productName %></strong><br/>
+          Price: $<%= item.product.productPrice
+               ? parseFloat(item.product.productPrice).toFixed(2)
+               : '0.00' %>
+        </div>
       </li>
     <% }); %>
   </ul>
 
-  <form action="/order" method="POST">
+  <form action="/order" method="POST" style="text-align:center; margin-top:2em;">
     <button type="submit">Place Order</button>
   </form>
-</body>
-</html>
-```ejs
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>EcoCampus Shop</title>
-</head>
-<body>
-  <h1>EcoCampus Shop</h1>
-
-  <section>
-    <h2>Your Cart</h2>
-    <ul>
-      <% cart.forEach(item => { %>
-        <li>Product <%= item.productName %> — Quantity: <%= item.quantity %></li>
-      <% }); %>
-    </ul>
-    <button id="shareCart">Share Cart</button>
-  </section>
-
-  <section>
-    <h2>Add to Cart</h2>
-    <form action="/cart" method="POST">
-      <input type="number" name="buyerID" placeholder="Buyer ID" required>
-      <input type="text" name="productName" placeholder="Product Name" required>
-      <input type="number" name="quantity" placeholder="Quantity" value="1">
-      <button type="submit">Add to Cart</button>
-    </form>
-  </section>
-
-  <section>
-    <h2>Place Order</h2>
-    <form action="/order" method="POST">
-      <input type="number" name="buyerID" placeholder="Buyer ID" required>
-      <input type="text" name="productName" placeholder="Product Name" required>
-      <input type="text" name="totalAmount" placeholder="Total Amount" required>
-      <button type="submit">Place Order</button>
-    </form>
-  </section>
-
-  <script>
-    document.getElementById('shareCart').addEventListener('click', () => {
-      const items = JSON.parse('<%- JSON.stringify(cart) %>');
-      const text = items.map(i => `Product ${i.productName} x${i.quantity}`).join('\n');
-      if (navigator.share) {
-        navigator.share({ title: 'My Cart', text });
-      } else if (navigator.clipboard) {
-        navigator.clipboard.writeText(text)
-          .then(() => alert('Cart copied to clipboard'))
-          .catch(() => alert('Failed to copy'));      
-      } else {
-        alert(text);
-      }
-    });
-  </script>
 </body>
 </html>

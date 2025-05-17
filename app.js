@@ -1,76 +1,85 @@
+// app.js
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import bodyParser from 'body-parser';
 import { connectDatabase } from './config/database.js';
-import { Cart } from './controllers/cartController.js';
-import { Order } from './controllers/orderController.js';
-import cartRoutes from './routes/cart.js';
-import orderRoutes from './routes/order.js';
+import { Cart }            from './controllers/cartController.js';
+// Note: productController.js only defines Product; the association is in cartController
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const app = express();
+;(async () => {
+  // 1. Connect to Postgres
+  await connectDatabase();
 
-// View engine
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
+  // 2. Boilerplate for __dirname in ESM
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname  = path.dirname(__filename);
 
-// Middleware
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
+  // 3. Create Express app
+  const app = express();
 
-// Database
-connectDatabase();
+  // 4. Middleware
+  app.use(express.urlencoded({ extended: true })); // for <form> POSTs
+  app.use(express.json());                         // in case you need JSON APIs
+  app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes
-app.use('/cart', cartRoutes);
-app.use('/order', orderRoutes);
+  // 5. View engine
+  app.set('view engine', 'ejs');
+  app.set('views', path.join(__dirname, 'views'));
 
-// Cart page: show items with product details
-app.get('/', async (req, res) => {
-  const buyerID = 1;
-  const cartItems = await Cart.findAll({
-    where: { buyerID },
-    include: [{ model: Product, attributes: ['productName', 'productPrice'] }]
+  const BUYER_ID = 1; // hard-coded for your sample data; swap for session/auth later
+
+  // 6. Cart page: list items in cart
+  app.get('/', async (req, res) => {
+    try {
+      const cartItems = await Cart.findAll({
+        where: { buyerID: BUYER_ID },
+        include: [{
+          association: 'product',
+          attributes: ['productName', 'productPrice', 'productPicture']
+        }]
+      });
+      res.render('index', { cart: cartItems });
+    } catch (err) {
+      console.error('Error loading cart page:', err);
+      res.status(500).send(err.message);
+    }
   });
-  res.render('index', { cart: cartItems });
-});
 
-// Place order: compute total, create order, clear cart, redirect
-app.post('/order', async (req, res) => {
-  const buyerID = 1;
-  const cartItems = await Cart.findAll({
-    where: { buyerID },
-    include: [{ model: Product, attributes: ['productPrice'] }]
+  // 7. Place Order: show order summary
+  app.post('/order', async (req, res) => {
+    try {
+      const items = await Cart.findAll({
+        where: { buyerID: BUYER_ID },
+        include: [{
+          association: 'product',
+          attributes: ['productName', 'productPrice', 'productPicture']
+        }]
+      });
+      const total = items.reduce(
+        (sum, it) => sum + parseFloat(it.product.productPrice) * it.quantity,
+        0
+      );
+      res.render('order', { items, total, confirmed: false });
+    } catch (err) {
+      console.error('Error rendering order page:', err);
+      res.status(500).send(err.message);
+    }
   });
-  const totalAmount = cartItems.reduce(
-    (sum, item) => sum + item.Product.productPrice * item.quantity,
-    0
-  );
-  const order = await Order.create({ buyerID, totalAmount });
-  // clear cart
-  await Cart.destroy({ where: { buyerID } });
-  res.redirect(`/order/${order.orderID}`);
-});
 
-// Show order details or confirmation
-app.get('/order/:id', async (req, res) => {
-  const order = await Order.findByPk(req.params.id);
-  const confirmed = order.status === 'Done';
-  res.render('order', { order: { id: order.orderID, totalAmount: order.totalAmount }, cart: [], confirmed });
-});
+  // 8. Checkout: clear the cart, show confirmation
+  app.post('/order/checkout', async (req, res) => {
+    try {
+      await Cart.destroy({ where: { buyerID: BUYER_ID } });
+      res.render('order', { items: [], total: 0, confirmed: true });
+    } catch (err) {
+      console.error('Error during checkout:', err);
+      res.status(500).send(err.message);
+    }
+  });
 
-// Handle payment and redirect to confirmation
-app.post('/order/:id/pay', async (req, res) => {
-  await Order.update(
-    { status: 'Done' },
-    { where: { orderID: req.params.id } }
-  );
-  res.redirect(`/order/${req.params.id}`);
-});
-
-// Start
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  // 9. Start server
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
+})();
