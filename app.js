@@ -4,9 +4,12 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import searchRoutes from './routes/searchRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
+
 import productRoutes from './routes/product.js';
 import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/order.js';
@@ -14,9 +17,9 @@ import socialRoutes from './routes/social.js';
 import { registerForm, loginForm } from './controllers/userController.js';
 import eventBus from './controllers/eventBus.js';
 import * as cartController from './controllers/cartController.js';
-
+import fileUpload from 'express-fileupload'; 
 import debug from 'debug';
-import * as customServer from './config/server.js'; // 
+import * as customServer from './config/server.js';
 
 // __dirname replacement
 const __filename = fileURLToPath(import.meta.url);
@@ -30,6 +33,12 @@ export const codeTrace = debug('comp3028:server');
 
 // Optional custom setup
 customServer.setup?.(app);
+
+
+app.use(fileUpload({
+  useTempFiles: true,
+  parseNested: true
+}));
 
 // Middleware
 app.use(cors());
@@ -53,6 +62,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/social', socialRoutes);
 app.use('/', productRoutes);
+app.use('/search', searchRoutes);
 
 // Authentication
 app.get('/register', (req, res) => res.render('register'));
@@ -66,6 +76,11 @@ app.get('/profile', (req, res) => {
   res.render('profile', { user: req.session.user });
 });
 
+
+// Homepage UI
+app.get('/', (req, res) => {
+  res.redirect('/product');
+});
 
 
 // Optional test route
