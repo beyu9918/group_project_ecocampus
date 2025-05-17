@@ -10,7 +10,12 @@
   <nav class="navbar">
     <div class="nav-title">EcoCampus</div>
     <div class="nav-right">
-      <a href="/login"><button class="nav-button">Login</button></a>
+      <a href="/orders"><button class="nav-button">Order Management</button></a>
+      <% if (user && user.name) { %>
+        <a href="/profile"><button class="nav-button"><%= user.name %></button></a>
+      <% } else { %>
+        <a href="/login"><button class="nav-button">Login</button></a>
+      <% } %>
       <a href="/cart"><button class="nav-button">Shopping Cart</button></a>
     </div>
   </nav>
