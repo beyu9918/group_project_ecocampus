@@ -115,6 +115,7 @@ export async function updateProfile(req, res) {
   try {
     await sql`
       UPDATE users SET
+        name = ${req.body.name},
         email = ${email},
         phone = ${phone},
         avatar = ${avatar},
