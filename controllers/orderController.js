@@ -1,21 +1,45 @@
 import { DataTypes } from 'sequelize';
 import { sequelize }  from '../config/database.js';
-import { Cart }      from './cartController.js';
+import { Cart }       from './cartController.js';
 import eventBus       from './eventBus.js';
 
-// Map to `orders` table
 export const Order = sequelize.define('orders', {
-  orderID:     { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-  buyerID:     { type: DataTypes.INTEGER, allowNull: false },
-  productID:   { type: DataTypes.INTEGER, allowNull: false },
-  totalAmount: { type: DataTypes.DECIMAL(10,2), allowNull: false },
-  status: { type: DataTypes.STRING, allowNull: false, defaultValue: 'Pending' },
+  orderID: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+    field: 'orderid'
+  },
+  buyerID: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    field: 'buyerid',
+    references: { model: 'users', key: 'userid' },
+    onDelete: 'CASCADE'
+  },
+  productID: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    field: 'productid',
+    references: { model: 'product', key: 'productid' },
+    onDelete: 'CASCADE'
+  },
+  totalAmount: {
+    type: DataTypes.DECIMAL(10,2),
+    allowNull: false,
+    field: 'totalamount'
+  },
+  status: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'Pending'
+  }
 }, {
-  tableName: 'orders',
-  timestamps: true,
-  createdAt: 'placed_at',
-  updatedAt: false,
-  underscored: true
+  tableName:    'orders',
+  timestamps:   true,
+  createdAt:    'placed_at',
+  updatedAt:    false,
+  underscored:  false
 });
 
 // POST /api/order

@@ -2,18 +2,38 @@ import { DataTypes } from 'sequelize';
 import { sequelize }  from '../config/database.js';
 import eventBus       from './eventBus.js';
 
-// Map to `cart` table
+// Map to `cart` table exactly as-is
 export const Cart = sequelize.define('cart', {
-  cartID:    { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-  buyerID:   { type: DataTypes.INTEGER, allowNull: false },
-  productID: { type: DataTypes.INTEGER, allowNull: false },
-  quantity:  { type: DataTypes.INTEGER, defaultValue: 1 }
+  cartID: {
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
+    primaryKey: true,
+    field: 'cartid'              // ← exactly your existing column
+  },
+  buyerID: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    field: 'buyerid',            // ← map to buyerid, not buyer_i_d
+    references: { model: 'users', key: 'userid' },
+    onDelete: 'CASCADE'
+  },
+  productID: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    field: 'productid',          // ← map to productid
+    references: { model: 'product', key: 'productid' },
+    onDelete: 'CASCADE'
+  },
+  quantity: {
+    type: DataTypes.INTEGER,
+    defaultValue: 1
+  }
 }, {
-  tableName: 'cart',
-  timestamps: true,
-  createdAt: 'added_at',
-  updatedAt: false,
-  underscored: true
+  tableName:    'cart',
+  timestamps:   true,
+  createdAt:    'added_at',
+  updatedAt:    false,
+  underscored:  false           // ← turn OFF automatic snake_casing
 });
 
 // GET /api/cart?buyerID=...

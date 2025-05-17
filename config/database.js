@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import envConfig      from './default.js';
+
 const { host, port, database, username, password, dialect } = envConfig.db;
 
 export const sequelize = new Sequelize(database, username, password, {
@@ -7,6 +8,13 @@ export const sequelize = new Sequelize(database, username, password, {
   port,
   dialect,
   logging: false,
+
+  define: {
+    freezeTableName: true,
+
+    underscored: false,
+    timestamps: false
+  }
 });
 
 export async function connectDatabase() {
