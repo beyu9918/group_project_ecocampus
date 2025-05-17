@@ -2,17 +2,18 @@ import express from 'express';
 import session from 'express-session';
 import cors from 'cors';
 import path from 'path';
-import http from 'http';
-import { Server as SocketIOServer } from 'socket.io';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import searchRoutes from './routes/searchRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import http from 'http';
+import { Server as SocketIOServer } from 'socket.io';
+
 import productRoutes from './routes/product.js';
 import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/order.js';
 import socialRoutes from './routes/social.js';
-import userRoutes from './routes/userRoutes.js';
 import { registerForm, loginForm } from './controllers/userController.js';
 import eventBus from './controllers/eventBus.js';
 import * as cartController from './controllers/cartController.js';
@@ -20,7 +21,7 @@ import fileUpload from 'express-fileupload';
 import debug from 'debug';
 import * as customServer from './config/server.js';
 
-// Setup paths
+// __dirname replacement
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -50,9 +51,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
-// View engine
+// EJS config
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+
 
 // Routes
 app.use('/api/users', userRoutes);
@@ -74,10 +76,12 @@ app.get('/profile', (req, res) => {
   res.render('profile', { user: req.session.user });
 });
 
+
 // Homepage UI
 app.get('/', (req, res) => {
   res.redirect('/product');
 });
+
 
 // Optional test route
 app.get('/test', (req, res) => res.send('Test'));

@@ -1,131 +1,235 @@
-import fs from 'fs';
-import path from 'path';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { fileURLToPath } from 'url'; // Handle __dirname
-import { dirname } from 'path';
+import sql from '../db.js'; // PostgreSQL connection
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const usersPath = path.join(__dirname, '../data/users.json');
-
-const readUsers = () => {
-  const data = fs.readFileSync(usersPath);
-  return JSON.parse(data);
-};
-
-const writeUsers = (users) => {
-  fs.writeFileSync(usersPath, JSON.stringify(users, null, 2));
-};
-
+// Generate JWT token for authenticated users
 const generateToken = (user) => {
   return jwt.sign({ email: user.email, role: user.role }, 'secret123', { expiresIn: '1d' });
 };
 
-const generateId = (prefix) => {
-  return `${prefix}_${Date.now()}`;
-};
-
-// register prot（return JSON）
-export function register(req, res) {
+// Register via JSON API
+export async function register(req, res) {
   const { email, password, name } = req.body;
-  const users = readUsers();
 
-  if (users.find(u => u.email === email)) {
-    return res.status(400).json({ msg: 'Email already exists' });
+  try {
+    const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
+    if (existing.length > 0) {
+      return res.status(400).json({ msg: 'Email already exists' });
+    }
+
+    const hashedPassword = bcrypt.hashSync(password, 10);
+
+    await sql`
+      INSERT INTO users (
+        email, password, name, role
+      ) VALUES (
+        ${email}, ${hashedPassword}, ${name}, 'user'
+      )
+    `;
+
+    res.status(201).json({ msg: 'User registered successfully', user: { email, name } });
+  } catch (err) {
+    console.error('Register error:', err);
+    res.status(500).json({ msg: 'Internal server error' });
   }
-
-  const hashedPassword = bcrypt.hashSync(password, 10);
-  const newUser = {
-    email,
-    password: hashedPassword,
-    name,
-    role: 'normal',
-    createdAt: new Date().toISOString(),
-  };
-
-  users.push(newUser);
-  writeUsers(users);
-
-  res.status(201).json({ msg: 'User registered successfully', user: { email, name } });
 }
 
-// login port（return token）
-export function login(req, res) {
+// ✅ Login via JSON
+export async function login(req, res) {
   const { email, password } = req.body;
-  const users = readUsers();
-  const user = users.find(u => u.email === email);
 
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    return res.status(401).json({ msg: 'Invalid credentials' });
+  try {
+    const result = await sql`SELECT * FROM users WHERE email = ${email}`;
+    const user = result[0];
+
+    if (!user || !bcrypt.compareSync(password, user.password)) {
+      return res.status(401).json({ msg: 'Invalid credentials' });
+    }
+
+    const token = generateToken(user);
+    res.json({ msg: 'Login successful', token });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ msg: 'Internal server error' });
   }
-
-  const token = generateToken(user);
-  res.json({ msg: 'Login successful', token });
 }
 
-// registering（return EJS page）
-export function registerForm(req, res) {
+// ✅ Register via EJS form
+export async function registerForm(req, res) {
   const { email, password, name } = req.body;
-  const users = readUsers();
-  
 
-  if (users.find(u => u.email === email)) {
-    return res.render('success', { message: '⚠️ Email already registered.' });
+  try {
+    const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
+    if (existing.length > 0) {
+      return res.render('success', { message: '⚠️ Email already registered.' });
+    }
+
+    const hashedPassword = bcrypt.hashSync(password, 10);
+
+    await sql`
+      INSERT INTO users (
+        email, password, name, role
+      ) VALUES (
+        ${email}, ${hashedPassword}, ${name}, 'user'
+      )
+    `;
+
+    res.render('success', { message: 'Registered successfully!' });
+  } catch (err) {
+    console.error('RegisterForm error:', err);
+    res.render('success', { message: 'Internal error occurred.' });
   }
-
-  const hashedPassword = bcrypt.hashSync(password, 10);
-  const newUser = {
-    userID: generateId('user'), // new user id
-    email,
-    password: hashedPassword,
-    name,
-    role: 'normal',
-    createdAt: new Date().toISOString(),
-  };
-
-  users.push(newUser);
-  writeUsers(users);
-
-  res.render('success', { message: ' Registered successfully!' });
 }
 
-// login table port（return EJS page）
-export function loginForm(req, res) {
+// ✅ Login via EJS form
+export async function loginForm(req, res) {
   const { email, password } = req.body;
-  const users = readUsers();
-  const user = users.find(u => u.email === email);
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    return res.render('success', { message: '❌ Invalid email or password' });
+
+  try {
+    const result = await sql`SELECT * FROM users WHERE email = ${email}`;
+    const user = result[0];
+
+    if (!user || !bcrypt.compareSync(password, user.password)) {
+      return res.render('success', { message: 'Invalid email or password' });
+    }
+
+    req.session.user = user;
+    res.redirect('/profile');
+  } catch (err) {
+    console.error('LoginForm error:', err);
+    res.render('success', { message: 'Login failed due to server error.' });
   }
-  req.session.user = user; // 如果你有session，可以存起来，后面profile页用
-  res.redirect('/profile');
 }
 
-export function updateProfile(req, res) {
+// ✅ Update user profile
+export async function updateProfile(req, res) {
   const { email, phone, avatar, bio, address, gender, birthday } = req.body;
-  const users = readUsers();
-  
-  // 这里假设登录用户通过 req.user 识别 (需要模拟登录状态或token解析)
-  const userId = req.session.user.userID;
+  const parsedBirthday = birthday && !isNaN(new Date(birthday)) ? new Date(birthday) : null;
 
-  const user = users.find(u => u.userID === userId);
-
-  if (!user) {
-    return res.status(404).json({ msg: 'User not found' });
+  if (!req.session.user) {
+    return res.redirect('/login');
   }
 
-  // 更新字段（只更新有传入的）
-  user.email = email || user.email;
-  user.phone = phone || user.phone;
-  user.avatar = avatar || user.avatar;
-  user.bio = bio || user.bio;
-  user.address = address || user.address;
-  user.gender = gender || user.gender;
-  user.birthday = birthday || user.birthday;
+  const userId = req.session.user.userid;
 
-  writeUsers(users);
+  try {
+    await sql`
+      UPDATE users SET
+        name = ${req.body.name},
+        email = ${email},
+        phone = ${phone},
+        avatar = ${avatar},
+        bio = ${bio},
+        address = ${address},
+        gender = ${gender},
+        birthday = ${parsedBirthday}
+      WHERE userID = ${userId}
+    `;
 
-  res.json({ msg: 'Profile updated successfully', user });
+    const result = await sql`SELECT * FROM users WHERE userID = ${userId}`;
+    req.session.user = result[0];
+
+    res.render('success', {
+      message: '✅ Profile updated successfully.',
+      backLink: '/profile'
+    });
+  } catch (err) {
+    console.error('UpdateProfile error:', err);
+    res.render('success', { message: 'Profile update failed due to server error.' });
+  }
+}
+
+// ✅ Render profile page
+export async function renderProfilePage(req, res) {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const userId = req.session.user.userid;
+
+  try {
+    const result = await sql`SELECT * FROM users WHERE userID = ${userId}`;
+    const user = result[0];
+
+    if (!user) {
+      return res.render('success', { message: 'User not found.' });
+    }
+
+    if (user.birthday) {
+      user.birthday = new Date(user.birthday).toISOString().split('T')[0];
+    }
+
+    res.render('profile', { user });
+  } catch (err) {
+    console.error('RenderProfilePage error:', err);
+    res.render('success', { message: 'Failed to load profile.' });
+  }
+}
+
+// ✅ [NEW] Admin-only: View all users
+export async function viewAllUsers(req, res) {
+  try {
+    if (!req.session.user || req.session.user.role !== 'admin') {
+      return res.status(403).send('Access denied.');
+    }
+
+    const users = await sql`SELECT * FROM users ORDER BY created_at DESC`;
+
+    res.render('userSQL', { users });
+  } catch (err) {
+    console.error('ViewAllUsers error:', err);
+    res.status(500).send('Server error');
+  }
+  
+}
+// ✅ Admin-only: View orders of a user
+export async function viewUserOrders(req, res) {
+  const { id } = req.params;
+
+  try {
+    const orders = await sql`SELECT * FROM orders WHERE buyerid = ${id}`;
+    res.render('orderSQL', { orders });
+  } catch (err) {
+    console.error('ViewUserOrders error:', err);
+    res.status(500).send('Failed to load orders.');
+  }
+}
+
+// ✅ Admin-only: View products posted by a user
+export async function viewUserProducts(req, res) {
+  const { id } = req.params;
+
+  try {
+    const products = await sql`SELECT * FROM product WHERE sellerid = ${id}`;
+    res.render('productSQL', { products });
+  } catch (err) {
+    console.error('ViewUserProducts error:', err);
+    res.status(500).send('Failed to load products.');
+  }
+}
+
+// ✅ Admin-only: View cart content of a user
+export async function viewUserCart(req, res) {
+  const { id } = req.params;
+
+  try {
+    const cart = await sql`SELECT * FROM cart WHERE buyerid = ${id}`;
+    res.render('cartSQL', { cart });
+  } catch (err) {
+    console.error('ViewUserCart error:', err);
+    res.status(500).send('Failed to load cart.');
+  }
+}
+
+// ✅ Admin-only: View reviews made by a user
+export async function viewUserReviews(req, res) {
+  const { id } = req.params;
+
+  try {
+    const reviews = await sql`SELECT * FROM reviews WHERE reviewerid = ${id}`;
+    res.render('reviewsSQL', { reviews });
+  } catch (err) {
+    console.error('ViewUserReviews error:', err);
+    res.status(500).send('Failed to load reviews.');
+  }
 }
