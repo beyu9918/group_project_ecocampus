@@ -16,7 +16,7 @@ import userRoutes from './routes/userRoutes.js';
 import { registerForm, loginForm } from './controllers/userController.js';
 import eventBus from './controllers/eventBus.js';
 import * as cartController from './controllers/cartController.js';
-import fileUpload from 'express-fileupload'; // ✅ 新增
+import fileUpload from 'express-fileupload'; 
 import debug from 'debug';
 import * as customServer from './config/server.js';
 
@@ -33,7 +33,7 @@ export const codeTrace = debug('comp3028:server');
 // Optional custom setup
 customServer.setup?.(app);
 
-// ✅ fileUpload middleware（必须放最前面）
+
 app.use(fileUpload({
   useTempFiles: true,
   parseNested: true
