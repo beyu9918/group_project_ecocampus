@@ -34,7 +34,7 @@ export async function register(req, res) {
   }
 }
 
-// ✅ Login via JSON
+// Login via JSON
 export async function login(req, res) {
   const { email, password } = req.body;
 
@@ -54,7 +54,7 @@ export async function login(req, res) {
   }
 }
 
-// ✅ Register via EJS form
+// Register via EJS form
 export async function registerForm(req, res) {
   const { email, password, name } = req.body;
 
@@ -81,7 +81,7 @@ export async function registerForm(req, res) {
   }
 }
 
-// ✅ Login via EJS form
+// Login via EJS form
 export async function loginForm(req, res) {
   const { email, password } = req.body;
 
@@ -101,7 +101,7 @@ export async function loginForm(req, res) {
   }
 }
 
-// ✅ Update user profile
+// Update user profile
 export async function updateProfile(req, res) {
   const { email, phone, avatar, bio, address, gender, birthday } = req.body;
   const parsedBirthday = birthday && !isNaN(new Date(birthday)) ? new Date(birthday) : null;
@@ -130,7 +130,7 @@ export async function updateProfile(req, res) {
     req.session.user = result[0];
 
     res.render('success', {
-      message: '✅ Profile updated successfully.',
+      message: ' Profile updated successfully.',
       backLink: '/profile'
     });
   } catch (err) {
@@ -139,7 +139,7 @@ export async function updateProfile(req, res) {
   }
 }
 
-// ✅ Render profile page
+// Render profile page
 export async function renderProfilePage(req, res) {
   if (!req.session.user) {
     return res.redirect('/login');
@@ -166,7 +166,7 @@ export async function renderProfilePage(req, res) {
   }
 }
 
-// ✅ [NEW] Admin-only: View all users
+// [NEW] Admin-only: View all users
 export async function viewAllUsers(req, res) {
   try {
     if (!req.session.user || req.session.user.role !== 'admin') {
@@ -182,7 +182,7 @@ export async function viewAllUsers(req, res) {
   }
   
 }
-// ✅ Admin-only: View orders of a user
+// Admin-only: View orders of a user
 export async function viewUserOrders(req, res) {
   const { id } = req.params;
 
@@ -195,7 +195,7 @@ export async function viewUserOrders(req, res) {
   }
 }
 
-// ✅ Admin-only: View products posted by a user
+// Admin-only: View products posted by a user
 export async function viewUserProducts(req, res) {
   const { id } = req.params;
 
@@ -208,7 +208,7 @@ export async function viewUserProducts(req, res) {
   }
 }
 
-// ✅ Admin-only: View cart content of a user
+//  Admin-only: View cart content of a user
 export async function viewUserCart(req, res) {
   const { id } = req.params;
 
@@ -221,7 +221,7 @@ export async function viewUserCart(req, res) {
   }
 }
 
-// ✅ Admin-only: View reviews made by a user
+//  Admin-only: View reviews made by a user
 export async function viewUserReviews(req, res) {
   const { id } = req.params;
 
@@ -231,5 +231,46 @@ export async function viewUserReviews(req, res) {
   } catch (err) {
     console.error('ViewUserReviews error:', err);
     res.status(500).send('Failed to load reviews.');
+  }
+}
+// Admin-only: Delete account
+export async function deleteUser(req, res) {
+  const { id } = req.params;
+
+  if (!req.session.user || req.session.user.role !== 'admin') {
+    return res.status(403).send('Access denied.');
+  }
+
+  try {
+    await sql`DELETE FROM users WHERE userID = ${id}`;
+    res.redirect('/admin/users');
+  } catch (err) {
+    console.error('DeleteUser error:', err);
+    res.status(500).send('Failed to delete user.');
+  }
+}
+// Admin-only: Change User role
+export async function changeUserRole(req, res) {
+  const { id } = req.params;
+
+  if (!req.session.user || req.session.user.role !== 'admin') {
+    return res.status(403).send('Access denied.');
+  }
+
+  try {
+    const user = (await sql`SELECT * FROM users WHERE userID = ${id}`)[0];
+    if (!user) return res.status(404).send('User not found.');
+
+    const newRole = user.role === 'admin' ? 'user' : 'admin';
+
+    await sql`
+      UPDATE users SET role = ${newRole}
+      WHERE userID = ${id}
+    `;
+
+    res.redirect('/admin/users');
+  } catch (err) {
+    console.error('ChangeUserRole error:', err);
+    res.status(500).send('Failed to update user role.');
   }
 }
