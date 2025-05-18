@@ -21,7 +21,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 // login
 app.use((req, res, next) => {
-  req.user = { id: 1, name: 'TestUser' };
+  req.user = { userID: 1, name: 'TestUser' }; // 与 users 表结构匹配
   next();
 });
 

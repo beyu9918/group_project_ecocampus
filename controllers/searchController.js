@@ -19,23 +19,23 @@ export async function searchProducts(req, res) {
 
   if (safeKeyword) {
     values.push(`%${safeKeyword}%`);
-    conditions.push(`(LOWER(title) LIKE $${values.length} OR LOWER(description) LIKE $${values.length})`);
+    conditions.push(`(LOWER("productName") LIKE $${values.length} OR LOWER("description") LIKE $${values.length})`);
   }
   if (category) {
     values.push(category);
-    conditions.push(`category = $${values.length}`);
+    conditions.push(`"category" = $${values.length}`);
   }
   if (minPrice) {
     values.push(parseFloat(minPrice));
-    conditions.push(`price >= $${values.length}`);
+    conditions.push(`"productPrice" >= $${values.length}`);
   }
   if (maxPrice) {
     values.push(parseFloat(maxPrice));
-    conditions.push(`price <= $${values.length}`);
+    conditions.push(`"productPrice" <= $${values.length}`);
   }
   if (minRating) {
     values.push(parseFloat(minRating));
-    conditions.push(`avgRating >= $${values.length}`);
+    conditions.push(`"avgRating" >= $${values.length}`);
   }
 
   if (conditions.length > 0) {
@@ -43,16 +43,16 @@ export async function searchProducts(req, res) {
   }
 
   if (sort === 'price') {
-    queryText += ' ORDER BY price ASC';
+    queryText += ' ORDER BY "productPrice" ASC';
   } else if (sort === 'rating') {
-    queryText += ' ORDER BY avgRating DESC';
+    queryText += ' ORDER BY "avgRating" DESC';
   }
 
   try {
     const result = await pool.query(queryText, values);
     const products = result.rows.map(p => ({
       ...p,
-      price: parseFloat(p.price),
+      productPrice: parseFloat(p.productPrice),
       avgRating: parseFloat(p.avgRating)
     }));
 

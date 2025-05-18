@@ -56,9 +56,12 @@
       <% product.forEach(product => { %>
         <!-- Display single product card -->
         <div class="product">
-          <h2><a href="/product/<%= product.id %>"><%= product.title %></a></h2>
+          <h2><a href="/product/<%= product.productID %>"><%= product.productName %></a></h2>
           <p><%= product.description %></p>
-          <p>Price: ¥<%= product.price.toFixed(2) %> | Rating: <%= product.avgRating %>★</p>
+          <p>Price: ¥<%= product.productPrice.toFixed(2) %> | Rating: <%= product.avgRating %>★</p>
+          <a href="/product/<%= product.productID %>">
+            <button>View Reviews</button>
+          </a>
         </div>
       <% }) %>
     <% } %>
