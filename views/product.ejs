@@ -6,6 +6,18 @@
   <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 <body>
+  <nav class="navbar">
+    <div class="nav-title">EcoCampus</div>
+    <div class="nav-right">
+      <% if (user && user.name) { %>
+        <a href="/profile"><button class="nav-button"><%= user.name %></button></a>
+      <% } else { %>
+        <a href="/login"><button class="nav-button">Login</button></a>
+      <% } %>
+      <a href="/cart"><button class="nav-button">Shopping Cart</button></a>
+      <a href="/orders"><button class="nav-button">Order Management</button></a>
+    </div>
+  </nav>
 <div class="product-details">
 
   <h1 class="product-title"><%= product.productname %></h1>
