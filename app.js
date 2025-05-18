@@ -14,11 +14,9 @@ import socialRoutes from './routes/social.js';
 import { registerForm, loginForm } from './controllers/userController.js';
 import eventBus from './controllers/eventBus.js';
 import * as cartController from './controllers/cartController.js';
-
 import debug from 'debug';
-import * as customServer from './config/server.js'; // 
+import * as customServer from './config/server.js';
 
-// __dirname replacement
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -46,27 +44,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-
 // Routes
-app.use('/api/users', userRoutes);
+app.use('/', userRoutes); // Include /register, /login, /profile, /admin/...
 app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/social', socialRoutes);
-app.use('/', productRoutes);
+app.use('/', productRoutes); // product.ejs as homepage
 
-// Authentication
+// Authentication fallback
 app.get('/register', (req, res) => res.render('register'));
 app.get('/login', (req, res) => res.render('login'));
 app.post('/register', registerForm);
 app.post('/login', loginForm);
-
-// Profile Page
-app.get('/profile', (req, res) => {
-  if (!req.session.user) return res.redirect('/login');
-  res.render('profile', { user: req.session.user });
-});
-
-
 
 // Optional test route
 app.get('/test', (req, res) => res.send('Test'));
@@ -86,6 +75,5 @@ io.on('connection', (socket) => {
   });
 });
 
-// Start server
 const PORT = 3000;
 server.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
