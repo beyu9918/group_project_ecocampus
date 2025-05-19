@@ -10,7 +10,9 @@ import {
   viewUserOrders,
   viewUserProducts,
   viewUserCart,
-  viewUserReviews
+  viewUserReviews,
+  deleteUser,
+  changeUserRole,
 } from '../controllers/userController.js';
 
 const router = express.Router();
@@ -23,13 +25,13 @@ router.post('/login', loginForm);
 router.get('/profile', renderProfilePage);
 router.post('/profile/update', updateProfile);
 
-// Admin views
+// Admin views (protected)
 router.get('/admin/users', viewAllUsers);
-
-// [NEW] Admin: View specific user's data
 router.get('/admin/user/:id/orders', viewUserOrders);
 router.get('/admin/user/:id/products', viewUserProducts);
 router.get('/admin/user/:id/cart', viewUserCart);
 router.get('/admin/user/:id/reviews', viewUserReviews);
+router.post('/admin/user/:id/delete', deleteUser);
+router.post('/admin/user/:id/role', changeUserRole);
 
 export default router;

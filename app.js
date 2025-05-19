@@ -26,7 +26,7 @@ import { registerForm, loginForm } from './controllers/userController.js';
 import eventBus from './controllers/eventBus.js';
 import * as cartController from './controllers/cartController.js';
 
-// Setup __dirname replacement
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -55,22 +55,23 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// API Routes
 app.use('/api/users', userRoutes);
+
+// Web routes (e.g. /register, /login, /profile)
+app.use('/', userRoutes);
+
 app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/social', socialRoutes);
-
-// Web Routes
 app.use('/', productRoutes);
 app.use('/search', searchRoutes);
 app.use('/', messageRoutes);
 
-// Auth Routes
 app.get('/register', (req, res) => res.render('register'));
 app.get('/login', (req, res) => res.render('login'));
 app.post('/register', registerForm);
 app.post('/login', loginForm);
+
 
 // Profile Page
 app.get('/profile', (req, res) => {
@@ -83,7 +84,6 @@ app.get('/', (req, res) => {
   res.redirect('/product');
 });
 
-// Test Route
 app.get('/test', (req, res) => res.send('Test'));
 
 // Socket.IO Realtime Events
@@ -128,7 +128,6 @@ io.on('connection', (socket) => {
   });
 });
 
-// Start Server
 const PORT = 3000;
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
