@@ -148,10 +148,12 @@ io.on('connection', (socket) => {
     eventBus.removeAllListeners();
   });
 
+  //ths is fully funtioned real time function
+
 });
 
-
 const PORT = 3000;
+
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
