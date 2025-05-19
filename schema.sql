@@ -1,3 +1,4 @@
+
 CREATE TABLE IF NOT EXISTS users (
   userID SERIAL PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
@@ -49,6 +50,7 @@ CREATE TABLE cart (
   quantity INTEGER NOT NULL DEFAULT 1,
   added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE (buyerID, productID)
+
 );
 
 
@@ -66,3 +68,4 @@ CREATE TABLE messages (
   sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CHECK (senderID <> receiverID)
 );
+

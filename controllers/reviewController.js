@@ -1,59 +1,76 @@
-import fs from 'fs';
-import path from 'path';
+import pg from 'pg';
+const { Pool } = pg;
 
-const itemsPath = path.join(__dirname, '../data/items.json');
-const reviewsPath = path.join(__dirname, '../data/reviews.json');
-const usersPath = path.join(__dirname, '../data/users.json');
+const pool = new Pool({
+  user: 'postgres',
+  host: 'host.docker.internal',
+  database: 'eco_campus',
+  password: 'password',
+  port: 5432,
+});
 
-//reviews
-export function getItemDetails(req, res) {
-  const itemId = parseInt(req.params.id);
-  const items = JSON.parse(fs.readFileSync(itemsPath, 'utf-8'));
-  const reviews = JSON.parse(fs.readFileSync(reviewsPath, 'utf-8'));
-  const users = JSON.parse(fs.readFileSync(usersPath, 'utf-8'));
+// GET: comment and details
+export async function getProductDetails(req, res) {
+  const productID = parseInt(req.params.id);
 
-  const item = items.find(i => i.id === itemId);
-  const itemReviews = reviews.filter(r => r.itemId === itemId);
-  const seller = users.find(u => u.id === item?.sellerId);
+  try {
+    const productResult = await pool.query('SELECT * FROM product WHERE productid = $1', [productID]);
+    const product = productResult.rows[0];
+    if (!product || typeof product.productid === 'undefined') {
+      return res.status(404).send('Product not found');
+    }
+    const reviewResult = await pool.query('SELECT * FROM reviews WHERE productid = $1', [product.productid]);
 
-  res.render('item', {
-    item,
-    reviews: itemReviews,
-    seller,
-    user: req.user
-  });
-};
+    const sellerResult = await pool.query('SELECT * FROM users WHERE userid = $1', [product.sellerid]);
+    const seller = sellerResult.rows[0];
 
-// submit review
-export function submitReview(req, res) {
-  const itemId = parseInt(req.params.id);
-  const { rating, comment } = req.body;
-  const reviews = JSON.parse(fs.readFileSync(reviewsPath, 'utf-8'));
-
-  // limit one time
-  const existing = reviews.find(r => r.itemId === itemId && r.reviewerId === req.user.id);
-  if (existing) {
-    return res.status(400).send('You already submitted a review.');
+    res.render('review', {
+      product,
+      reviews: reviewResult.rows,
+      seller,
+      user: req.user
+    });
+  } catch (err) {
+    console.error('Error fetching product details:', err.message);
+    res.status(500).send('Server error');
   }
+}
 
-  const newReview = {
-    id: Date.now(),
-    itemId,
-    reviewerId: req.user.id,
-    rating: parseInt(rating),
-    comment,
-    createTime: new Date().toISOString()
-  };
+// POST: submit
+export async function submitReview(req, res) {
+  const productID = parseInt(req.params.id);
+  const { rating, comment } = req.body;
+  const reviewerId = req.user.userid;
 
-  reviews.push(newReview);
-  fs.writeFileSync(reviewsPath, JSON.stringify(reviews, null, 2), 'utf-8');
+  try {
+    const existing = await pool.query(
+      'SELECT * FROM reviews WHERE productid = $1 AND reviewerid = $2',
+      [productID, reviewerId]
+    );
 
-  
-  const items = JSON.parse(fs.readFileSync(itemsPath, 'utf-8'));
-  const item = items.find(i => i.id === itemId);
-  const related = reviews.filter(r => r.itemId === itemId);
-  item.avgRating = (related.reduce((sum, r) => sum + r.rating, 0) / related.length).toFixed(1);
-  fs.writeFileSync(itemsPath, JSON.stringify(items, null, 2), 'utf-8');
+    if (existing.rows.length > 0) {
+      return res.status(400).send('You already submitted a review.');
+    }
 
-  res.redirect('/item/' + itemId);
-};
+    await pool.query(
+      'INSERT INTO reviews (productid, reviewerid, rating, comment) VALUES ($1, $2, $3, $4)',
+      [productID, reviewerId, parseInt(rating), comment]
+    );
+
+    const avgResult = await pool.query(
+      'SELECT AVG(rating)::numeric(3,2) AS avg FROM reviews WHERE productid = $1',
+      [productID]
+    );
+    const avg = avgResult.rows[0].avg || 0;
+
+    await pool.query(
+      'UPDATE product SET avgrating = $1 WHERE productid = $2',
+      [avg, productID]
+    );
+
+    res.redirect('/product/' + productID);
+  } catch (err) {
+    console.error('Error submitting review:', err.message);
+    res.status(500).send('Server error');
+  }
+}
