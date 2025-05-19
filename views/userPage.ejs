@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title><%= user.name %>'s Profile</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+  <div class="form-wrapper">
+    <h2><%= user.name %>'s Profile</h2>
+    <img src="<%= user.avatar %>" alt="Avatar" style="width:100px; height:100px; border-radius:50%;">
+    <p><strong>Bio:</strong> <%= user.bio || 'No bio provided.' %></p>
+
+    <h3>Products</h3>
+    <% if (products.length === 0) { %>
+      <p>No products posted.</p>
+    <% } else { %>
+      <ul>
+        <% products.forEach(p => { %>
+          <li><strong><%= p.productName %></strong> - $<%= p.price %></li>
+        <% }) %>
+      </ul>
+    <% } %>
+
+    <h3>Reviews</h3>
+    <% if (reviews.length === 0) { %>
+      <p>No reviews yet.</p>
+    <% } else { %>
+      <ul>
+        <% reviews.forEach(r => { %>
+          <li><%= r.rating %>★ - <%= r.comment %></li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </div>
+</body>
+</html>
