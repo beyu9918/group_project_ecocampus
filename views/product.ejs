@@ -6,21 +6,30 @@
   <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 <body>
+
   <!-- Navigation Bar -->
-<nav class="navbar">
-  <div class="nav-title">
-    <a href=" " style="text-decoration: none; color: inherit;">EcoCampus</a >
-  </div>
-  <div class="nav-right">
-    <% if (user && user.name) { %>
-      <a href="/profile"><button class="nav-button"><%= user.name %></button></a >
-    <% } else { %>
-      <a href="/login"><button class="nav-button">Login</button></a >
-    <% } %>
-    <a href="/cart"><button class="nav-button">Shopping Cart</button></a >
-    <a href="/orders"><button class="nav-button">Order Management</button></a >
-  </div>
-</nav>
+  <nav class="navbar">
+    <div class="nav-title">
+      <a href=" " style="text-decoration: none; color: inherit;">EcoCampus</a >
+    </div>
+    <div class="nav-right">
+      <% if (user && user.name) { %>
+        <a href="/profile"><button class="nav-button"><%= user.name %></button></a >
+      <% } else { %>
+        <a href="/login"><button class="nav-button">Login</button></a >
+      <% } %>
+      <a href="/cart"><button class="nav-button">Shopping Cart</button></a >
+      <a href="/orders"><button class="nav-button">Order Management</button></a >
+      <a href="/messages"><button class="nav-button">My Messages</button></a >
+      <% if (user && user.userid) { %>
+        <a href="/user/<%= user.userid %>"><button class="nav-button">My Account</button></a >
+      <% } %>
+    </div>
+  </nav>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="error-message"><%= error %></div>
+<% } %>
 
   <div class="center-container">
     <div class="form-wrapper">
