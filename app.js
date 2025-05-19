@@ -71,6 +71,7 @@ app.use('/api/social', socialRoutes);
 app.use('/', productRoutes);
 app.use('/search', searchRoutes);
 app.use('/', messageRoutes);
+app.use('/review', reviewRoutes);
 
 // Mock login for testing (from vicky)
 app.use((req, res, next) => {
