@@ -1,23 +1,38 @@
 import express from 'express';
-import path    from 'path';
+import session from 'express-session';
+import cors from 'cors';
+import path from 'path';
 import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import debug from 'debug';
+import fileUpload from 'express-fileupload';
 
-const app = express();
-const server = http.createServer(app);
-const io = new SocketIOServer(server);
-export const codeTrace = debug('comp3028:server');
+import * as customServer from './config/server.js';
+import sql from './db.js';
 
-// Controllers
-import { getCart, addCartItem } from './controllers/cartController.js';
+// Routes
+import searchRoutes from './routes/searchRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import productRoutes from './routes/product.js';
+import cartRoutes from './routes/cart.js';
+import orderRoutes from './routes/order.js';
+import socialRoutes from './routes/social.js';
+import messageRoutes from './routes/message.js'; 
+
+import { registerForm, loginForm } from './controllers/userController.js';
+import eventBus from './controllers/eventBus.js';
+import * as cartController from './controllers/cartController.js';
+
 import {
   placeOrderHandler,
   payOrderHandler,
   getOrdersPage,
   clearOrderHistory
 } from './controllers/orderController.js';
+
 import {
   showProductPage,
   showAddProductPage,
@@ -25,110 +40,176 @@ import {
   showProductDetail
 } from './controllers/product.js';
 
-(async () => {
-  // ESM __dirname boilerplate
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname  = path.dirname(__filename);
+import { getCart, addCartItem } from './controllers/cartController.js';
 
-  const BUYER_ID = 1;  //swap for session/auth
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
+// Initialize Express, HTTP server, and Socket.IO
+const app = express();
+const server = http.createServer(app);
+const io = new SocketIOServer(server);
+export const codeTrace = debug('comp3028:server');
 
-  //Inject `user` into all views via res.locals
-  app.use((req, res, next) => {
-    res.locals.user = req.session?.user || null;
-    next();
-  });
+// Optional server customization
+customServer.setup?.(app);
 
-  // Middleware
-  app.use(express.urlencoded({ extended: true }));
-  app.use(express.json());
-  app.use(express.static(path.join(__dirname, 'public')));
+// Middleware
+app.use(fileUpload({ useTempFiles: true, parseNested: true }));
+app.use(cors());
+app.use(session({
+  secret: 'your_secret_key',
+  resave: false,
+  saveUninitialized: true
+}));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-  // View engine
-  app.set('view engine', 'ejs');
-  app.set('views', path.join(__dirname, 'views'));
+// Inject `user` into all views
+app.use((req, res, next) => {
+  res.locals.user = req.session?.user || null;
+  next();
+});
 
-  // JSON API routes
-  app.get('/api/cart',  getCart);
-  app.post('/api/cart', addCartItem);
+// View engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
-  // Server-rendered Cart page
-  app.get('/', async (req, res) => {
-    try {
-      const items = await getCartData(BUYER_ID);
-      res.render('index', { cart: items });
-    } catch (err) {
-      console.error('Error loading cart page:', err);
-      res.status(500).send(err.message);
-    }
-  });
+// API routes
+app.use('/api/users', userRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/order', orderRoutes);
+app.use('/api/social', socialRoutes);
 
-  // Update quantity in cart
-  app.post('/cart/update', async (req, res) => {
-    const { productID, quantity } = req.body;
-    const qty = parseInt(quantity, 10);
-    if (isNaN(qty) || qty < 1) {
-      return res.status(400).send('Invalid quantity');
-    }
-    try {
-      await addCartItem({ body: { buyerID: BUYER_ID, productID, quantity: qty } }, {
-        json: () => {}, status: () => ({ json: () => {} })
-      });
-      res.redirect('/');
-    } catch (err) {
-      console.error('Error updating cart:', err);
-      res.status(500).send(err.message);
-    }
-  });
+// Web routes
+app.use('/', userRoutes);
+app.use('/', productRoutes);
+app.use('/search', searchRoutes);
+app.use('/', messageRoutes);
+app.use('/review', reviewRoutes);
 
-  // Place order (SSR)
-  app.post('/order', placeOrderHandler);
+// Auth pages
+app.get('/register', (req, res) => res.render('register'));
+app.get('/login', (req, res) => res.render('login'));
+app.post('/register', registerForm);
+app.post('/login', loginForm);
 
-  // Checkout (SSR)
-  app.post('/order/checkout', payOrderHandler);
+// Profile page
+app.get('/profile', (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+  res.render('profile', { user: req.session.user });
+});
 
-  // Product management pages
-  app.get('/product',            showProductPage);
-  app.get('/product/add',        showAddProductPage);
-  app.post('/product/add',       addNewProduct);
-  app.get('/product/:productid', showProductDetail);
+// SSR Root
+const BUYER_ID = 1; // Swap this for real session
 
-  // Payment pages
-  app.get('/payment', (req, res) => {
-    res.render('payment');
-  });
-  app.post('/payment', (req, res) => {
-    // handle payment logic
-    res.redirect('/orders');
-  });
-
-  // Past orders page & clear history
-  app.get('/orders',      getOrdersPage);
-  app.post('/orders/clear', clearOrderHistory);
-
-  // Comment on product from history
-  app.get('/product/:productID/comment', (req, res) => {
-    res.render('commentProduct', { productID: req.params.productID });
-  });
-
-  // Helper: fetch cart items for SSR
-  async function getCartData(buyerID) {
-    // reuse the logic from getCart controller but return the items
-    const req = { query: { buyerID } };
-    let items;
-    const res = {
-      json(data) { items = data; },
-      status() { return { json() {} }; }
-    };
-    await getCart(req, res);
-    return items;
+app.get('/', async (req, res) => {
+  try {
+    const items = await getCartData(BUYER_ID);
+    res.render('index', { cart: items });
+  } catch (err) {
+    console.error('Error loading cart page:', err);
+    res.status(500).send(err.message);
   }
-})();
+});
 
-  // Start server
+app.post('/cart/update', async (req, res) => {
+  const { productID, quantity } = req.body;
+  const qty = parseInt(quantity, 10);
+  if (isNaN(qty) || qty < 1) {
+    return res.status(400).send('Invalid quantity');
+  }
+  try {
+    await addCartItem({ body: { buyerID: BUYER_ID, productID, quantity: qty } }, {
+      json: () => {}, status: () => ({ json: () => {} })
+    });
+    res.redirect('/');
+  } catch (err) {
+    console.error('Error updating cart:', err);
+    res.status(500).send(err.message);
+  }
+});
+
+// Order & payment
+app.post('/order', placeOrderHandler);
+app.post('/order/checkout', payOrderHandler);
+
+app.get('/payment', (req, res) => {
+  res.render('payment');
+});
+app.post('/payment', (req, res) => {
+  res.redirect('/orders');
+});
+
+app.get('/orders', getOrdersPage);
+app.post('/orders/clear', clearOrderHistory);
+
+app.get('/product', showProductPage);
+app.get('/product/add', showAddProductPage);
+app.post('/product/add', addNewProduct);
+app.get('/product/:productid', showProductDetail);
+
+app.get('/product/:productID/comment', (req, res) => {
+  res.render('commentProduct', { productID: req.params.productID });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
+// Socket.IO logic
+io.on('connection', (socket) => {
+  const cart = cartController.getCartInstance();
+  socket.emit('cartUpdated', cart.getCart());
+
+  socket.on('joinRoom', (userId) => {
+    socket.join(`user_${userId}`);
+  });
+
+  socket.on('sendMessage', async (data) => {
+    const { senderID, receiverID, productID, content } = data;
+    try {
+      await sql`
+        INSERT INTO messages (senderID, receiverID, productID, content)
+        VALUES (${senderID}, ${receiverID}, ${productID}, ${content})
+      `;
+      io.to(`user_${receiverID}`).emit('newMessage', {
+        from: senderID,
+        content,
+        productID,
+        sent_at: new Date().toISOString()
+      });
+    } catch (err) {
+      console.error('Failed to store or emit message:', err);
+    }
+  });
+
+  ['cartItemAdded', 'orderProcessed', 'notification', 'newFollower', 'listingShared']
+    .forEach((evt) => {
+      eventBus.on(evt, (data) => socket.emit(evt, data));
+    });
+
+  socket.on('disconnect', () => {
+    eventBus.removeAllListeners();
+  });
+});
+
+// Helper for SSR cart
+async function getCartData(buyerID) {
+  const req = { query: { buyerID } };
+  let items;
+  const res = {
+    json(data) { items = data; },
+    status() { return { json() {} }; }
+  };
+  await getCart(req, res);
+  return items;
+}
+
 const PORT = 3000;
-
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
-

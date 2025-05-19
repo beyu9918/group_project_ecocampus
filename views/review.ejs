@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title><%= product.productname %> - Details</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-title">
+      <a href=" " style="text-decoration: none; color: inherit;">EcoCampus</a >
+    </div>
+    <div class="nav-right">
+      <% if (user && user.name) { %>
+        <a href="/profile"><button class="nav-button"><%= user.name %></button></a >
+      <% } else { %>
+        <a href="/login"><button class="nav-button">Login</button></a >
+      <% } %>
+      <a href="/cart"><button class="nav-button">Shopping Cart</button></a >
+      <a href="/orders"><button class="nav-button">Order Management</button></a >
+      <a href="/messages"><button class="nav-button">My Messages</button></a >
+      <% if (user && user.userid) { %>
+        <a href="/user/<%= user.userid %>"><button class="nav-button">My Account</button></a >
+      <% } %>
+    </div>
+  </nav>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="error-message"><%= error %></div>
+<% } %>
+
+  <div class="center-container">
+    <div class="form-wrapper">
+      <h2><%= product.productname %></h2>
+
+      <div class="form-row">
+        <label>Price:</label>
+        <div>¥<%= product.productprice %></div>
+      </div>
+
+      <div class="form-row">
+        <label>Description:</label>
+        <div><%= product.description %></div>
+      </div>
+
+      <div class="form-row">
+        <label>Seller:</label>
+        <div><%= seller?.name %> | Rating: <%= seller?.avgRating %>★</div>
+      </div>
+      <div class="form-row">
+        <label>Product Rating:</label>
+        <div><%= product.avgrating %>★</div>
+      </div>
+
+
+      <h3>Submit Your Review</h3>
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="error-message"><%= error %></div>
+      <% } %>
+      <form action="/product/<%= product.productid %>/review" method="post">
+        <div class="form-row">
+          <label>Rating:</label>
+          <select name="rating" required>
+            <option value="">--Select--</option>
+            <% for(let i = 1; i <= 5; i++) { %>
+              <option value="<%= i %>"><%= i %>★</option>
+            <% } %>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label>Comment:</label>
+          <textarea name="comment" rows="4" cols="40" maxlength="300" required></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-green">Submit Review</button>
+        </div>
+      </form>
+
+
+      <h3>Reviews</h3>
+      <% if (reviews.length === 0) { %>
+        <p>No reviews yet.</p>
+      <% } else { %>
+        <% reviews.forEach(review => { %>
+          <div class="review-card">
+            <p><strong>Rating:</strong> <%= review.rating %>★</p>
+            <p><%= review.comment %></p>
+            <p><small><%= new Date(review.createdAt).toLocaleString() %></small></p>
+          </div>
+        <% }) %>
+      <% } %>
+
+    </div>
+  </div>
+</body>
+<style>
+  .error-message {
+    color: red;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    background-color: #ffe0e0;
+    border: 1px solid red;
+    border-radius: 5px;
+    margin: 10px auto;
+    width: fit-content;
+  }
+</style>
+</html>

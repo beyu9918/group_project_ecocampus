@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Search Results</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 60px 20px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #333;
+    }
+
+    .results-container {
+      width: 90%;
+      max-width: 1000px;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+
+    .item-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .item {
+      background-color: #cce6d3;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .item h2 a {
+      text-decoration: none;
+      color: #2c3e50;
+    }
+
+    .item h2 a:hover {
+      text-decoration: underline;
+      color: #1d872d;
+    }
+  </style>
+</head>
+<body>
+  <a href="/product" style="position: fixed; top: 10px; left: 10px; z-index: 1000;">
+    <button style="
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      font-weight: bold;
+    ">Back</button>
+  </a>
+  
+  <div class="results-container">
+    <h1>EcoCampus Search Results</h1>
+
+    <% if (query && query.keyword && query.keyword.trim() !== '') { %>
+      <h2>Results for "<%= query.keyword %>"</h2>
+    <% } %>
+
+
+    <div class="item-list">
+      <% if (items && items.length === 0) { %>
+        <div class="item">
+          <p>No matching results.</p>
+
+        </div>
+      <% } else { %>
+        <% items.forEach(item => { %>
+          <div class="item">
+            <h2><a href="/item/<%= item.id %>"><%= item.title %></a></h2>
+            <p><%= item.description %></p>
+            <p>Price: ¥<%= item.price.toFixed(2) %> | Rating: <%= item.avgRating %>★</p>
+          </div>
+        <% }) %>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>
+

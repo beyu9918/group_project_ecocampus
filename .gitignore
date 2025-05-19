@@ -8,5 +8,9 @@ yarn-error.log
 #sys file
 .DS_Store
 Thumbs.db
-package-lock.json
+.vscode/
+.idea/
+coverage/
 db.js
+dist/
+package-lock.json

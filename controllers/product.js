@@ -8,12 +8,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const uploadDir = path.join(__dirname, '../public/uploads');
 
-// make sure the upload file is exist
+
+// Ensure the upload directory exists
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// show all the products
+// Show all products
 export async function showProductPage(req, res) {
   try {
     const result = await sql`SELECT * FROM product ORDER BY productid`;
@@ -21,7 +22,8 @@ export async function showProductPage(req, res) {
       title: 'Product Management',
       product: result,
       items: result,
-      query: req.query || {}
+      query: req.query || {},
+      user: req.session.user || null  // ✅ pass user to EJS
     });
   } catch (err) {
     console.error('Error fetching products:', err);
@@ -29,19 +31,20 @@ export async function showProductPage(req, res) {
   }
 }
 
-// jump to add new product page
+// Show add product form
 export function showAddProductPage(req, res) {
-  res.render('addProduct', { title: 'Add New Product' });
+  res.render('addProduct', {
+    title: 'Add New Product',
+    user: req.session.user || null  
+  });
 }
 
-// add new product
+// Add new product
 export async function addNewProduct(req, res) {
   const { productname, productprice, description, category } = req.body;
 
-  // default sellerID = 1 
   const sellerid = req.session?.user?.userid || 1;
   let imagePath = null;
-
 
   function isEmpty(val) {
     return val === undefined || val === null || val === '';
@@ -51,21 +54,25 @@ export async function addNewProduct(req, res) {
     return res.status(400).send('Missing required fields');
   }
 
-  // upload pictures
+
+  // Handle image upload
   if (req.files && req.files.productPicture) {
     const image = req.files.productPicture;
     const filename = Date.now() + '-' + image.name;
     const filepath = path.join(uploadDir, filename);
 
     try {
-      await image.mv(filepath); 
-      imagePath = '/uploads/' + filename; 
+
+      await image.mv(filepath);
+      imagePath = '/uploads/' + filename;
     } catch (err) {
       console.error('Image upload error:', err);
       return res.status(500).send('Image upload failed');
     }
   }
 
+
+  // Insert into database
   try {
     await sql`
       INSERT INTO product (
@@ -90,9 +97,11 @@ export async function addNewProduct(req, res) {
     console.error('Error inserting product:', err);
     res.status(500).send('Internal Server Error');
   }
+
+
 }
 
-
+// Show product detail page
 export async function showProductDetail(req, res) {
   const { productid } = req.params;
 
@@ -104,7 +113,8 @@ export async function showProductDetail(req, res) {
     const product = result[0];
     res.render('productDetail', {
       title: product.productname,
-      product
+      product,
+      user: req.session.user || null  // ✅ pass user to EJS
     });
   } catch (err) {
     console.error('Error fetching product detail:', err);
@@ -112,3 +122,31 @@ export async function showProductDetail(req, res) {
   }
 }
 
+
+export async function showMessageList(req, res) {
+  const sellerId = req.session?.user?.userid;
+  if (!sellerId) return res.redirect('/login');
+
+  try {
+    const result = await sql`
+      SELECT DISTINCT ON (m.productid, m.senderid)
+        m.productid,
+        m.senderid AS buyerid,
+        u.name AS buyername,
+        p.productname
+      FROM messages m
+      JOIN users u ON m.senderid = u.userid
+      JOIN product p ON m.productid = p.productid
+      WHERE m.receiverid = ${sellerId}
+      ORDER BY m.productid, m.senderid, m.sent_at DESC
+    `;
+
+    res.render('messageList', {
+      title: 'My Messages',
+      conversations: result,
+    });
+  } catch (err) {
+    console.error('Error loading message list:', err);
+    res.status(500).send('Internal Server Error');
+  }
+}

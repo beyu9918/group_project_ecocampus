@@ -3,14 +3,15 @@ import {
   showProductPage,
   showAddProductPage,
   addNewProduct,
-  showProductDetail
+  showProductDetail 
+
 } from '../controllers/product.js';
 
 const router = express.Router();
 
-router.get('/',       showProductPage);
-router.get('/add',    showAddProductPage);
-router.post('/add',   addNewProduct);
-router.get('/:productid', showProductDetail);
+router.get('/product', showProductPage);
+router.get('/product/addProduct', showAddProductPage);
+router.post('/product/addProduct', addNewProduct);
+router.get('/product/:productid', showProductDetail);
 
 export default router;
