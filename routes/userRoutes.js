@@ -6,6 +6,7 @@ import {
   loginForm,
   updateProfile,
   renderProfilePage,
+  renderUserPage,
   viewAllUsers,
   viewUserOrders,
   viewUserProducts,
@@ -33,5 +34,9 @@ router.get('/admin/user/:id/cart', viewUserCart);
 router.get('/admin/user/:id/reviews', viewUserReviews);
 router.post('/admin/user/:id/delete', deleteUser);
 router.post('/admin/user/:id/role', changeUserRole);
+
+//Public user homepage
+
+router.get('/user/:id', renderUserPage);
 
 export default router;
