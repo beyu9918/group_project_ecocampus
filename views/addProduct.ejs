@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding-top: 60px;
+      padding-left: 40px;
+      padding-right: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      height: 100vh;
+      color: #333;
+    }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background-color: #2c3e50;
+      color: white;
+      height: 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .nav-title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 4px;
+      margin-left: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-size: 14px;
+    }
+
+    .nav-button:hover {
+      background-color: #388e3c;
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 500px;
+      padding: 30px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
+
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="file"],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    button[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px;
+      margin-top: 25px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #388e3c;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-title">
+      <a href="/product" style="text-decoration: none; color: inherit;">EcoCampus</a>
+    </div>
+    <div class="nav-right">
+      <% if (user && user.name) { %>
+        <a href="/profile"><button class="nav-button"><%= user.name %></button></a>
+      <% } else { %>
+        <a href="/login"><button class="nav-button">Login</button></a>
+      <% } %>
+      <a href="/cart"><button class="nav-button">Shopping Cart</button></a>
+      <a href="/orders"><button class="nav-button">Order Management</button></a>
+      <a href="/messages"><button class="nav-button">My Messages</button></a>
+      <% if (user && user.userid) { %>
+        <a href="/user/<%= user.userid %>"><button class="nav-button">My Account</button></a>
+      <% } %>
+    </div>
+  </nav>
+
+  <!-- Add Product Form -->
+  <div class="form-container">
+    <h1>Add a Product</h1>
+    <form action="/product/addProduct" method="POST" enctype="multipart/form-data">
+      <label for="productname">Product Name:</label>
+      <input type="text" name="productname" id="productname" required>
+
+      <label for="productprice">Product Price:</label>
+      <input type="number" name="productprice" id="productprice" step="0.01" required>
+
+      <label for="category">Category:</label>
+      <input type="text" name="category" id="category">
+
+      <label for="description">Description:</label>
+      <textarea name="description" id="description" rows="3"></textarea>
+
+      <label for="productPicture">Product Image:</label>
+      <input type="file" name="productPicture" id="productPicture" accept="image/*">
+
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+</body>
+</html>
+
+
+
+
+
+
+
+

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Profile</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+<!-- Navigation Bar -->
+<nav class="navbar">
+  <div class="nav-title">
+    <a href="/product" style="text-decoration: none; color: inherit;">EcoCampus</a>
+  </div>
+  <div class="nav-right">
+    <% if (user && user.name) { %>
+      <a href="/profile"><button class="nav-button"><%= user.name %></button></a>
+    <% } else { %>
+      <a href="/login"><button class="nav-button">Login</button></a>
+    <% } %>
+    <a href="/cart"><button class="nav-button">Shopping Cart</button></a>
+    <a href="/orders"><button class="nav-button">Order Management</button></a>
+  </div>
+</nav>
+  <!-- Main content avoids navbar overlap -->
+  <div class="main-content">
+    <div class="form-wrapper">
+      <h2>User Profile</h2>
+      <form action="/profile/update" method="POST">
+
+        <div class="form-row">
+          <label>User ID (Cannot change):</label>
+          <input type="text" value="<%= user.userid %>" disabled />
+        </div>
+
+        <div class="form-row">
+          <label>Email:</label>
+          <input type="email" name="email" value="<%= user.email || '' %>" />
+        </div>
+
+        <div class="form-row">
+          <label>Name:</label>
+          <input type="text" name="name" value="<%= user.name || '' %>" />
+        </div>
+
+        <div class="form-row">
+          <label>Phone:</label>
+          <input type="text" name="phone" value="<%= user.phone || '' %>" />
+        </div>
+
+        <div class="form-row">
+          <label>Avatar URL:</label>
+          <input type="text" name="avatar" value="<%= user.avatar || '' %>" />
+        </div>
+
+        <div class="form-row">
+          <label>Bio:</label>
+          <textarea name="bio"><%= user.bio || '' %></textarea>
+        </div>
+
+        <div class="form-row">
+          <label>Address:</label>
+          <input type="text" name="address" value="<%= user.address || '' %>" placeholder="Used for shipment" />
+        </div>
+
+        <div class="form-row">
+          <label>Gender:</label>
+          <select name="gender">
+            <option value="">Select Gender</option>
+            <option value="male" <%= user.gender === 'male' ? 'selected' : '' %>>Male</option>
+            <option value="female" <%= user.gender === 'female' ? 'selected' : '' %>>Female</option>
+            <option value="other" <%= user.gender === 'other' ? 'selected' : '' %>>Other</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label>Birthday:</label>
+          <input type="date" name="birthday" value="<%= user.birthday || '' %>" />
+        </div>
+
+        <div class="form-row">
+          <label>User Group:</label>
+          <input type="text" value="<%= user.role || 'user' %>" disabled />
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-green">Save Changes</button>
+        </div>
+      </form>
+
+      <% if (user.role === 'admin') { %>
+        <div style="margin-top: 30px; text-align: right;">
+          <a href="/admin/users" class="btn-green">🔍 View All Users</a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

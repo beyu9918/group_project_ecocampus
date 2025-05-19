@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <style>
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background-color: #2c3e50;
+      color: white;
+      height: 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+
+    .nav-title { font-size: 18px; font-weight: bold; }
+
+    .nav-button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 4px;
+      margin-left: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .nav-button:hover { background-color: #388e3c; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding-top: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #333;
+    }
+
+    .search-form, .product-section {
+      width: 90%;
+      max-width: 1000px;
+      margin-top: 10px;
+    }
+
+    .search-form form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .full-width {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .inline-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .short-input, .styled-select {
+      width: 200px;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .styled-select {
+      background-color: #fff;
+      appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 16px 16px;
+    }
+
+    .dash { font-size: 18px; padding: 0 5px; }
+
+    .product-section h2 {
+      margin-bottom: 10px;
+      text-align: left;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .product-card {
+      background-color: #cce6d3;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .product-card:hover {
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      transform: translateY(-3px);
+    }
+
+    .product-card img {
+      width: 240px;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .product-card a {
+      text-decoration: none;
+      color: inherit;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .product-info {
+      text-align: left;
+      width: 100%;
+    }
+
+    .product-info p {
+      margin: 4px 0;
+    }
+
+    .contact-btn {
+      margin-top: 10px;
+      padding: 8px 14px;
+      background-color: #416858;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+    }
+
+    .contact-btn:hover {
+      background-color: #283b34;
+    }
+
+    form[action="/product/addProduct"] {
+      text-align: right;
+      margin-top: 20px;
+    }
+
+    button[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button[type="submit"]:hover {
+      background-color: #388e3c;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-title">
+
+      <a href="/product" style="text-decoration: none; color: inherit;">EcoCampus</a>
+    </div>
+    <div class="nav-right">
+      <% if (user && user.name) { %>
+        <a href="/profile"><button class="nav-button"><%= user.name %></button></a>
+      <% } else { %>
+        <a href="/login"><button class="nav-button">Login</button></a>
+      <% } %>
+      <a href="/cart"><button class="nav-button">Shopping Cart</button></a>
+      <a href="/orders"><button class="nav-button">Order Management</button></a>
+      <a href="/messages"><button class="nav-button">My Messages</button></a>
+      <% if (user && user.userid) { %>
+        <a href="/user/<%= user.userid %>"><button class="nav-button">My Account</button></a>
+      <% } %>
+    </div>
+  </nav>
+
+  <!-- search form -->
+  <div class="search-form">
+    <form method="get" action="/search">
+      <input class="full-width" type="text" name="keyword" placeholder="Keyword" value="<%= typeof query !== 'undefined' ? query.keyword : '' %>"/>
+
+      <div class="inline-row">
+        <select name="category" class="styled-select">
+          <option value="">All Categories</option>
+          <option value="textbook" <%= query && query.category === 'textbook' ? 'selected' : '' %>>Textbook</option>
+          <option value="digital" <%= query && query.category === 'digital' ? 'selected' : '' %>>Digital</option>
+        </select>
+
+        <input class="short-input" type="number" name="minPrice" placeholder="Min Price" value="<%= query?.minPrice || '' %>" />
+        <span class="dash">-</span>
+        <input class="short-input" type="number" name="maxPrice" placeholder="Max Price" value="<%= query?.maxPrice || '' %>" />
+
+        <select name="minRating" class="styled-select">
+          <option value="">Any Rating</option>
+          <option value="4" <%= query?.minRating == 4 ? 'selected' : '' %>>4★+</option>
+          <option value="3" <%= query?.minRating == 3 ? 'selected' : '' %>>3★+</option>
+        </select>
+
+        <select name="sort" class="styled-select">
+          <option value="">Default</option>
+          <option value="rating" <%= query?.sort === 'rating' ? 'selected' : '' %>>Rating ↓</option>
+          <option value="price" <%= query?.sort === 'price' ? 'selected' : '' %>>Price ↑</option>
+          <option value="newest" <%= query?.sort === 'newest' ? 'selected' : '' %>>Newest</option>
+        </select>
+
+        <button type="submit"
+          style="width: 100%; padding: 12px; background-color: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer;"
+          onmouseover="this.style.backgroundColor='#388e3c'"
+          onmouseout="this.style.backgroundColor='#4CAF50'">
+          Search
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Display Products -->
+  <div class="product-section">
+    <h2>EcoCampus Products:</h2>
+    <div class="product-grid">
+      <% if (product && product.length > 0) { %>
+        <% product.forEach(g => { %>
+          <div class="product-card">
+            <a href="/product/<%= g.productid %>">
+              <% if (g.productpicture) { %>
+                <img src="<%= g.productpicture %>" alt="Product Image" />
+              <% } %>
+              <div class="product-info">
+                <p><strong>Name:</strong> <%= g.productname %></p>
+                <p><strong>Price:</strong> $<%= g.productprice %></p>
+                <p><strong>Category:</strong> <%= g.category || 'N/A' %></p>
+              </div>
+            </a>
+            <a href="/messages/<%= g.productid %>">
+              <button class="contact-btn" type="button">Contact to Seller</button>
+            </a>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p>No product added yet.</p>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Add Product Button -->
+  <form action="/product/addProduct" method="GET">
+    <button type="submit">Add Product</button>
+  </form>
+
+</body>
+</html>
