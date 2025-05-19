@@ -108,9 +108,50 @@ app.use((err, req, res, next) => {
 
 // Real-time events
 io.on('connection', (socket) => {
-  ...
+
+  const cart = cartController.getCartInstance();
+  socket.emit('cartUpdated', cart.getCart());
+
+  // Join room based on user ID
+  socket.on('joinRoom', (userId) => {
+    socket.join(`user_${userId}`);
+  });
+
+  // Send and save message
+  socket.on('sendMessage', async (data) => {
+    const { senderID, receiverID, productID, content } = data;
+
+    try {
+      await sql`
+        INSERT INTO messages (senderID, receiverID, productID, content)
+        VALUES (${senderID}, ${receiverID}, ${productID}, ${content})
+      `;
+
+      io.to(`user_${receiverID}`).emit('newMessage', {
+        from: senderID,
+        content,
+        productID,
+        sent_at: new Date().toISOString()
+      });
+    } catch (err) {
+      console.error('Failed to store or emit message:', err);
+    }
+  });
+
+  // Forward internal app events to client
+  ['cartItemAdded', 'orderProcessed', 'notification', 'newFollower', 'listingShared']
+    .forEach((evt) => {
+      eventBus.on(evt, (data) => socket.emit(evt, data));
+    });
+
+  socket.on('disconnect', () => {
+    eventBus.removeAllListeners();
+  });
+
 });
 
+
+const PORT = 3000;
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
