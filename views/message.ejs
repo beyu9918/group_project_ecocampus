@@ -2,125 +2,18 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title><%= title %></title>
-  <link rel="stylesheet" href="/stylesheets/style.css">
-  <script src="/socket.io/socket.io.js"></script> <!-- Keep Socket.IO client -->
-  <script type="module" src="/js/chat.js"></script> <!-- Your ESM script -->
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      margin: 0;
-      padding: 60px 20px 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: #333;
-    }
-
-    .navbar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      background-color: #2c3e50;
-      color: white;
-      height: 50px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      z-index: 1000;
-    }
-
-    .nav-title {
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    .chat-container {
-      width: 100%;
-      max-width: 800px;
-      background: white;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .chat-header {
-      font-size: 20px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-
-    #messages {
-      min-height: 300px;
-      max-height: 400px;
-      overflow-y: auto;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 10px;
-      margin-bottom: 10px;
-      background-color: #f9f9f9;
-    }
-
-    .msg {
-      margin-bottom: 10px;
-    }
-
-    .msg strong {
-      color: #2c3e50;
-    }
-
-    .chat-input {
-      display: flex;
-      gap: 10px;
-    }
-
-    .chat-input input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      box-sizing: border-box;
-    }
-
-    .chat-input button {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 16px;
-      cursor: pointer;
-    }
-
-    .chat-input button:hover {
-      background-color: #388e3c;
-    }
-  </style>
+  <title>Message</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <script type="module" src="/js/chat.js"></script>
 </head>
 <body>
+  <h1>Chat with <%= seller.name %></h1>
 
-  <nav class="navbar">
-    <div class="nav-title">EcoCampus Chat</div>
-    <div class="nav-right">
-      <a href="/product"><button class="nav-button">Back to Products</button></a>
-    </div>
-  </nav>
+  <div id="messages"></div>
 
-  <div class="chat-container">
-    <div class="chat-header">
-      Chat with <%= seller.name %> about "<%= product.productname %>"
-    </div>
+  <input type="text" id="messageInput" placeholder="Type a message..." />
+  <button id="sendBtn">Send</button>
 
-    <div id="messages"></div>
-
-    <div class="chat-input">
-      <input type="text" id="messageInput" placeholder="Type a message..." />
-      <button id="sendBtn">Send</button>
-    </div>
-  </div>
-
-  <!-- Pass context to front-end module -->
   <script>
     window.chatContext = {
       currentUserId: <%= user.userid %>,
@@ -130,3 +23,4 @@
   </script>
 </body>
 </html>
+
