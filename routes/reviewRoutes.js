@@ -3,10 +3,9 @@ import { getProductDetails, submitReview } from '../controllers/reviewController
 
 const router = express.Router();
 
-// 添加模拟用户中间件（开发测试用）
 router.use((req, res, next) => {
   req.user = {
-    userid: 1, // ⚠️ 确保这个 userID 在你的 users 表中存在
+    userid: 1, 
     name: 'Test User'
   };
   next();
