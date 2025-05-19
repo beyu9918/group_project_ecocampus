@@ -6,6 +6,25 @@
   <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 <body>
+<!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-title">
+      EcoCampus
+    </div>
+    <div class="nav-right">
+      <% if (user && user.name) { %>
+        <button class="nav-button"><%= user.name %></button>
+      <% } else { %>
+        <button class="nav-button">Login</button>
+      <% } %>
+      <button class="nav-button">Shopping Cart</button>
+      <button class="nav-button">Order Management</button>
+      <button class="nav-button">My Messages</button>
+      <% if (user && user.userid) { %>
+        <button class="nav-button">My Account</button>
+      <% } %>
+    </div>
+  </nav>
   <h1>Your Cart</h1>
 
   <section>
@@ -16,35 +35,28 @@
         <% cart.forEach(item => { %>
           <li style="display:flex; align-items:center; justify-content: space-between;">
             <div style="display:flex; align-items:center;">
-              <!-- placeholder image -->
-              <img src="<%= item.product.productPicture || '' %>"
-                   alt="<%= item.product.productName %>"
+              <img src=""
+                   alt="<%= item.productName %>"
                    width="50" height="50"
                    style="margin-right:12px;">
               <div>
-                <strong><%= item.product.productName %></strong><br>
-                Price: $<%= parseFloat(item.product.productPrice).toFixed(2) %>
+                <strong><%= item.productName %></strong><br>
+                Current Quantity: <%= item.quantity %><br>
+                Price: $<%= parseFloat(item.productPrice).toFixed(2) %>
               </div>
             </div>
 
-            <!-- quantity‐update form -->
             <form action="/cart/update" method="POST" style="display:flex; align-items:center;">
-              <input
-                type="hidden"
-                name="productID"
-                value="<%= item.product.productID %>"
-              />
-              <input
-                type="number"
-                name="quantity"
-                min="1"
-                value="<%= item.quantity %>"
-                style="width:60px; margin-right:8px;"
-              />
+              <input type="hidden" name="productID" value="<%= item.productID %>">
+              <input type="number"
+                     name="quantity"
+                     min="1"
+                     value="<%= item.quantity %>"
+                     style="width:60px; margin-right:8px;">
               <button type="submit">Update</button>
             </form>
           </li>
-        <% }); %>
+        <% }) %>
       </ul>
     <% } %>
   </section>
@@ -54,5 +66,54 @@
       Place Order
     </button>
   </form>
+
+  <!-- Share Cart Button -->
+  <button id="shareBtn" style="margin-top: 20px;" <% if (cart.length === 0) { %> disabled <% } %>>
+    Share Cart
+  </button>
+
+  <!-- Hidden textarea for the generated summary -->
+  <textarea id="shareBox" readonly
+            style="display:none; width:100%; height:120px; margin-top:10px; box-sizing:border-box;"></textarea>
+
+  <!-- Copy button -->
+  <button id="copyBtn" style="display:none; margin-top:5px;">
+    Copy to Clipboard
+  </button>
+
+  <!-- Embed cart data for JS -->
+  <script>
+    const cartData = <%- JSON.stringify(cart.map(item => ({
+      name: item.productName,
+      quantity: item.quantity,
+      price: parseFloat(item.productPrice).toFixed(2)
+    }))) %>;
+
+    const shareBtn = document.getElementById('shareBtn');
+    const shareBox = document.getElementById('shareBox');
+    const copyBtn  = document.getElementById('copyBtn');
+
+    shareBtn.addEventListener('click', () => {
+      // Build the text summary
+      const lines = cartData.map(it =>
+        `${it.name} x${it.quantity} – $${it.price}`
+      );
+      shareBox.value = lines.join('\n');
+      shareBox.style.display = 'block';
+      copyBtn.style.display  = 'inline-block';
+      shareBox.select();
+    });
+
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(shareBox.value)
+        .then(() => {
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => copyBtn.textContent = 'Copy to Clipboard', 2000);
+        })
+        .catch(err => {
+          console.error('Copy failed:', err);
+        });
+    });
+  </script>
 </body>
 </html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Payment</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+<!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-title">
+      EcoCampus
+    </div>
+    <div class="nav-right">
+      <% if (user && user.name) { %>
+        <button class="nav-button"><%= user.name %></button>
+      <% } else { %>
+        <button class="nav-button">Login</button>
+      <% } %>
+      <button class="nav-button">Shopping Cart</button>
+      <button class="nav-button">Order Management</button>
+      <button class="nav-button">My Messages</button>
+      <% if (user && user.userid) { %>
+        <button class="nav-button">My Account</button>
+      <% } %>
+    </div>
+  </nav>
+  <h1>Payment Information</h1>
+
+  <form action="/payment" method="POST" style="max-width:400px;">
+    <label>
+      Card Number:<br>
+      <input type="text" name="cardNumber" placeholder="1234 5678 9012 3456" required>
+    </label><br>
+
+    <label>
+      CVC:<br>
+      <input type="text" name="cvv" placeholder="123" required>
+    </label><br>
+
+    <label>
+      Expiry Date:<br>
+      <input type="month" name="expiry" required>
+    </label><br>
+
+    <button type="submit">Pay Now</button>
+  </form>
+
+  <p><a href="/" class="link">Back to Cart</a></p>
+</body>
+</html>

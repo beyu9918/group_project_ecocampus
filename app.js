@@ -1,106 +1,150 @@
 // app.js
 import express from 'express';
-import path from 'path';
+import path    from 'path';
 import { fileURLToPath } from 'url';
-import { connectDatabase } from './config/database.js';
-import { Cart }            from './controllers/cartController.js';
-// Note: productController.js only defines Product; the association is in cartController
 
-;(async () => {
-  // 1. Connect to Postgres
-  await connectDatabase();
+// Controllers
+import { getCart, addCartItem } from './controllers/cartController.js';
+import {
+  placeOrderHandler,
+  payOrderHandler,
+  getOrdersPage,
+  clearOrderHistory
+} from './controllers/orderController.js';
+import {
+  showProductPage,
+  showAddProductPage,
+  addNewProduct,
+  showProductDetail
+} from './controllers/product.js';
 
-  // 2. Boilerplate for __dirname in ESM
+(async () => {
+  // ESM __dirname boilerplate
   const __filename = fileURLToPath(import.meta.url);
   const __dirname  = path.dirname(__filename);
 
-  // 3. Create Express app
   const app = express();
+  const BUYER_ID = 1;  // for demo; swap for session/auth
 
-  // 4. Middleware
-  app.use(express.urlencoded({ extended: true })); // for <form> POSTs
-  app.use(express.json());                         // in case you need JSON APIs
+  //
+  // --- Inject `user` into all views via res.locals ---
+  //
+  app.use((req, res, next) => {
+    // If you have express-session configured, this will pick up req.session.user
+    res.locals.user = req.session?.user || null;
+    next();
+  });
+
+  // Middleware
+  app.use(express.urlencoded({ extended: true }));
+  app.use(express.json());
   app.use(express.static(path.join(__dirname, 'public')));
 
-  // 5. View engine
+  // View engine
   app.set('view engine', 'ejs');
   app.set('views', path.join(__dirname, 'views'));
 
-  const BUYER_ID = 1; // hard-coded for your sample data; swap for session/auth later
+  //
+  // JSON API routes
+  //
+  app.get('/api/cart',  getCart);
+  app.post('/api/cart', addCartItem);
 
-  // 6. Cart page: list items in cart
+  //
+  // Server-rendered Cart page
+  //
   app.get('/', async (req, res) => {
     try {
-      const cartItems = await Cart.findAll({
-        where: { buyerID: BUYER_ID },
-        include: [{
-          association: 'product',
-          attributes: ['productName', 'productPrice', 'productPicture']
-        }]
-      });
-      res.render('index', { cart: cartItems });
+      const items = await getCartData(BUYER_ID);
+      res.render('index', { cart: items });
     } catch (err) {
       console.error('Error loading cart page:', err);
       res.status(500).send(err.message);
     }
   });
 
-  // 7. Place Order: show order summary
-  app.post('/order', async (req, res) => {
+  //
+  // Update quantity in cart
+  //
+  app.post('/cart/update', async (req, res) => {
+    const { productID, quantity } = req.body;
+    const qty = parseInt(quantity, 10);
+    if (isNaN(qty) || qty < 1) {
+      return res.status(400).send('Invalid quantity');
+    }
     try {
-      const items = await Cart.findAll({
-        where: { buyerID: BUYER_ID },
-        include: [{
-          association: 'product',
-          attributes: ['productName', 'productPrice', 'productPicture']
-        }]
+      await addCartItem({ body: { buyerID: BUYER_ID, productID, quantity: qty } }, {
+        json: () => {}, status: () => ({ json: () => {} })
       });
-      const total = items.reduce(
-        (sum, it) => sum + parseFloat(it.product.productPrice) * it.quantity,
-        0
-      );
-      res.render('order', { items, total, confirmed: false });
+      res.redirect('/');
     } catch (err) {
-      console.error('Error rendering order page:', err);
-      res.status(500).send(err.message);
-    }
-  });
-  
-// Update quantity in cart
-app.post('/cart/update', async (req, res) => {
-  const { productID, quantity } = req.body;
-  const parsedQty = parseInt(quantity, 10);
-  if (isNaN(parsedQty) || parsedQty < 1) {
-    return res.status(400).send('Invalid quantity');
-  }
-
-  try {
-    await Cart.update(
-      { quantity: parsedQty },
-      { where: { buyerID: BUYER_ID, productID: productID } }
-    );
-    // After updating, send them back to the cart page
-    res.redirect('/');
-  } catch (err) {
-    console.error('Error updating cart item:', err);
-    res.status(500).send('Failed to update quantity');
-  }
-});
-
-  // 8. Checkout: clear the cart, show confirmation
-  app.post('/order/checkout', async (req, res) => {
-    try {
-      await Cart.destroy({ where: { buyerID: BUYER_ID } });
-      res.render('order', { items: [], total: 0, confirmed: true });
-    } catch (err) {
-      console.error('Error during checkout:', err);
+      console.error('Error updating cart:', err);
       res.status(500).send(err.message);
     }
   });
 
-  // 9. Start server
+  //
+  // Place order (SSR)
+  //
+  app.post('/order', placeOrderHandler);
+
+  //
+  // Checkout (SSR)
+  //
+  app.post('/order/checkout', payOrderHandler);
+
+  //
+  // Product management pages
+  //
+  app.get('/product',            showProductPage);
+  app.get('/product/add',        showAddProductPage);
+  app.post('/product/add',       addNewProduct);
+  app.get('/product/:productid', showProductDetail);
+
+  //
+  // Payment pages
+  //
+  app.get('/payment', (req, res) => {
+    res.render('payment');
+  });
+  app.post('/payment', (req, res) => {
+    // handle payment logic here...
+    res.redirect('/orders');
+  });
+
+  //
+  // Past orders page & clear history
+  //
+  app.get('/orders',      getOrdersPage);
+  app.post('/orders/clear', clearOrderHistory);
+
+  //
+  // Comment on product from history
+  //
+  app.get('/product/:productID/comment', (req, res) => {
+    res.render('commentProduct', { productID: req.params.productID });
+  });
+
+  //
+  // Start server
+  //
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
   });
+
+  //
+  // Helper: fetch cart items for SSR
+  //
+  async function getCartData(buyerID) {
+    // reuse the logic from getCart controller but return the items
+    const req = { query: { buyerID } };
+    let items;
+    const res = {
+      json(data) { items = data; },
+      status() { return { json() {} }; }
+    };
+    await getCart(req, res);
+    return items;
+  }
 })();

@@ -6,24 +6,44 @@
   <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 <body>
+<!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-title">
+      EcoCampus
+    </div>
+    <div class="nav-right">
+      <% if (user && user.name) { %>
+        <button class="nav-button"><%= user.name %></button>
+      <% } else { %>
+        <button class="nav-button">Login</button>
+      <% } %>
+      <button class="nav-button">Shopping Cart</button>
+      <button class="nav-button">Order Management</button>
+      <button class="nav-button">My Messages</button>
+      <% if (user && user.userid) { %>
+        <button class="nav-button">My Account</button>
+      <% } %>
+    </div>
+  </nav> 
   <% if (!confirmed) { %>
     <h1>Review Your Order</h1>
-
     <section>
-      <% if (items.length === 0) { %>
+      <% if (!items || items.length === 0) { %>
         <p>No items in your order.</p>
       <% } else { %>
         <ul>
           <% items.forEach(item => { %>
-            <li style="display:flex; align-items:center;">
-              <img src="<%= item.product.productPicture || '' %>" 
-                   alt="<%= item.product.productName %>" 
-                   width="50" height="50" 
-                   style="margin-right:12px;">
-              <div>
-                <strong><%= item.product.productName %></strong><br>
-                Quantity: <%= item.quantity %><br>
-                Price: $<%= parseFloat(item.product.productPrice).toFixed(2) %>
+            <li style="display:flex; align-items:center; justify-content: space-between; margin-bottom:8px;">
+              <div style="display:flex; align-items:center;">
+                <img src=""
+                     alt="<%= item.productName %>"
+                     width="50" height="50"
+                     style="margin-right:12px;">
+                <div>
+                  <strong><%= item.productName %></strong><br>
+                  Quantity: <%= item.quantity %><br>
+                  Price: $<%= parseFloat(item.productPrice).toFixed(2) %>
+                </div>
               </div>
             </li>
           <% }); %>
@@ -33,17 +53,29 @@
 
     <p><strong>Total: $<%= total.toFixed(2) %></strong></p>
 
-    <form action="/order/checkout" method="POST">
-      <button type="submit" <% if (items.length === 0) { %> disabled <% } %>>
+    <form action="/order/checkout" method="POST" style="margin-top:16px;">
+      <input type="hidden" name="orderID" value="<%= orderID %>">
+      <button type="submit" <% if (!items || items.length === 0) { %> disabled <% } %>>
         Checkout
       </button>
     </form>
-    <p><a href="/" class="link">Back to Cart</a></p>
+
+    <p style="margin-top:12px;">
+      <a href="/" class="link">Back to Cart</a>
+    </p>
 
   <% } else { %>
     <h1>Order Confirmed</h1>
     <p>Thank you! Your order has been placed successfully.</p>
-    <p><a href="/" class="link">Back to Cart</a></p>
+
+    <form action="/payment" method="GET" style="margin:20px 0;">
+      <button type="submit">Proceed to Payment</button>
+    </form>
+
+    <p>
+      <a href="/orders" class="link">View All Orders</a><br>
+      <a href="/" class="link">Back to Cart</a>
+    </p>
   <% } %>
 </body>
 </html>

@@ -1,74 +1,54 @@
 // controllers/cartController.js
-import { DataTypes } from 'sequelize';
-import { sequelize }  from '../config/database.js';
-import { Product }    from './productController.js';
-import eventBus       from './eventBus.js';
+import sql from '../db.js';
+import eventBus from './eventBus.js';
 
-// Define Cart model, mapping exactly to your lowercase Postgres columns
-export const Cart = sequelize.define('cart', {
-  cartID: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
-    field: 'cartid'
-  },
-  buyerID: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    field: 'buyerid'
-  },
-  productID: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    field: 'productid'
-  },
-  quantity: {
-    type: DataTypes.INTEGER,
-    defaultValue: 1,
-    field: 'quantity'
-  }
-}, {
-  tableName:  'cart',
-  timestamps: true,
-  createdAt:  'added_at',
-  updatedAt:  false
-});
-
-// Associate Cart → Product
-Cart.belongsTo(Product, { foreignKey: 'productID', as: 'product' });
-
-// GET /api/cart?buyerID=...
+// GET /api/cart?buyerID=…
 export async function getCart(req, res) {
   const buyerID = parseInt(req.query.buyerID, 10);
-  if (!buyerID) return res.status(400).json({ error: 'buyerID query required' });
-
+  if (!buyerID) {
+    return res.status(400).json({ error: 'buyerID query required' });
+  }
   try {
-    const items = await Cart.findAll({
-      where: { buyerID },
-      include: [{
-        association: 'product',
-        attributes: ['productname', 'productprice', 'productpicture']
-      }]
-    });
+    const items = await sql`
+      SELECT
+        c.cartid    AS "cartID",
+        c.buyerid   AS "buyerID",
+        c.productid AS "productID",
+        c.quantity,
+        p.productname    AS "productName",
+        p.productprice   AS "productPrice",
+        p.productpicture AS "productPicture"
+      FROM cart AS c
+      JOIN product AS p
+        ON c.productid = p.productid
+      WHERE c.buyerid = ${buyerID}
+    `;
     res.json(items);
   } catch (err) {
     console.error('Error fetching cart:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: 'Failed to fetch cart' });
   }
 }
 
-// POST /api/cart
+// controllers/cartController.js
 export async function addCartItem(req, res) {
   const { buyerID, productID, quantity = 1 } = req.body;
-  if (!buyerID || !productID) {
-    return res.status(400).json({ error: 'buyerID and productID required' });
-  }
   try {
-    const item = await Cart.create({ buyerID, productID, quantity });
+    const [item] = await sql`
+      INSERT INTO cart (buyerid, productid, quantity, added_at)
+      VALUES (${buyerID}, ${productID}, ${quantity}, DEFAULT)
+      ON CONFLICT (buyerid, productid) DO UPDATE
+        SET quantity = cart.quantity + EXCLUDED.quantity
+      RETURNING
+        cartid    AS "cartID",
+        buyerid   AS "buyerID",
+        productid AS "productID",
+        quantity
+    `;
     eventBus.emit('cartItemAdded', { item, timestamp: new Date().toISOString() });
-    res.status(201).json(item);
+    return res.status(201).json(item);
   } catch (err) {
     console.error('Error adding to cart:', err);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 }

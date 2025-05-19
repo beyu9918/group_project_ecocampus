@@ -62,6 +62,45 @@ button:disabled {
   cursor: not-allowed;
 }
 
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background-color: #2c3e50;
+  color: white;
+  height: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+.nav-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.nav-right .nav-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 4px;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.nav-right .nav-button:hover {
+  background-color: #388e3c;
+}
+
+/* push down your page content below the fixed navbar */
+body {
+  padding-top: 60px; /* at least navbar height + some spacing */
+}
+
 /* 
   If you still want some centered components later, you can
   wrap them in a class (e.g. .centered) and only apply it there:
@@ -70,3 +109,5 @@ button:disabled {
   text-align: center;
 }
 */
+
+
