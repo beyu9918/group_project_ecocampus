@@ -1,6 +1,14 @@
 import express from 'express';
 import path    from 'path';
 import { fileURLToPath } from 'url';
+import http from 'http';
+import { Server as SocketIOServer } from 'socket.io';
+import debug from 'debug';
+
+const app = express();
+const server = http.createServer(app);
+const io = new SocketIOServer(server);
+export const codeTrace = debug('comp3028:server');
 
 // Controllers
 import { getCart, addCartItem } from './controllers/cartController.js';
@@ -22,7 +30,6 @@ import {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname  = path.dirname(__filename);
 
-  const app = express();
   const BUYER_ID = 1;  //swap for session/auth
 
 
