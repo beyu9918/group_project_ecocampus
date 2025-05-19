@@ -1,4 +1,3 @@
-// app.js
 import express from 'express';
 import path    from 'path';
 import { fileURLToPath } from 'url';
@@ -24,13 +23,11 @@ import {
   const __dirname  = path.dirname(__filename);
 
   const app = express();
-  const BUYER_ID = 1;  // for demo; swap for session/auth
+  const BUYER_ID = 1;  //swap for session/auth
 
-  //
-  // --- Inject `user` into all views via res.locals ---
-  //
+
+  //Inject `user` into all views via res.locals
   app.use((req, res, next) => {
-    // If you have express-session configured, this will pick up req.session.user
     res.locals.user = req.session?.user || null;
     next();
   });
@@ -44,15 +41,11 @@ import {
   app.set('view engine', 'ejs');
   app.set('views', path.join(__dirname, 'views'));
 
-  //
   // JSON API routes
-  //
   app.get('/api/cart',  getCart);
   app.post('/api/cart', addCartItem);
 
-  //
   // Server-rendered Cart page
-  //
   app.get('/', async (req, res) => {
     try {
       const items = await getCartData(BUYER_ID);
@@ -63,9 +56,7 @@ import {
     }
   });
 
-  //
   // Update quantity in cart
-  //
   app.post('/cart/update', async (req, res) => {
     const { productID, quantity } = req.body;
     const qty = parseInt(quantity, 10);
@@ -83,59 +74,37 @@ import {
     }
   });
 
-  //
   // Place order (SSR)
-  //
   app.post('/order', placeOrderHandler);
 
-  //
   // Checkout (SSR)
-  //
   app.post('/order/checkout', payOrderHandler);
 
-  //
   // Product management pages
-  //
   app.get('/product',            showProductPage);
   app.get('/product/add',        showAddProductPage);
   app.post('/product/add',       addNewProduct);
   app.get('/product/:productid', showProductDetail);
 
-  //
   // Payment pages
-  //
   app.get('/payment', (req, res) => {
     res.render('payment');
   });
   app.post('/payment', (req, res) => {
-    // handle payment logic here...
+    // handle payment logic
     res.redirect('/orders');
   });
 
-  //
   // Past orders page & clear history
-  //
   app.get('/orders',      getOrdersPage);
   app.post('/orders/clear', clearOrderHistory);
 
-  //
   // Comment on product from history
-  //
   app.get('/product/:productID/comment', (req, res) => {
     res.render('commentProduct', { productID: req.params.productID });
   });
 
-  //
-  // Start server
-  //
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-  });
-
-  //
   // Helper: fetch cart items for SSR
-  //
   async function getCartData(buyerID) {
     // reuse the logic from getCart controller but return the items
     const req = { query: { buyerID } };
@@ -148,3 +117,11 @@ import {
     return items;
   }
 })();
+
+  // Start server
+const PORT = 3000;
+
+server.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
+

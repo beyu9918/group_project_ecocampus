@@ -1,4 +1,3 @@
-// controllers/cartController.js
 import sql from '../db.js';
 import eventBus from './eventBus.js';
 

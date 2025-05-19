@@ -1,10 +1,9 @@
-// controllers/orderController.js
 import sql from '../db.js';
 import eventBus from './eventBus.js';
 
-// POST /order  — show order summary page
+//show order summary page
 export async function placeOrderHandler(req, res) {
-  const buyerID = 1; // or grab from req.session.user
+  const buyerID = 1; 
 
   try {
     // 1) Fetch cart items + product info
@@ -47,7 +46,7 @@ export async function placeOrderHandler(req, res) {
       items,
       total,
       confirmed: false,
-      orderID: null  // not used in this flow
+      orderID: null 
     });
 
   } catch (err) {
@@ -59,7 +58,6 @@ export async function placeOrderHandler(req, res) {
 // POST /order/checkout — show confirmation page
 export async function payOrderHandler(req, res) {
   try {
-    // No DB update needed (no status column)
     res.render('order', { items: [], total: 0, confirmed: true });
   } catch (err) {
     console.error('Error during checkout:', err);
@@ -69,7 +67,7 @@ export async function payOrderHandler(req, res) {
 
 // GET /orders — list past purchases
 export async function getOrdersPage(req, res) {
-  const buyerID = 1; // or grab from req.session.user
+  const buyerID = 1; 
   try {
     const orders = await sql`
       SELECT
@@ -91,7 +89,7 @@ export async function getOrdersPage(req, res) {
 
 // POST /orders/clear — clear this user’s history and reset IDs
 export async function clearOrderHistory(req, res) {
-  const buyerID = 1; // or grab from req.session.user
+  const buyerID = 1;
   try {
     // Delete only this user’s orders
     await sql`
