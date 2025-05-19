@@ -58,7 +58,6 @@ body {
   color: #333;
 }
 
-/* Box layout for login/register */
 .box {
   background: white;
   padding: 30px;
@@ -109,8 +108,9 @@ body {
 }
 
 .form-wrapper {
-  width: 100%;
-  max-width: 800px;
+  width: 95%;
+  max-width: 1400px;
+  margin: 50px auto;
   padding: 40px;
   background: white;
   border-radius: 16px;
@@ -232,7 +232,6 @@ th {
   height: 40px;
 }
 
-/* ✅ 改进导航栏样式，支持下拉和防止溢出 */
 .navbar {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -317,7 +316,8 @@ th {
 
 .main-content {
   display: flex;
-  justify-content: center; /* ✅ 水平居中 */
-  padding: 60px 20px;       /* 顶部留空避免导航栏重叠 */
+  justify-content: center;
+  padding: 60px 20px;
   box-sizing: border-box;
+  margin-top: 70px;
 }

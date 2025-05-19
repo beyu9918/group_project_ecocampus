@@ -1,8 +1,8 @@
 import express from 'express';
-import { searchItems } from '../controllers/searchController.js';
+import { searchProducts } from '../controllers/searchController.js';
 
 const router = express.Router();
 
-router.get('/', searchItems);
+router.get('/', searchProducts);
 
 export default router;
