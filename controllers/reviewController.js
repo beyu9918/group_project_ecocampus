@@ -24,7 +24,7 @@ export async function getProductDetails(req, res) {
     const sellerResult = await pool.query('SELECT * FROM users WHERE userid = $1', [product.sellerid]);
     const seller = sellerResult.rows[0];
 
-    res.render('product', {
+    res.render('review', {
       product,
       reviews: reviewResult.rows,
       seller,
