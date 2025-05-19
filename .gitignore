@@ -8,4 +8,5 @@ yarn-error.log
 #sys file
 .DS_Store
 Thumbs.db
+public/stylesheets/style.css
 
