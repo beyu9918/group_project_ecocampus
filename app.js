@@ -65,6 +65,27 @@ import { Cart }            from './controllers/cartController.js';
       res.status(500).send(err.message);
     }
   });
+  
+// Update quantity in cart
+app.post('/cart/update', async (req, res) => {
+  const { productID, quantity } = req.body;
+  const parsedQty = parseInt(quantity, 10);
+  if (isNaN(parsedQty) || parsedQty < 1) {
+    return res.status(400).send('Invalid quantity');
+  }
+
+  try {
+    await Cart.update(
+      { quantity: parsedQty },
+      { where: { buyerID: BUYER_ID, productID: productID } }
+    );
+    // After updating, send them back to the cart page
+    res.redirect('/');
+  } catch (err) {
+    console.error('Error updating cart item:', err);
+    res.status(500).send('Failed to update quantity');
+  }
+});
 
   // 8. Checkout: clear the cart, show confirmation
   app.post('/order/checkout', async (req, res) => {

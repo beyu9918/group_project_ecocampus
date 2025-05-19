@@ -1,28 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Your Cart</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 <body>
   <h1>Your Cart</h1>
 
-  <ul>
-    <% cart.forEach(item => { %>
-      <li style="display: flex; align-items: center;">
-        <img src="" alt="<%= item.product.productName %>" style="width:50px;height:50px;margin-right:10px;" />
-        <div>
-          <strong><%= item.product.productName %></strong><br/>
-          Price: $<%= item.product.productPrice
-               ? parseFloat(item.product.productPrice).toFixed(2)
-               : '0.00' %>
-        </div>
-      </li>
-    <% }); %>
-  </ul>
+  <section>
+    <% if (cart.length === 0) { %>
+      <p>Your cart is empty.</p>
+    <% } else { %>
+      <ul>
+        <% cart.forEach(item => { %>
+          <li style="display:flex; align-items:center; justify-content: space-between;">
+            <div style="display:flex; align-items:center;">
+              <!-- placeholder image -->
+              <img src="<%= item.product.productPicture || '' %>"
+                   alt="<%= item.product.productName %>"
+                   width="50" height="50"
+                   style="margin-right:12px;">
+              <div>
+                <strong><%= item.product.productName %></strong><br>
+                Price: $<%= parseFloat(item.product.productPrice).toFixed(2) %>
+              </div>
+            </div>
 
-  <form action="/order" method="POST" style="text-align:center; margin-top:2em;">
-    <button type="submit">Place Order</button>
+            <!-- quantity‐update form -->
+            <form action="/cart/update" method="POST" style="display:flex; align-items:center;">
+              <input
+                type="hidden"
+                name="productID"
+                value="<%= item.product.productID %>"
+              />
+              <input
+                type="number"
+                name="quantity"
+                min="1"
+                value="<%= item.quantity %>"
+                style="width:60px; margin-right:8px;"
+              />
+              <button type="submit">Update</button>
+            </form>
+          </li>
+        <% }); %>
+      </ul>
+    <% } %>
+  </section>
+
+  <form action="/order" method="POST" style="margin-top: 20px;">
+    <button type="submit" <% if (cart.length === 0) { %> disabled <% } %>>
+      Place Order
+    </button>
   </form>
 </body>
 </html>

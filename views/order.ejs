@@ -1,35 +1,49 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Your Order</title>
-  </head>
-  <body>
-    <% if (!confirmed) { %>
-      <h1>Your Order</h1>
-      <ul>
-        <% items.forEach(item => { %>
-          <li style="display:flex; align-items:center; margin-bottom:1em;">
-            <!-- placeholder for product image -->
-            <img src="" alt="<%= item.product.productName %>" width="50" height="50" style="margin-right:1em;">
-            <div>
-              <strong><%= item.product.productName %></strong><br/>
-              Price: $<%= parseFloat(item.product.productPrice).toFixed(2) %><br/>
-              Quantity: <%= item.quantity %>
-            </div>
-          </li>
-        <% }) %>
-      </ul>
-      <p><strong>Total: $<%= total.toFixed(2) %></strong></p>
-      <form action="/order/checkout" method="POST">
-        <button type="submit">Checkout</button>
-      </form>
-      <p><a href="/">Back to Cart</a></p>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= confirmed ? 'Order Confirmed' : 'Review Your Order' %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+  <% if (!confirmed) { %>
+    <h1>Review Your Order</h1>
 
-    <% } else { %>
-      <h1>Order Confirmed</h1>
-      <p>Thank you! Your order has been placed successfully.</p>
-      <p><a href="/">Back to Cart</a></p>
-    <% } %>
-  </body>
+    <section>
+      <% if (items.length === 0) { %>
+        <p>No items in your order.</p>
+      <% } else { %>
+        <ul>
+          <% items.forEach(item => { %>
+            <li style="display:flex; align-items:center;">
+              <img src="<%= item.product.productPicture || '' %>" 
+                   alt="<%= item.product.productName %>" 
+                   width="50" height="50" 
+                   style="margin-right:12px;">
+              <div>
+                <strong><%= item.product.productName %></strong><br>
+                Quantity: <%= item.quantity %><br>
+                Price: $<%= parseFloat(item.product.productPrice).toFixed(2) %>
+              </div>
+            </li>
+          <% }); %>
+        </ul>
+      <% } %>
+    </section>
+
+    <p><strong>Total: $<%= total.toFixed(2) %></strong></p>
+
+    <form action="/order/checkout" method="POST">
+      <button type="submit" <% if (items.length === 0) { %> disabled <% } %>>
+        Checkout
+      </button>
+    </form>
+    <p><a href="/" class="link">Back to Cart</a></p>
+
+  <% } else { %>
+    <h1>Order Confirmed</h1>
+    <p>Thank you! Your order has been placed successfully.</p>
+    <p><a href="/" class="link">Back to Cart</a></p>
+  <% } %>
+</body>
 </html>
