@@ -72,10 +72,12 @@
       <h2>Results for "<%= query.keyword %>"</h2>
     <% } %>
 
+
     <div class="item-list">
       <% if (items && items.length === 0) { %>
         <div class="item">
           <p>No matching results.</p>
+
         </div>
       <% } else { %>
         <% items.forEach(item => { %>
