@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding-top: 60px;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50px;
+      background-color: #2c3e50;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+
+    .nav-title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 4px;
+      margin-left: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .nav-button:hover {
+      background-color: #388e3c;
+    }
+
+    h1 {
+      margin: 30px 0 20px;
+      color: #2c3e50;
+    }
+
+    .message-list {
+      width: 90%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .conversation {
+      background: white;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: box-shadow 0.2s ease;
+    }
+
+    .conversation:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .conversation a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .conversation strong {
+      color: #2c3e50;
+    }
+
+    .empty-msg {
+      font-size: 16px;
+      margin-top: 50px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-title">
+      <a href="/" style="text-decoration: none; color: inherit;">EcoCampus</a>
+    </div>
+    <div class="nav-right">
+      <% if (user && user.name) { %>
+        <a href="/profile"><button class="nav-button"><%= user.name %></button></a>
+      <% } else { %>
+        <a href="/login"><button class="nav-button">Login</button></a>
+      <% } %>
+      <a href="/cart"><button class="nav-button">Shopping Cart</button></a>
+      <a href="/orders"><button class="nav-button">Order Management</button></a>
+      <a href="/user/<%= user.userid %>"><button class="nav-button">My Account</button></a >
+
+    </div>
+  </nav>
+
+  <h1>My Messages</h1>
+
+  <div class="message-list">
+    <% if (conversations.length === 0) { %>
+      <p class="empty-msg">No messages received yet.</p>
+    <% } else { %>
+      <% conversations.forEach(conv => { %>
+        <div class="conversation">
+          <a href="/messages/chat/<%= conv.productid %>/<%= conv.buyerid %>">
+            <strong>From:</strong> <%= conv.buyername %><br/>
+            <strong>About:</strong> <%= conv.productname %>
+          </a>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+
+</body>
+</html>
+

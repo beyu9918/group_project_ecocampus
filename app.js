@@ -20,7 +20,7 @@ import productRoutes from './routes/product.js';
 import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/order.js';
 import socialRoutes from './routes/social.js';
-import messageRoutes from './routes/message.js'; // ✅ message route added
+import messageRoutes from './routes/message.js'; 
 
 import { registerForm, loginForm } from './controllers/userController.js';
 import eventBus from './controllers/eventBus.js';
@@ -64,7 +64,7 @@ app.use('/api/social', socialRoutes);
 // Web Routes
 app.use('/', productRoutes);
 app.use('/search', searchRoutes);
-app.use('/', messageRoutes); // ✅ mount message route
+app.use('/', messageRoutes);
 
 // Auth Routes
 app.get('/register', (req, res) => res.render('register'));
