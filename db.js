@@ -1,12 +1,20 @@
-import pkg from 'pg';
-const { Pool } = pkg;
 
-const pool = new Pool({
-    user: 'postgres',
-    host: 'host.docker.internal',  
-    database: 'eco_campus',
-    password: 'password',
-    port: 5432,
-  });
+import postgres from 'postgres';
+import dotenv from 'dotenv';
+dotenv.config();
 
-export const query = (text, params) => pool.query(text, params);
+
+const sql = postgres({
+  host: process.env.DB_HOST || 'host.docker.internal',
+  port: process.env.DB_PORT || 5432,
+  database: process.env.DB_NAME || 'mydb',
+  
+
+  username: process.env.DB_USER || 'admin',
+  password: process.env.DB_PASS || 'admin',
+  ssl: false, // may 
+
+});
+
+export default sql;
+
