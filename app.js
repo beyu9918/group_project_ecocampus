@@ -126,6 +126,8 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     eventBus.removeAllListeners();
   });
+
+  //ths is fully funtioned real time function
 });
 
 const PORT = 3000;

@@ -8,3 +8,5 @@ yarn-error.log
 #sys file
 .DS_Store
 Thumbs.db
+db.js
+package-lock.json
