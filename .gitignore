@@ -19,5 +19,6 @@ Thumbs.db
 
 coverage/
 
-
+db.js
+package-lock.json
 dist/
