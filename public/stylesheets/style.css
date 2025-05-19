@@ -321,3 +321,11 @@ body {
     .main-content {
       margin-top: 70px; 
     }
+/* Center container for centering .form-wrapper using flexbox */
+.center-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  width: 100%;
+}
