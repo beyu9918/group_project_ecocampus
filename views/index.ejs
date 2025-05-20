@@ -1,126 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title><%= title %></title>
-  <link rel="stylesheet" href="/stylesheets/style.css" />
-  <script src="/socket.io/socket.io.js"></script>
+  <meta charset="UTF-8">
+  <title>Your Cart</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <style>
+    /* undo the flex-centering on body */
+    body {
+      display: block      !important;
+      justify-content: flex-start !important;
+      align-items:     flex-start !important;
+      height: auto       !important;
+    }
+    /* undo the global h1 centering */
+    h1 {
+      text-align: left   !important;
+    }
+  </style>
 </head>
-<body>
-  <h1><%= title %></h1>
+<body style="padding-top: 60px;">
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-title">
+
+      <a href="/product" style="text-decoration: none; color: inherit;">EcoCampus</a>
+    </div>
+    <div class="nav-right">
+      <% if (user && user.name) { %>
+        <a href="/profile"><button class="nav-button"><%= user.name %></button></a>
+      <% } else { %>
+        <a href="/login"><button class="nav-button">Login</button></a>
+      <% } %>
+      <a href="/index"><button class="nav-button">Shopping Cart</button></a>
+      <a href="/orders"><button class="nav-button">Order Management</button></a>
+      <a href="/messages"><button class="nav-button">My Messages</button></a>
+      <% if (user && user.userid) { %>
+        <a href="/user/<%= user.userid %>"><button class="nav-button">My Account</button></a>
+      <% } %>
+    </div>
+  </nav>
+  <h1>Your Cart</h1>
 
   <section>
-    <h2>Shopping Cart</h2>
-    <ul id="cart"></ul>
-    <input type="text" id="itemName" placeholder="Item name" />
-    <button id="addItem">Add Item</button>
+    <% if (cart.length === 0) { %>
+      <p>Your cart is empty.</p>
+    <% } else { %>
+      <ul>
+        <% cart.forEach(item => { %>
+          <li style="display:flex; align-items:center; justify-content: space-between;">
+            <div style="display:flex; align-items:center;">
+              <img src=""
+                   alt="<%= item.productName %>"
+                   width="50" height="50"
+                   style="margin-right:12px;">
+              <div>
+                <strong><%= item.productName %></strong><br>
+                Current Quantity: <%= item.quantity %><br>
+                Price: $<%= parseFloat(item.productPrice).toFixed(2) %>
+              </div>
+            </div>
+
+            <form action="/cart/update" method="POST" style="display:flex; align-items:center;">
+              <input type="hidden" name="productID" value="<%= item.productID %>">
+              <input type="number"
+                     name="quantity"
+                     min="1"
+                     value="<%= item.quantity %>"
+                     style="width:60px; margin-right:8px;">
+              <button type="submit">Update</button>
+            </form>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
   </section>
 
-  <section>
-    <h2>Order Status</h2>
-    <ul id="orders"></ul>
-    <button id="placeOrder">Place Order</button>
-  </section>
+  <% if (user) { %>
+    <form action="/order" method="POST" style="margin-top: 20px;">
+      <button
+        type="submit"
+        <% if (cart.length === 0) { %> disabled <% } %>
+      >
+        Place Order
+      </button>
+    </form>
+  <% } else { %>
+   <a href="/login">
+      <button type="button" style="margin-top: 20px;">
+        Place Order
+      </button>
+   </a>
+  <% } %>
 
-  <section>
-    <h2>Social</h2>
-    <input type="text" id="followSellerId" placeholder="Seller ID to follow" />
-    <button id="followBtn">Follow</button>
-    <input type="text" id="shareListingId" placeholder="Listing ID to share" />
-    <button id="shareBtn">Share</button>
-  </section>
+  <!-- Share Cart Button -->
+  <button id="shareBtn" style="margin-top: 20px;" <% if (cart.length === 0) { %> disabled <% } %>>
+    Share Cart
+  </button>
 
-  <section>
-    <h2>Notifications</h2>
-    <ul id="notifications"></ul>
-  </section>
+  <!-- Hidden textarea for the generated summary -->
+  <textarea id="shareBox" readonly
+            style="display:none; width:100%; height:120px; margin-top:10px; box-sizing:border-box;"></textarea>
 
+  <!-- Copy button -->
+  <button id="copyBtn" style="display:none; margin-top:5px;">
+    Copy to Clipboard
+  </button>
+
+  <!-- Embed cart data for JS -->
   <script>
-    const socket = io();
-    const cartUl = document.getElementById('cart');
-    const ordersUl = document.getElementById('orders');
-    const notificationsUl = document.getElementById('notifications');
+    const cartData = <%- JSON.stringify(cart.map(item => ({
+      name: item.productName,
+      quantity: item.quantity,
+      price: parseFloat(item.productPrice).toFixed(2)
+    }))) %>;
 
-    const addItemBtn = document.getElementById('addItem');
-    const placeOrderBtn = document.getElementById('placeOrder');
-    const followBtn = document.getElementById('followBtn');
     const shareBtn = document.getElementById('shareBtn');
-
-    // Update shopping cart
-    socket.on('cartUpdated', (items) => {
-      cartUl.innerHTML = '';
-      items.forEach(i => {
-        const li = document.createElement('li');
-        li.textContent = i.name;
-        cartUl.appendChild(li);
-      });
-    });
-
-    socket.on('cartItemAdded', ({ item, timestamp }) => {
-      const li = document.createElement('li');
-      li.textContent = `${timestamp} — ${item.name}`;
-      cartUl.appendChild(li);
-    });
-
-    // Order updates
-    socket.on('orderProcessed', ({ orderId, status, timestamp }) => {
-      const li = document.createElement('li');
-      li.textContent = `${timestamp} — Order ${orderId}: ${status}`;
-      ordersUl.appendChild(li);
-    });
-
-    // General notifications
-    socket.on('notification', ({ type, message, timestamp }) => {
-      const li = document.createElement('li');
-      li.textContent = `[${timestamp}] [${type}] ${message}`;
-      notificationsUl.appendChild(li);
-    });
-
-    // Social events
-    socket.on('newFollower', ({ sellerId, userId, timestamp }) => {
-      const li = document.createElement('li');
-      li.textContent = `${timestamp} — User ${userId} followed seller ${sellerId}`;
-      notificationsUl.appendChild(li);
-    });
-
-    socket.on('listingShared', ({ userId, listingId, timestamp }) => {
-      const li = document.createElement('li');
-      li.textContent = `${timestamp} — Listing ${listingId} shared by user ${userId}`;
-      notificationsUl.appendChild(li);
-    });
-
-    // UI interactions
-    addItemBtn.addEventListener('click', () => {
-      const name = document.getElementById('itemName').value.trim();
-      if (!name) return;
-      fetch('/api/cart', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: Date.now().toString(), name })
-      });
-    });
-
-    placeOrderBtn.addEventListener('click', () => {
-      fetch('/api/order', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
-    });
-
-    followBtn.addEventListener('click', () => {
-      const sellerId = document.getElementById('followSellerId').value.trim();
-      fetch('/api/social/follow', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: 'user42', sellerId })
-      });
-    });
+    const shareBox = document.getElementById('shareBox');
+    const copyBtn  = document.getElementById('copyBtn');
 
     shareBtn.addEventListener('click', () => {
-      const listingId = document.getElementById('shareListingId').value.trim();
-      fetch('/api/social/share', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: 'user42', listingId })
-      });
+      // Build the text summary
+      const lines = cartData.map(it =>
+        `${it.name} x${it.quantity} – $${it.price}`
+      );
+      shareBox.value = lines.join('\n');
+      shareBox.style.display = 'block';
+      copyBtn.style.display  = 'inline-block';
+      shareBox.select();
+    });
+
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(shareBox.value)
+        .then(() => {
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => copyBtn.textContent = 'Copy to Clipboard', 2000);
+        })
+        .catch(err => {
+          console.error('Copy failed:', err);
+        });
     });
   </script>
 </body>

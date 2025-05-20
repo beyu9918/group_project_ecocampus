@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import { test } from 'node:test';
-import { registerForm, loginForm } from '../controllers/userController.js';
+import { registerForm, loginForm } from '../../controllers/userController.js';
 
 // emulate
 function createMockRes() {
