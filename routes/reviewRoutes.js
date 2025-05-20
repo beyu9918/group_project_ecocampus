@@ -3,14 +3,6 @@ import { getProductDetails, submitReview } from '../controllers/reviewController
 
 const router = express.Router();
 
-router.use((req, res, next) => {
-  req.user = {
-    userid: 1, 
-    name: 'Test User'
-  };
-  next();
-});
-
 router.get('/:id', getProductDetails);
 router.post('/:id/review', submitReview);
 

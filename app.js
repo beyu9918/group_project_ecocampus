@@ -73,12 +73,6 @@ app.use('/search', searchRoutes);
 app.use('/', messageRoutes);
 app.use('/review', reviewRoutes);
 
-// Mock login for testing (from vicky)
-app.use((req, res, next) => {
-  req.user = { userID: 1, name: 'TestUser' };
-  next();
-});
-
 // Auth pages
 app.get('/register', (req, res) => res.render('register'));
 app.get('/login', (req, res) => res.render('login'));
@@ -159,5 +153,3 @@ server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
   
-
-

@@ -38,6 +38,9 @@ export async function getProductDetails(req, res) {
 
 // POST: submit
 export async function submitReview(req, res) {
+  if (!req.user || !req.user.userid) {
+    return res.redirect('/login');
+  }
   const productID = parseInt(req.params.id);
   const { rating, comment } = req.body;
   const reviewerId = req.user.userid;
