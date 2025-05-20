@@ -11,6 +11,7 @@ import fileUpload from 'express-fileupload';
 
 import * as customServer from './config/server.js';
 import sql from './db.js';
+import indexRoutes from './routes/index.js';
 
 // Routes
 import searchRoutes from './routes/searchRoutes.js';
@@ -88,6 +89,7 @@ app.use('/', productRoutes);
 app.use('/search', searchRoutes);
 app.use('/', messageRoutes);
 app.use('/review', reviewRoutes);
+app.use('/', indexRoutes);
 
 // Auth pages
 app.get('/register', (req, res) => res.render('register'));
@@ -104,15 +106,7 @@ app.get('/profile', (req, res) => {
 // SSR Root
 const BUYER_ID = 1; // Swap this for real session
 
-app.get('/', async (req, res) => {
-  try {
-    const items = await getCartData(BUYER_ID);
-    res.render('index', { cart: items });
-  } catch (err) {
-    console.error('Error loading cart page:', err);
-    res.status(500).send(err.message);
-  }
-});
+app.get('/', showProductPage);
 
 app.post('/cart/update', async (req, res) => {
   const { productID, quantity } = req.body;

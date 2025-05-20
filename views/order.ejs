@@ -18,26 +18,27 @@
     }
   </style>
 </head>
-<body>
-<!-- Navigation Bar -->
+<body style="padding-top: 60px;">
+  <!-- Navigation Bar -->
   <nav class="navbar">
     <div class="nav-title">
-      EcoCampus
+
+      <a href="/product" style="text-decoration: none; color: inherit;">EcoCampus</a>
     </div>
     <div class="nav-right">
       <% if (user && user.name) { %>
-        <button class="nav-button"><%= user.name %></button>
+        <a href="/profile"><button class="nav-button"><%= user.name %></button></a>
       <% } else { %>
-        <button class="nav-button">Login</button>
+        <a href="/login"><button class="nav-button">Login</button></a>
       <% } %>
-      <button class="nav-button">Shopping Cart</button>
-      <button class="nav-button">Order Management</button>
-      <button class="nav-button">My Messages</button>
+      <a href="/index"><button class="nav-button">Shopping Cart</button></a>
+      <a href="/orders"><button class="nav-button">Order Management</button></a>
+      <a href="/messages"><button class="nav-button">My Messages</button></a>
       <% if (user && user.userid) { %>
-        <button class="nav-button">My Account</button>
+        <a href="/user/<%= user.userid %>"><button class="nav-button">My Account</button></a>
       <% } %>
     </div>
-  </nav> 
+  </nav>
   <% if (!confirmed) { %>
     <h1>Review Your Order</h1>
     <section>
