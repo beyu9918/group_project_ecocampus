@@ -274,3 +274,31 @@ export async function changeUserRole(req, res) {
     res.status(500).send('Failed to update user role.');
   }
 }
+//Render UserPage
+export async function renderUserPage(req, res) {
+  const { id } = req.params;
+
+  try {
+    // get basic user info
+    const result = await sql`SELECT * FROM users WHERE userID = ${id}`;
+    const user = result[0];
+    if (!user) return res.status(404).send('User not found');
+
+    // get product id from user
+    const products = await sql`SELECT * FROM product WHERE sellerid = ${id}`;
+
+    // get reviews 
+    const reviews = await sql`
+      SELECT r.*, p.productname
+      FROM reviews r
+      JOIN product p ON r.productid = p.productid
+      WHERE p.sellerid = ${id}
+      ORDER BY r.createdat DESC
+    `;
+
+    res.render('userPage', { user, products, reviews });
+  } catch (err) {
+    console.error('renderUserPage error:', err);
+    res.status(500).send('Failed to load user page');
+  }
+}

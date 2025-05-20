@@ -49,13 +49,12 @@
         <label>Seller:</label>
         <div><%= seller?.name %> | Rating: <%= seller?.avgRating %>★</div>
       </div>
-
       <div class="form-row">
         <label>Product Rating:</label>
         <div><%= product.avgrating %>★</div>
       </div>
 
-      
+
       <h3>Submit Your Review</h3>
       <% if (typeof error !== 'undefined' && error) { %>
         <div class="error-message"><%= error %></div>
@@ -80,7 +79,7 @@
           <button type="submit" class="btn-green">Submit Review</button>
         </div>
       </form>
-      
+
 
       <h3>Reviews</h3>
       <% if (reviews.length === 0) { %>
