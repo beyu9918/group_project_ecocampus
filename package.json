@@ -34,13 +34,13 @@
     "morgan": "~1.9.1",
     "open": "^10.1.1",
     "pg": "^8.16.0",
+    "pg-hstore": "^2.3.4",
     "postgres": "^3.4.5",
     "socket.io": "^4.6.1",
     "supertest": "^7.1.0",
     "uuid": "^11.1.0"
-
+  },
   "devDependencies": {
     "c8": "^10.1.3"
-
   }
 }
