@@ -93,7 +93,7 @@
   <!-- Navigation Bar -->
   <nav class="navbar">
     <div class="nav-title">
-      <a href="/" style="text-decoration: none; color: inherit;">EcoCampus</a>
+        <a href="/product" style="text-decoration: none; color: inherit;">EcoCampus</a>
     </div>
     <div class="nav-right">
       <% if (user && user.name) { %>
@@ -126,9 +126,27 @@
         <button type="submit" class="back-button-btn">Back</button>
       </form>
 
+      <script>
+        function handleAddToCart(loggedIn) {
+          if (!loggedIn) {
+            window.location.href = '/login';
+          } else {
+            // TODO: Implement real add-to-cart logic
+            alert('Item added to cart!'); // placeholder
+          }
+        }
+      </script>
+      
       <form>
-        <button type="button" class="back-button-btn">Add to Cart</button>
+        <button
+          type="button"
+          class="back-button-btn"
+          onclick="handleAddToCart(<%= user ? 'true' : 'false' %>)"
+        >
+          Add to Cart
+        </button>
       </form>
+      
     </div>
   </div>
 
