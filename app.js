@@ -90,11 +90,6 @@ app.get('/profile', (req, res) => {
   res.render('profile', { user: req.session.user });
 });
 
-//function used to fix bug when jump to userPage
-app.get('/profile', (req, res) => {
-  if (!req.session.user) return res.redirect('/login');
-  res.render('profile'); //  { user: req.session.user }
-});
 
 // Root redirect
 app.get('/', (req, res) => res.redirect('/product'));
