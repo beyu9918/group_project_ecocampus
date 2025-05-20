@@ -94,7 +94,7 @@ export async function loginForm(req, res) {
     }
 
     req.session.user = user;
-    res.redirect('/profile');
+    res.redirect('/product');
   } catch (err) {
     console.error('LoginForm error:', err);
     res.render('success', { message: 'Login failed due to server error.' });
