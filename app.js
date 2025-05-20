@@ -91,6 +91,7 @@ app.use('/', messageRoutes);
 app.use('/review', reviewRoutes);
 app.use('/', indexRoutes);
 
+
 // Auth pages
 app.get('/register', (req, res) => res.render('register'));
 app.get('/login', (req, res) => res.render('login'));
