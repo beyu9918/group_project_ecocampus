@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import fs from 'fs';
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const uploadDir = path.join(__dirname, '../public/uploads');
@@ -22,7 +23,7 @@ export async function showProductPage(req, res) {
       product: result,
       items: result,
       query: req.query || {},
-      user: req.session.user || null  // ✅ pass user to EJS
+      user: req.session.user || null  
     });
   } catch (err) {
     console.error('Error fetching products:', err);
@@ -108,7 +109,7 @@ export async function showProductDetail(req, res) {
     res.render('productDetail', {
       title: product.productname,
       product,
-      user: req.session.user || null  // ✅ pass user to EJS
+      user: req.session.user || null  
     });
   } catch (err) {
     console.error('Error fetching product detail:', err);

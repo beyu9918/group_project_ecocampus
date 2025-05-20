@@ -271,9 +271,16 @@
   </div>
 
   <!-- Add Product Button -->
-  <form action="/product/addProduct" method="GET">
-    <button type="submit">Add Product</button>
-  </form>
+  <% if (user && user.userid) { %>
+    <form action="/product/addProduct" method="GET">
+      <button type="submit">Add Product</button>
+    </form>
+  <% } else { %>
+    <form action="/login" method="GET">
+      <button type="submit">Add Product</button>
+    </form>
+  <% } %>
+
 
 </body>
 </html>
