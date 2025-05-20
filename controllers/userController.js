@@ -103,14 +103,26 @@ export async function loginForm(req, res) {
 
 // Update user profile
 export async function updateProfile(req, res) {
-  const { email, phone, avatar, bio, address, gender, birthday } = req.body;
-  const parsedBirthday = birthday && !isNaN(new Date(birthday)) ? new Date(birthday) : null;
-
-  if (!req.session.user) {
-    return res.redirect('/login');
-  }
+  if (!req.session.user) return res.redirect('/login');
 
   const userId = req.session.user.userid;
+  const { email, phone, bio, address, gender, birthday } = req.body;
+  const parsedBirthday = birthday && !isNaN(new Date(birthday)) ? new Date(birthday) : null;
+
+  let avatarPath = req.session.user.avatar || '';
+
+  // If user upload new avatar
+  if (req.files && req.files.avatar) {
+    const avatarFile = req.files.avatar;
+    const filename = `avatar_${userId}_${Date.now()}_${avatarFile.name}`;
+    const uploadPath = path.join('public/uploads/', filename);
+
+    // move file to target directory
+    await avatarFile.mv(uploadPath);
+
+    // database directory
+    avatarPath = `/uploads/${filename}`;
+  }
 
   try {
     await sql`
@@ -118,7 +130,7 @@ export async function updateProfile(req, res) {
         name = ${req.body.name},
         email = ${email},
         phone = ${phone},
-        avatar = ${avatar},
+        avatar = ${avatarPath},
         bio = ${bio},
         address = ${address},
         gender = ${gender},
@@ -130,7 +142,7 @@ export async function updateProfile(req, res) {
     req.session.user = result[0];
 
     res.render('success', {
-      message: ' Profile updated successfully.',
+      message: 'Profile updated successfully.',
       backLink: '/profile'
     });
   } catch (err) {

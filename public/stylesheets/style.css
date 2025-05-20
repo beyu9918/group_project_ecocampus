@@ -321,3 +321,17 @@ th {
   box-sizing: border-box;
   margin-top: 70px;
 }
+.btn-red {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.3s ease;
+}
+
+.btn-red:hover {
+  background-color: #c0392b;
+}
