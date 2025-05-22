@@ -1,8 +1,7 @@
-import { test, describe, before, after } from 'node:test';
+import { test, describe } from 'node:test';
 import assert from 'node:assert';
 import fetch from 'node-fetch';
 
-// 基础设置
 const BASE = 'http://localhost:3000';
 
 const dummy = {
@@ -12,58 +11,57 @@ const dummy = {
 };
 
 describe('User Controller', () => {
-  test('registers new user via JSON API', async () => {
-    const res = await fetch(`${BASE}/api/users/register`, {
+  
+  test('registers new user via EJS form', async () => {
+    const res = await fetch(`${BASE}/register`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dummy)
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(dummy)
     });
-    assert.strictEqual(res.status, 201);
-    const data = await res.json();
-    assert.match(data.msg, /User registered successfully/);
+    const text = await res.text();
+    assert.strictEqual(res.status, 200);
+    assert.match(text, /Registered successfully!/);
   });
 
   test('prevents duplicate registration', async () => {
-    const res = await fetch(`${BASE}/api/users/register`, {
+    const res = await fetch(`${BASE}/register`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dummy)
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(dummy)
     });
-    assert.strictEqual(res.status, 400);
-    const data = await res.json();
-    assert.match(data.msg, /already exists/);
+    const text = await res.text();
+    assert.strictEqual(res.status, 200);
+    assert.match(text, /Email already registered/);
   });
 
   test('logs in successfully with valid credentials', async () => {
-    const res = await fetch(`${BASE}/api/users/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: dummy.email,
-        password: dummy.password
-      })
-    });
-    assert.strictEqual(res.status, 200);
-    const data = await res.json();
-    assert.match(data.msg, /Login successful/);
-    assert.ok(data.token);
+  const res = await fetch(`${BASE}/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    redirect: 'manual',
+    body: new URLSearchParams({
+      email: dummy.email,
+      password: dummy.password
+    })
   });
+  assert.strictEqual(res.status, 302);
+  assert.ok(res.headers.get('location').endsWith('/product'));
+});
 
   test('fails login with wrong password', async () => {
-    const res = await fetch(`${BASE}/api/users/login`, {
+    const res = await fetch(`${BASE}/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
         email: dummy.email,
         password: 'wrongpass'
       })
     });
-    assert.strictEqual(res.status, 401);
-    const data = await res.json();
-    assert.match(data.msg, /Invalid credentials/);
+    const text = await res.text();
+    assert.strictEqual(res.status, 200);
+    assert.match(text, /Invalid email or password/);
   });
 
-  // 触发 EJS 路由（仅为覆盖 render 路径）
   test('renders EJS registration page with duplicate email', async () => {
     const res = await fetch(`${BASE}/register`, {
       method: 'POST',
@@ -85,7 +83,6 @@ describe('User Controller', () => {
     assert.strictEqual(res.status, 200);
   });
 
-  // Profile 页面仅验证是否返回
   test('handles /profile redirect when not logged in', async () => {
     const res = await fetch(`${BASE}/profile`, {
       method: 'GET',
@@ -101,7 +98,6 @@ describe('User Controller', () => {
 
   test('view non-existent user profile (404)', async () => {
     const res = await fetch(`${BASE}/user/999999`, { method: 'GET' });
-    // 可能是 404 或 500，视你的 renderUserPage 实现而定
     assert.ok([404, 500].includes(res.status));
   });
 });
