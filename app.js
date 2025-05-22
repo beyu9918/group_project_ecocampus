@@ -104,50 +104,14 @@ app.get('/profile', (req, res) => {
   res.render('profile', { user: req.session.user });
 });
 
-// SSR Root
-const BUYER_ID = 1; // Swap this for real session
-
-app.get('/', showProductPage);
-
-app.post('/cart/update', async (req, res) => {
-  const { productID, quantity } = req.body;
-  const qty = parseInt(quantity, 10);
-  if (isNaN(qty) || qty < 1) {
-    return res.status(400).send('Invalid quantity');
-  }
-  try {
-    await addCartItem({ body: { buyerID: BUYER_ID, productID, quantity: qty } }, {
-      json: () => {}, status: () => ({ json: () => {} })
-    });
-    res.redirect('/');
-  } catch (err) {
-    console.error('Error updating cart:', err);
-    res.status(500).send(err.message);
-  }
+//function used to fix bug when jump to userPage
+app.get('/profile', (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+  res.render('profile'); //  { user: req.session.user }
 });
+// Root redirect
+app.get('/', (req, res) => res.redirect('/product'));
 
-// Order & payment
-app.post('/order', placeOrderHandler);
-app.post('/order/checkout', payOrderHandler);
-
-app.get('/payment', (req, res) => {
-  res.render('payment');
-});
-app.post('/payment', (req, res) => {
-  res.redirect('/orders');
-});
-
-app.get('/orders', getOrdersPage);
-app.post('/orders/clear', clearOrderHistory);
-
-app.get('/product', showProductPage);
-app.get('/product/add', showAddProductPage);
-app.post('/product/add', addNewProduct);
-app.get('/product/:productid', showProductDetail);
-
-app.get('/product/:productID/comment', (req, res) => {
-  res.render('commentProduct', { productID: req.params.productID });
-});
 
 // Error handler
 app.use((err, req, res, next) => {
