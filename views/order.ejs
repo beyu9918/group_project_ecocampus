@@ -67,8 +67,7 @@
 
     <p><strong>Total: $<%= total.toFixed(2) %></strong></p>
 
-    <form action="/order/checkout" method="POST" style="margin-top:16px;">
-      <input type="hidden" name="orderID" value="<%= orderID %>">
+    <form action="/payment" method="GET" style="margin-top:16px;">
       <button type="submit" <% if (!items || items.length === 0) { %> disabled <% } %>>
         Checkout
       </button>

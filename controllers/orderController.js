@@ -1,45 +1,57 @@
-// controllers/orderController.js
 import sql from '../db.js';
 import eventBus from './eventBus.js';
 
-// Place Order
+// Place Order (with HTML response)
 export async function placeOrderHandler(req, res) {
-  // 1) Grab the buyerID from session
   const buyerID = req.session?.user?.userid;
   if (!buyerID) {
-    return res.status(401).json({ error: 'Please log in to place an order' });
+    return res.redirect('/login');
   }
 
-  // 2) Extract only productID & totalAmount from the body
   const { productID, totalAmount } = req.body;
   if (!productID || !totalAmount) {
-    return res.status(400).json({ error: 'productID and totalAmount required' });
+    return res.status(400).send('productID and totalAmount required');
   }
 
   try {
-    // 3) Insert into orders table
-    const result = await sql`
+    const [order] = await sql`
       INSERT INTO orders (buyerid, productid, totalamount)
       VALUES (${buyerID}, ${productID}, ${totalAmount})
       RETURNING orderid, placed_at
     `;
-    const order = result[0];
 
-    // 4) Optionally clear the cart for this buyer/product
     await sql`DELETE FROM cart WHERE buyerid = ${buyerID} AND productid = ${productID}`;
 
-    // 5) Emit realtime event
     eventBus.emit('orderProcessed', {
-      orderID:    order.orderid,
+      orderID: order.orderid,
       buyerID,
       productID,
-      timestamp:  new Date().toISOString()
+      timestamp: new Date().toISOString()
     });
 
-    res.status(201).json({ orderID: order.orderid });
+    const [product] = await sql`
+      SELECT productname, productprice, productpicture
+      FROM product
+      WHERE productid = ${productID}
+    `;
+
+    const items = [{
+      productName: product.productname,
+      productPrice: product.productprice,
+      productPicture: product.productpicture,
+      quantity: 1
+    }];
+
+    res.render('order', {
+      orderID: order.orderid,
+      items,
+      total: parseFloat(totalAmount),
+      confirmed: false,
+      user: req.session.user
+    });
   } catch (err) {
     console.error('Error placing order:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).send('Internal server error');
   }
 }
 
@@ -52,7 +64,6 @@ export async function payOrderHandler(req, res) {
 
   const { orderID } = req.params;
   try {
-    // Only mark orders belonging to this buyer
     await sql`
       UPDATE orders
       SET status = 'Done'
