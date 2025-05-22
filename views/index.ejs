@@ -77,12 +77,9 @@
 
   <% if (user) { %>
     <form action="/order" method="POST" style="margin-top: 20px;">
-      <button
-        type="submit"
-        <% if (cart.length === 0) { %> disabled <% } %>
-      >
-        Place Order
-      </button>
+      <input type="hidden" name="productID" value="<%= cart[0].productID %>">
+      <input type="hidden" name="totalAmount" value="<%= (cart[0].productPrice * cart[0].quantity).toFixed(2) %>">
+      <button type="submit">Place Order</button>
     </form>
   <% } else { %>
    <a href="/login">
