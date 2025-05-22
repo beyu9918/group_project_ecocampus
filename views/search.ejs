@@ -52,18 +52,25 @@
   </style>
 </head>
 <body>
-  <a href="/product" style="position: fixed; top: 10px; left: 10px; z-index: 1000;">
-    <button style="
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      font-weight: bold;
-    ">Back</button>
-  </a>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-title">
+      <a href="/" style="text-decoration: none; color: inherit;">EcoCampus</a>
+    </div>
+    <div class="nav-right">
+      <% if (user && user.name) { %>
+        <a href="/profile"><button class="nav-button"><%= user.name %></button></a>
+      <% } else { %>
+        <a href="/login"><button class="nav-button">Login</button></a>
+      <% } %>
+      <a href="/index"><button class="nav-button">Shopping Cart</button></a>
+      <a href="/orders"><button class="nav-button">Order Management</button></a>
+      <a href="/messages"><button class="nav-button">My Messages</button></a>
+      <% if (user && user.userid) { %>
+        <a href="/user/<%= user.userid %>"><button class="nav-button">My Account</button></a>
+      <% } %>
+    </div>
+  </nav>
   
   <div class="results-container">
     <h1>EcoCampus Search Results</h1>
@@ -74,17 +81,17 @@
 
 
     <div class="item-list">
-      <% if (items && items.length === 0) { %>
+      <% if (product && product.length === 0) { %>
         <div class="item">
           <p>No matching results.</p>
 
         </div>
       <% } else { %>
-        <% items.forEach(item => { %>
+        <% product.forEach(product => { %>
           <div class="item">
-            <h2><a href="/item/<%= item.id %>"><%= item.title %></a></h2>
-            <p><%= item.description %></p>
-            <p>Price: ¥<%= item.price.toFixed(2) %> | Rating: <%= item.avgRating %>★</p>
+            <h2><a href="/product/<%= product.productid %>"><%= product.productname %></a></h2>
+            <p><%= product.description %></p>
+            <p>Price: ¥<%= product.productPrice.toFixed(2) %> | Rating: <%= product.avgRating %>★</p>
           </div>
         <% }) %>
       <% } %>
@@ -92,4 +99,3 @@
   </div>
 </body>
 </html>
-

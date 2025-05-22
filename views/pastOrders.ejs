@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Purchase History</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <style>
+    /* undo the flex-centering on body */
+    body {
+      display: block      ;
+      justify-content: flex-start ;
+      align-items:     flex-start ;
+      height: auto       ;
+    }
+    /* undo the global h1 centering */
+    h1 {
+      text-align: left   ;
+    }
+  </style>
+</head>
+<body style="padding-top: 60px;">
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-title">
+
+      <a href="/product" style="text-decoration: none; color: inherit;">EcoCampus</a>
+    </div>
+    <div class="nav-right">
+      <% if (user && user.name) { %>
+        <a href="/profile"><button class="nav-button"><%= user.name %></button></a>
+      <% } else { %>
+        <a href="/login"><button class="nav-button">Login</button></a>
+      <% } %>
+      <a href="/index"><button class="nav-button">Shopping Cart</button></a>
+      <a href="/orders"><button class="nav-button">Order Management</button></a>
+      <a href="/messages"><button class="nav-button">My Messages</button></a>
+      <% if (user && user.userid) { %>
+        <a href="/user/<%= user.userid %>"><button class="nav-button">My Account</button></a>
+      <% } %>
+    </div>
+  </nav>
+  <h1>Your Purchase History</h1>
+
+  <form action="/orders/clear" method="POST" style="margin-bottom:16px;">
+    <button type="submit"
+      <% if (!orders || orders.length === 0) { %> disabled <% } %>>
+      Clear History
+    </button>
+  </form>
+
+  <section>
+    <% if (!orders || orders.length === 0) { %>
+      <p>You have no past purchases.</p>
+    <% } else { %>
+      <ul>
+        <% orders.forEach(order => { %>
+          <li style="margin-bottom:12px;">
+            <!-- show product name instead of a blank Product # -->
+            <strong><%= order.productName %></strong>
+            <!-- optionally show the ID too -->
+            (Product #<%= order.productID %>) — 
+            Purchased at <%= new Date(order.placedAt).toLocaleString() %>
+
+            <form action="/product/<%= order.productID %>/comment"
+                  method="GET"
+                  style="display:inline; margin-left:12px;">
+              <button type="submit">Comment</button>
+            </form>
+          </li>
+        <% }); %>
+      </ul>
+    <% } %>
+  </section>
+
+  <p style="margin-top:16px;">
+    <a href="/" class="link">Back to Cart</a>
+  </p>
+</body>
+</html>

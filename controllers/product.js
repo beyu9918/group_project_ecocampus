@@ -9,6 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const uploadDir = path.join(__dirname, '../public/uploads');
 
+
 // Ensure the upload directory exists
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -54,6 +55,7 @@ export async function addNewProduct(req, res) {
     return res.status(400).send('Missing required fields');
   }
 
+
   // Handle image upload
   if (req.files && req.files.productPicture) {
     const image = req.files.productPicture;
@@ -61,6 +63,7 @@ export async function addNewProduct(req, res) {
     const filepath = path.join(uploadDir, filename);
 
     try {
+
       await image.mv(filepath);
       imagePath = '/uploads/' + filename;
     } catch (err) {
@@ -68,6 +71,7 @@ export async function addNewProduct(req, res) {
       return res.status(500).send('Image upload failed');
     }
   }
+
 
   // Insert into database
   try {
@@ -94,6 +98,8 @@ export async function addNewProduct(req, res) {
     console.error('Error inserting product:', err);
     res.status(500).send('Internal Server Error');
   }
+
+
 }
 
 // Show product detail page

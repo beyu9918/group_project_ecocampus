@@ -1,7 +1,7 @@
 import { test, describe, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-import ShoppingCart from '../controllers/shoppingCart.js';
-import eventBus from '../controllers/eventBus.js';
+import ShoppingCart from '../../controllers/shoppingCart.js';
+import eventBus from '../../controllers/eventBus.js';
 
 describe('ShoppingCart', () => {
   let cart;
