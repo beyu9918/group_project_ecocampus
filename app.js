@@ -150,6 +150,7 @@ app.get('/payment', (req, res) => {
 });
 app.post('/payment', (req, res) => {
   res.redirect('/orders');
+});
 
 //function used to fix bug when jump to userPage
 app.get('/profile', (req, res) => {
