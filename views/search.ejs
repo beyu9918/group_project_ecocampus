@@ -51,6 +51,20 @@
       text-decoration: underline;
       color: #1d872d;
     }
+
+    .back-button-btn {
+      padding: 10px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .back-button-btn:hover {
+      background-color: #388e3c;
+    }
   </style>
 </head>
 <body>
@@ -90,7 +104,6 @@
       <% if (product && product.length === 0) { %>
         <div class="item">
           <p>No matching results.</p>
-
         </div>
       <% } else { %>
         <% product.forEach(product => { %>
@@ -101,16 +114,19 @@
               <p><strong>Price:</strong> ¥<%= product.productPrice.toFixed(2) %></p>
               <p><strong>Category:</strong> <%= product.category || 'N/A' %></p>
               <p><strong>Description:</strong> <%= product.description %></p>
-              <div style="margin-top: 10px;">
-                <a href="/messages/send/<%= parseInt(product.sellerid, 10) %>">
+              <div style="margin-top: 10px; display: flex; gap: 10px;">
+                <a href="/messages/send/<%= product.sellerid %>">
                   <button class="nav-button">Contact Seller</button>
                 </a>
-                <button
-                  class="back-button-btn"
-                  onclick='handleAddToCart(<%= user ? `"true"` : `"false"` %>, <%= product.productid %>, <%= user ? user.userid : 0 %>)'
-                >
-                  Add to Cart
-                </button>
+                <form>
+                  <button
+                    type="button"
+                    class="back-button-btn"
+                    onclick="handleAddToCart(<%= user ? 'true' : 'false' %>, <%= product.productid %>, <%= user ? user.userid : 1 %>)"
+                  >
+                    Add to Cart
+                  </button>
+                </form>
               </div>
             </div>
           </div>
@@ -120,30 +136,27 @@
   </div>
 
 <script>
-  async function handleAddToCart(isLoggedIn, productID, buyerID) {
-    if (!isLoggedIn) {
-      alert('Please log in first.');
+  async function handleAddToCart(loggedIn, productID, buyerID) {
+    if (!loggedIn) {
       window.location.href = '/login';
-      return;
-    }
+    } else {
+      try {
+        const res = await fetch('/cart/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ buyerID, productID, quantity: 1 })
+        });
 
-    try {
-      const response = await fetch('/cart/add', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ buyerID, productID, quantity: 1 })
-      });
-
-      if (response.ok) {
-        window.location.href = `/index?buyerID=${buyerID}`;
-      } else {
-        const error = await response.json();
-        alert('Failed to add to cart: ' + error.error);
+        if (res.ok) {
+          alert('Item added to cart!');
+          window.location.href = `/index?buyerID=${buyerID}`;
+        } else {
+          const data = await res.json();
+          alert('Failed to add: ' + data.error);
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
       }
-    } catch (err) {
-      alert('Network error: ' + err.message);
     }
   }
 </script>
