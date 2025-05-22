@@ -103,32 +103,46 @@ app.get('/profile', (req, res) => {
   res.render('profile', { user: req.session.user });
 });
 
-// SSR Root
-const BUYER_ID = 1; // Swap this for real session
+// ---- Cart page (SSR) ----
+app.get('/cart', async (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+  try {
+    const items = await getCartData(req.session.user.userid);
+    res.render('index', { cart: items });
+  } catch (err) {
+    console.error('Error loading cart page:', err);
+    res.status(500).send(err.message);
+  }
+});
 
-app.get('/', showProductPage);
-
+// Update quantity in cart
 app.post('/cart/update', async (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+  const buyerID = req.session.user.userid;
   const { productID, quantity } = req.body;
   const qty = parseInt(quantity, 10);
   if (isNaN(qty) || qty < 1) {
     return res.status(400).send('Invalid quantity');
   }
   try {
-    await addCartItem({ body: { buyerID: BUYER_ID, productID, quantity: qty } }, {
-      json: () => {}, status: () => ({ json: () => {} })
-    });
-    res.redirect('/');
+    await addCartItem(
+      { body: { buyerID, productID, quantity: qty } },
+      { json:() => {}, status:() => ({ json(){} }) }
+    );
+    res.redirect('/cart');
   } catch (err) {
     console.error('Error updating cart:', err);
     res.status(500).send(err.message);
   }
 });
 
+app.get('/', showProductPage);
+
 // Order & payment
 app.post('/order', placeOrderHandler);
 app.post('/order/checkout', payOrderHandler);
 
+// payment page
 app.get('/payment', (req, res) => {
   res.render('payment');
 });
@@ -136,6 +150,7 @@ app.post('/payment', (req, res) => {
   res.redirect('/orders');
 });
 
+//past order,clear history
 app.get('/orders', getOrdersPage);
 app.post('/orders/clear', clearOrderHistory);
 
@@ -192,16 +207,16 @@ io.on('connection', (socket) => {
 });
 
 // Helper for SSR cart
-async function getCartData(buyerID) {
-  const req = { query: { buyerID } };
-  let items;
-  const res = {
-    json(data) { items = data; },
-    status() { return { json() {} }; }
-  };
-  await getCart(req, res);
-  return items;
-}
+// async function getCartData(buyerID) {
+//   const req = { query: { buyerID } };
+//   let items;
+//   const res = {
+//     json(data) { items = data; },
+//     status() { return { json() {} }; }
+//   };
+//   await getCart(req, res);
+//   return items;
+// }
 
 const PORT = 3000;
 server.listen(PORT, () => {
