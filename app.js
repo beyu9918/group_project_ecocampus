@@ -91,6 +91,7 @@ app.use('/', messageRoutes);
 app.use('/review', reviewRoutes);
 app.use('/', indexRoutes);
 
+
 // Auth pages
 app.get('/register', (req, res) => res.render('register'));
 app.get('/login', (req, res) => res.render('login'));
@@ -102,6 +103,7 @@ app.get('/profile', (req, res) => {
   if (!req.session.user) return res.redirect('/login');
   res.render('profile', { user: req.session.user });
 });
+
 
 // ---- Cart page (SSR) ----
 app.get('/cart', async (req, res) => {
@@ -148,7 +150,16 @@ app.get('/payment', (req, res) => {
 });
 app.post('/payment', (req, res) => {
   res.redirect('/orders');
+
+//function used to fix bug when jump to userPage
+app.get('/profile', (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+  res.render('profile'); //  { user:    req.session.user }
+
 });
+// Root redirect
+app.get('/', (req, res) => res.redirect('/product'));
+
 
 //past order,clear history
 app.get('/orders', getOrdersPage);
@@ -162,6 +173,7 @@ app.get('/product/:productid', showProductDetail);
 app.get('/product/:productID/comment', (req, res) => {
   res.render('commentProduct', { productID: req.params.productID });
 });
+
 
 // Error handler
 app.use((err, req, res, next) => {
