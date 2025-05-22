@@ -38,6 +38,8 @@
       padding: 15px;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: flex-start;
     }
 
     .item h2 a {
@@ -75,10 +77,14 @@
   <div class="results-container">
     <h1>EcoCampus Search Results</h1>
 
+    <form action="/search" method="get" class="search-bar" style="text-align: center; margin-bottom: 20px;">
+      <input type="text" name="keyword" placeholder="Search products..." value="<%= query.keyword || '' %>" style="padding: 8px; width: 300px;">
+      <button type="submit" style="padding: 8px 12px;">Search</button>
+    </form>
+
     <% if (query && query.keyword && query.keyword.trim() !== '') { %>
       <h2>Results for "<%= query.keyword %>"</h2>
     <% } %>
-
 
     <div class="item-list">
       <% if (product && product.length === 0) { %>
@@ -89,13 +95,57 @@
       <% } else { %>
         <% product.forEach(product => { %>
           <div class="item">
-            <h2><a href="/product/<%= product.productid %>"><%= product.productname %></a></h2>
-            <p><%= product.description %></p>
-            <p>Price: ¥<%= product.productPrice.toFixed(2) %> | Rating: <%= product.avgRating %>★</p>
+            <img src="<%= product.productPicture %>" alt="<%= product.productname %>" style="width: 150px; height: auto; border-radius: 8px;">
+            <div style="margin-left: 20px;">
+              <h2><a href="/product/<%= product.productid %>"><%= product.productname %></a></h2>
+              <p><strong>Price:</strong> ¥<%= product.productPrice.toFixed(2) %></p>
+              <p><strong>Category:</strong> <%= product.category || 'N/A' %></p>
+              <p><strong>Description:</strong> <%= product.description %></p>
+              <div style="margin-top: 10px;">
+                <a href="/messages/send/<%= parseInt(product.sellerid, 10) %>">
+                  <button class="nav-button">Contact Seller</button>
+                </a>
+                <button
+                  class="back-button-btn"
+                  onclick='handleAddToCart(<%= user ? `"true"` : `"false"` %>, <%= product.productid %>, <%= user ? user.userid : 0 %>)'
+                >
+                  Add to Cart
+                </button>
+              </div>
+            </div>
           </div>
         <% }) %>
       <% } %>
     </div>
   </div>
+
+<script>
+  async function handleAddToCart(isLoggedIn, productID, buyerID) {
+    if (!isLoggedIn) {
+      alert('Please log in first.');
+      window.location.href = '/login';
+      return;
+    }
+
+    try {
+      const response = await fetch('/cart/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ buyerID, productID, quantity: 1 })
+      });
+
+      if (response.ok) {
+        window.location.href = `/index?buyerID=${buyerID}`;
+      } else {
+        const error = await response.json();
+        alert('Failed to add to cart: ' + error.error);
+      }
+    } catch (err) {
+      alert('Network error: ' + err.message);
+    }
+  }
+</script>
 </body>
 </html>

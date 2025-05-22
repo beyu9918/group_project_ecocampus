@@ -54,7 +54,13 @@ export async function searchProducts(req, res) {
     const product = result.map(p => ({
       ...p,
       productPrice: parseFloat(p.productPrice),
-      avgRating: parseFloat(p.avgRating)
+      avgRating: parseFloat(p.avgRating),
+      productPicture:
+        p.productPicture
+          ? (p.productPicture.startsWith('/uploads/')
+              ? p.productPicture
+              : '/uploads/' + p.productPicture)
+          : '/images/default.png'
     }));
 
     res.render('search', {
