@@ -2,6 +2,9 @@ import request from 'supertest';
 import bcrypt from 'bcrypt';
 import app from '../app.js';
 import sql from '../db.js';
+import assert from 'node:assert';
+import { test } from 'node:test';
+import { registerForm, loginForm } from '../../controllers/userController.js';
 
 const testEmail = 'testuser@example.com';
 const testPassword = 'test123';

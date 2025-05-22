@@ -74,17 +74,17 @@
 
 
     <div class="item-list">
-      <% if (items && items.length === 0) { %>
+      <% if (product && product.length === 0) { %>
         <div class="item">
           <p>No matching results.</p>
 
         </div>
       <% } else { %>
-        <% items.forEach(item => { %>
+        <% product.forEach(product => { %>
           <div class="item">
-            <h2><a href="/item/<%= item.id %>"><%= item.title %></a></h2>
-            <p><%= item.description %></p>
-            <p>Price: ¥<%= item.price.toFixed(2) %> | Rating: <%= item.avgRating %>★</p>
+            <h2><a href="/product/<%= product.productid %>"><%= product.productname %></a></h2>
+            <p><%= product.description %></p>
+            <p>Price: ¥<%= product.productPrice.toFixed(2) %> | Rating: <%= product.avgRating %>★</p>
           </div>
         <% }) %>
       <% } %>
@@ -92,4 +92,3 @@
   </div>
 </body>
 </html>
-

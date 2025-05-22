@@ -290,21 +290,27 @@ export async function changeUserRole(req, res) {
 export async function renderUserPage(req, res) {
   const { id } = req.params;
 
+  // make sure userid valid
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) {
+    return res.status(400).send('Invalid user ID');
+  }
+
   try {
-    // get basic user info
-    const result = await sql`SELECT * FROM users WHERE userID = ${id}`;
+    // get baisc info from user
+    const result = await sql`SELECT * FROM users WHERE userID = ${parsedId}`;
     const user = result[0];
     if (!user) return res.status(404).send('User not found');
 
-    // get product id from user
-    const products = await sql`SELECT * FROM product WHERE sellerid = ${id}`;
+    // get user product
+    const products = await sql`SELECT * FROM product WHERE sellerid = ${parsedId}`;
 
-    // get reviews 
+    // get user comment
     const reviews = await sql`
       SELECT r.*, p.productname
       FROM reviews r
       JOIN product p ON r.productid = p.productid
-      WHERE p.sellerid = ${id}
+      WHERE p.sellerid = ${parsedId}
       ORDER BY r.createdat DESC
     `;
 

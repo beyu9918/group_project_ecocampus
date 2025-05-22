@@ -4,10 +4,10 @@ import {
   showAddProductPage,
   addNewProduct,
   showProductDetail 
+
 } from '../controllers/product.js';
 
 const router = express.Router();
-
 
 router.get('/product', showProductPage);
 router.get('/product/addProduct', showAddProductPage);

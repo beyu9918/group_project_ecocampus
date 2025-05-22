@@ -2,8 +2,8 @@ import { test, describe, before } from 'node:test';
 import assert from 'node:assert/strict';
 import express from 'express';
 import request from 'supertest';
-import cartRoutes from '../routes/cart.js';
-import * as cartController from '../controllers/cartController.js';
+import cartRoutes from '../../routes/cart.js';
+import * as cartController from '../../controllers/cartController.js';
 
 describe('Cart API', () => {
   let app;
