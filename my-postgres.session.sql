@@ -1,0 +1,9 @@
+CREATE TABLE messages (
+  messageID SERIAL PRIMARY KEY,
+  senderID INTEGER NOT NULL REFERENCES users(userID) ON DELETE CASCADE,
+  receiverID INTEGER NOT NULL REFERENCES users(userID) ON DELETE CASCADE,
+  productID INTEGER REFERENCES product(productID),
+  content TEXT NOT NULL,
+  sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CHECK (senderID <> receiverID)
+);

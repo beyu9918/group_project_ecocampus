@@ -2,10 +2,10 @@ import pg from 'pg';
 const { Pool } = pg;
 
 const pool = new Pool({
-  user: 'postgres',
+  user: 'admin',
   host: 'host.docker.internal',
-  database: 'eco_campus',
-  password: 'password',
+  database: 'mydb',
+  password: 'admin',
   port: 5432,
 });
 
