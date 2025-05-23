@@ -7,14 +7,14 @@
   <style>
     /* undo the flex-centering on body */
     body {
-      display: block      ;
-      justify-content: flex-start ;
-      align-items:     flex-start ;
-      height: auto       ;
+      display: block;
+      justify-content: flex-start;
+      align-items: flex-start;
+      height: auto;
     }
     /* undo the global h1 centering */
     h1 {
-      text-align: left   ;
+      text-align: left;
     }
   </style>
 </head>
@@ -22,7 +22,6 @@
   <!-- Navigation Bar -->
   <nav class="navbar">
     <div class="nav-title">
-
       <a href="/product" style="text-decoration: none; color: inherit;">EcoCampus</a>
     </div>
     <div class="nav-right">
@@ -39,11 +38,11 @@
       <% } %>
     </div>
   </nav>
+
   <h1>Your Purchase History</h1>
 
   <form action="/orders/clear" method="POST" style="margin-bottom:16px;">
-    <button type="submit"
-      <% if (!orders || orders.length === 0) { %> disabled <% } %>>
+    <button type="submit" <% if (!orders || orders.length === 0) { %> disabled <% } %>>
       Clear History
     </button>
   </form>
@@ -55,17 +54,10 @@
       <ul>
         <% orders.forEach(order => { %>
           <li style="margin-bottom:12px;">
-            <!-- show product name instead of a blank Product # -->
-            <strong><%= order.productName %></strong>
-            <!-- optionally show the ID too -->
-            (Product #<%= order.productID %>) — 
-            Purchased at <%= new Date(order.placedAt).toLocaleString() %>
-
-            <form action="/product/<%= order.productID %>/comment"
-                  method="GET"
-                  style="display:inline; margin-left:12px;">
-              <button type="submit">Comment</button>
-            </form>
+            <strong><%= order.productName %></strong> (Product #<%= order.productID %>) — Purchased at <%= new Date(order.placedAt).toLocaleString() %>
+            <a href="/product/<%= order.productID %>/review" style="display:inline; margin-left:12px;">
+              <button type="button" class="btn-green">Comment</button>
+            </a>
           </li>
         <% }); %>
       </ul>
