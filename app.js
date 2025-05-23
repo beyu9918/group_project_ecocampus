@@ -177,8 +177,9 @@ app.get('/profile', (req, res) => {
   res.render('profile'); //  { user:    req.session.user }
 
 });
-// Root redirect
-app.get('/', (req, res) => res.redirect('/product'));
+//search to product details
+app.get('/', showProductPage);
+app.get('/product/:productid', showProductDetail);
 
 
 //past order,clear history

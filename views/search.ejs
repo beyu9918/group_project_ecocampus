@@ -35,11 +35,8 @@
 
     .item {
       background-color: #cce6d3;
-      padding: 15px;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: flex-start;
       transition: background-color 0.2s ease;
     }
 
@@ -47,17 +44,26 @@
       background-color: #b5dbc0;
     }
 
-    .item h2 {
-      margin-top: 0;
-    }
-
     .item a {
       text-decoration: none;
       color: inherit;
+      display: flex;
+      padding: 15px;
+      align-items: flex-start;
     }
 
     .item h2:hover {
       text-decoration: underline;
+    }
+
+    .item img {
+      width: 150px;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .item-content {
+      margin-left: 20px;
     }
   </style>
 </head>
@@ -96,22 +102,22 @@
 
     <div class="item-list">
       <% if (product && product.length === 0) { %>
-        <div class="item">
+        <div class="item" style="padding: 15px;">
           <p>No matching results.</p>
         </div>
       <% } else { %>
         <% product.forEach(product => { %>
-          <a href="/product/<%= product.productid %>" style="text-decoration: none; color: inherit;">
-            <div class="item">
-              <img src="<%= product.productPicture %>" alt="<%= product.productname %>" style="width: 150px; height: auto; border-radius: 8px;">
-              <div style="margin-left: 20px;">
+          <div class="item">
+            <a href="/product/<%= product.productid %>">
+              <img src="<%= product.productPicture %>" alt="<%= product.productname %>">
+              <div class="item-content">
                 <h2><%= product.productname %></h2>
                 <p><strong>Price:</strong> ¥<%= product.productPrice.toFixed(2) %></p>
                 <p><strong>Category:</strong> <%= product.category || 'N/A' %></p>
                 <p><strong>Description:</strong> <%= product.description %></p>
               </div>
-            </div>
-          </a>
+            </a>
+          </div>
         <% }) %>
       <% } %>
     </div>
