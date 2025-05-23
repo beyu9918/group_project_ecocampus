@@ -10,19 +10,21 @@
   <!-- Navigation Bar -->
   <nav class="navbar">
     <div class="nav-title">
-      <a href=" " style="text-decoration: none; color: inherit;">EcoCampus</a >
+
+      <a href="/product" style="text-decoration: none; color: inherit;">EcoCampus</a>
     </div>
     <div class="nav-right">
       <% if (user && user.name) { %>
-        <a href="/profile"><button class="nav-button"><%= user.name %></button></a >
+        <a href="/profile"><button class="nav-button"><%= user.name %></button></a>
+        <a href="/logout"><button class="nav-button btn-red">Logout</button></a>
       <% } else { %>
-        <a href="/login"><button class="nav-button">Login</button></a >
+        <a href="/login"><button class="nav-button">Login</button></a>
       <% } %>
-      <a href="/index"><button class="nav-button">Shopping Cart</button></a >
-      <a href="/orders"><button class="nav-button">Order Management</button></a >
-      <a href="/messages"><button class="nav-button">My Messages</button></a >
+      <a href="/index"><button class="nav-button">Shopping Cart</button></a>
+      <a href="/orders"><button class="nav-button">Order Management</button></a>
+      <a href="/messages"><button class="nav-button">My Messages</button></a>
       <% if (user && user.userid) { %>
-        <a href="/user/<%= user.userid %>"><button class="nav-button">My Account</button></a >
+        <a href="/user/<%= user.userid %>"><button class="nav-button">My Account</button></a>
       <% } %>
     </div>
   </nav>
