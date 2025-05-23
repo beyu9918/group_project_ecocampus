@@ -83,5 +83,3 @@ router.get('/messages/chat/:productid/:buyerid', async (req, res) => {
 });
 
 export default router;
-
-

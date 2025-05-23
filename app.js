@@ -65,7 +65,9 @@ app.use(session({
 }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // Inject `user` into all views
 app.use((req, res, next) => {
@@ -158,8 +160,9 @@ app.get('/profile', (req, res) => {
   res.render('profile'); //  { user:    req.session.user }
 
 });
-// Root redirect
-app.get('/', (req, res) => res.redirect('/product'));
+//search to product details
+app.get('/', showProductPage);
+app.get('/product/:productid', showProductDetail);
 
 
 //past order,clear history
@@ -220,16 +223,16 @@ io.on('connection', (socket) => {
 });
 
 // Helper for SSR cart
-// async function getCartData(buyerID) {
-//   const req = { query: { buyerID } };
-//   let items;
-//   const res = {
-//     json(data) { items = data; },
-//     status() { return { json() {} }; }
-//   };
-//   await getCart(req, res);
-//   return items;
-// }
+async function getCartData(buyerID) {
+  const req = { query: { buyerID } };
+  let items;
+  const res = {
+    json(data) { items = data; },
+    status() { return { json() {} }; }
+  };
+  await getCart(req, res);
+  return items;
+}
 
 const PORT = 3000;
 server.listen(PORT, () => {

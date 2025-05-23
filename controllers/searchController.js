@@ -5,16 +5,17 @@ export async function searchProducts(req, res) {
   const safeKeyword = (keyword || '').trim().toLowerCase();
 
   let queryText = `
-  SELECT 
-    "productid" AS "productID",
-    "productname" AS "productName",
-    "productprice" AS "productPrice",
-    "description",
-    "avgrating" AS "avgRating",
-    "category",
-    "productpicture" AS "productPicture"
-  FROM product
-`;
+    SELECT 
+      "productid" AS "productID",
+      "productname" AS "productName",
+      "productprice" AS "productPrice",
+      "description",
+      "avgrating" AS "avgRating",
+      "category",
+      "productpicture" AS "productPicture"
+    FROM product
+  `;
+  
   let conditions = [];
   let values = [];
 
@@ -51,15 +52,23 @@ export async function searchProducts(req, res) {
 
   try {
     const result = await sql.unsafe(queryText, values);
+
     const product = result.map(p => ({
       ...p,
+      productid: p.productID, 
       productPrice: parseFloat(p.productPrice),
-      avgRating: parseFloat(p.avgRating)
+      avgRating: parseFloat(p.avgRating),
+      productPicture:
+        p.productPicture
+          ? (p.productPicture.startsWith('/uploads/')
+              ? p.productPicture
+              : '/uploads/' + p.productPicture)
+          : '/images/default.png'
     }));
 
     res.render('search', {
       title: 'Search Results',
-      product: product,  
+      product: product,
       query: req.query
     });
   } catch (error) {
