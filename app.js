@@ -20,12 +20,12 @@ import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/product.js';
 import cartRoutes from './routes/cart.js';
 import orderRoutes from './routes/order.js';
-import socialRoutes from './routes/social.js';
+
 import messageRoutes from './routes/message.js'; 
 
 import { registerForm, loginForm } from './controllers/userController.js';
-import eventBus from './controllers/eventBus.js';
-import * as cartController from './controllers/cartController.js';
+
+
 
 import {
   placeOrderHandler,
@@ -81,7 +81,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use('/api/users', userRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/order', orderRoutes);
-app.use('/api/social', socialRoutes);
+
 
 // Web routes
 app.use('/', userRoutes);

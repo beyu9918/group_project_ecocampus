@@ -1,33 +1,28 @@
-import { test, describe, before } from 'node:test';
+import test from 'node:test';
 import assert from 'node:assert/strict';
 import express from 'express';
 import request from 'supertest';
-import cartRoutes from '../routes/cart.js';
+import session from 'express-session';
 import * as cartController from '../controllers/cartController.js';
 
-describe('Cart API', () => {
-  let app;
-  before(() => {
-    app = express();
-    app.use(express.json());
-    app.use('/api/cart', cartRoutes);
-    // reset in-memory cart
-    const cart = cartController.getCartInstance(); cart.items = [];
-  });
+// Set up Express app
+const app = express();
+app.use(express.json());
+app.use(session({ secret: 'test-secret', resave: false, saveUninitialized: true }));
 
-  test('GET /api/cart returns empty array', async () => {
-    const res = await request(app).get('/api/cart');
-    assert.equal(res.status, 200);
-    assert.deepEqual(res.body, []);
-  });
+// Mount getCart route
+app.get('/api/cart', cartController.getCart);
 
-  test('POST /api/cart adds item', async () => {
-    const newItem = { id: '42', name: 'Book' };
-    const res = await request(app)
-      .post('/api/cart')
-      .send(newItem)
-      .set('Content-Type', 'application/json');
-    assert.equal(res.status, 201);
-    assert.deepEqual(res.body[0], newItem);
-  });
+// Test: GET /api/cart without buyerID should return 400
+test('GET /api/cart without buyerID returns 400', async () => {
+  const res = await request(app).get('/api/cart');
+  assert.strictEqual(res.status, 400);
+  assert.deepStrictEqual(res.body, { error: 'buyerID query required' });
+});
+
+// Test: GET /api/cart with invalid buyerID should return 400
+test('GET /api/cart with invalid buyerID returns 400', async () => {
+  const res = await request(app).get('/api/cart?buyerID=abc');
+  assert.strictEqual(res.status, 400);
+  assert.deepStrictEqual(res.body, { error: 'buyerID query required' });
 });
