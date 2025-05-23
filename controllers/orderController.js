@@ -9,7 +9,6 @@ export async function placeOrderHandler(req, res) {
   }
 
   try {
-    // 1. 获取购物车中的所有商品
     const cartItems = await sql`
       SELECT
         c.productid,
@@ -28,7 +27,6 @@ export async function placeOrderHandler(req, res) {
 
     const insertedOrderIDs = [];
 
-    // 2. 插入每个商品作为一条订单记录
     for (const item of cartItems) {
       const total = parseFloat(item.productprice) * item.quantity;
 
@@ -48,17 +46,14 @@ export async function placeOrderHandler(req, res) {
       insertedOrderIDs.push(order.orderid);
     }
 
-    // 3. 清空该用户的购物车
     await sql`DELETE FROM cart WHERE buyerid = ${buyerID}`;
 
-    // 4. 计算总价
     const totalAmount = cartItems.reduce((sum, item) => {
       return sum + parseFloat(item.productprice) * item.quantity;
     }, 0);
 
-    // 5. 渲染订单确认页
     res.render('order', {
-      orderID: insertedOrderIDs[0], // 展示一个订单号即可
+      orderID: insertedOrderIDs[0],
       items: cartItems.map(item => ({
         productName: item.productname,
         productPrice: item.productprice,
