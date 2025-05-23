@@ -30,7 +30,7 @@
   <div class="main-content">
     <div class="form-wrapper">
       <h2>User Profile</h2>
-      <form action="/profile/update" method="POST">
+      <form action="/profile/update" method="POST" enctype="multipart/form-data">
 
         <div class="form-row">
           <label>User ID (Cannot change):</label>
@@ -55,12 +55,12 @@
         <% if (user.avatar) { %>
           <div class="form-row">
             <label>Current Avatar:</label>
-            <img src="/<%= user.avatar %>" alt="Avatar" style="height: 80px; border-radius: 8px;">
+            <img src="<%= user.avatar %>" alt="Avatar" style="height: 80px; border-radius: 8px;">
           </div>
         <% } else { %>
           <div class="form-row">
             <label>Current Avatar:</label>
-            <img src="/default-avatar.png" alt="Default Avatar" style="height: 80px; border-radius: 8px;">
+            <img src="/uploads/default-avatar.png" alt="Default Avatar" style="height: 80px; border-radius: 8px;">
           </div>
         <% } %>
 

@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import sql from '../db.js'; // PostgreSQL connection
+import path from 'path';
 
 // Generate JWT token for authenticated users
 const generateToken = (user) => {
