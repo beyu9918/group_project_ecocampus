@@ -13,13 +13,15 @@ async function testSearchNoKeyword() {
     const response = await fetch(`${BASE_URL}/search`);
     const text = await response.text();
 
-    if (response.status === 200 && text.includes('EcoCampus')) {
-      console.log('GET /search without keyword works correctly');
+    if (!response.ok) throw new Error(`Status ${response.status}`);
+
+    if (text.includes('EcoCampus')) {
+      console.log('✅ GET /search without keyword works correctly');
     } else {
-      console.error(' GET /search without keyword failed');
+      console.error('❌ GET /search without keyword did not return expected content');
     }
   } catch (error) {
-    console.error('Error testing /search without keyword:', error);
+    console.error('❌ Error testing /search without keyword:', error.message);
   }
 }
 
@@ -28,17 +30,20 @@ async function testSearchWithKeyword() {
     const response = await fetch(`${BASE_URL}/search?keyword=Physics`);
     const text = await response.text();
 
-    if (response.status === 200 && text.includes('Physics')) {
-      console.log('GET /search with keyword "Physics" works correctly');
+    if (!response.ok) throw new Error(`Status ${response.status}`);
+
+    if (text.includes('Physics')) {
+      console.log('✅ GET /search with keyword "Physics" works correctly');
     } else {
-      console.error(' GET /search with keyword "Physics" failed');
+      console.error('❌ GET /search with keyword "Physics" did not return expected content');
     }
   } catch (error) {
-    console.error('Error testing /search with keyword:', error);
+    console.error('❌ Error testing /search with keyword:', error.message);
   }
 }
 
 async function runTests() {
+  console.log('🔍 Running EcoCampus search endpoint tests...');
   await testSearchNoKeyword();
   await testSearchWithKeyword();
 }

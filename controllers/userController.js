@@ -94,7 +94,7 @@ export async function loginForm(req, res) {
     }
 
     req.session.user = user;
-    res.redirect('/profile');
+    res.redirect('/product');
   } catch (err) {
     console.error('LoginForm error:', err);
     res.render('success', { message: 'Login failed due to server error.' });
@@ -103,14 +103,26 @@ export async function loginForm(req, res) {
 
 // Update user profile
 export async function updateProfile(req, res) {
-  const { email, phone, avatar, bio, address, gender, birthday } = req.body;
-  const parsedBirthday = birthday && !isNaN(new Date(birthday)) ? new Date(birthday) : null;
-
-  if (!req.session.user) {
-    return res.redirect('/login');
-  }
+  if (!req.session.user) return res.redirect('/login');
 
   const userId = req.session.user.userid;
+  const { email, phone, bio, address, gender, birthday } = req.body;
+  const parsedBirthday = birthday && !isNaN(new Date(birthday)) ? new Date(birthday) : null;
+
+  let avatarPath = req.session.user.avatar || '';
+
+  // If user upload new avatar
+  if (req.files && req.files.avatar) {
+    const avatarFile = req.files.avatar;
+    const filename = `avatar_${userId}_${Date.now()}_${avatarFile.name}`;
+    const uploadPath = path.join('public/uploads/', filename);
+
+    // move file to target directory
+    await avatarFile.mv(uploadPath);
+
+    // database directory
+    avatarPath = `/uploads/${filename}`;
+  }
 
   try {
     await sql`
@@ -118,7 +130,7 @@ export async function updateProfile(req, res) {
         name = ${req.body.name},
         email = ${email},
         phone = ${phone},
-        avatar = ${avatar},
+        avatar = ${avatarPath},
         bio = ${bio},
         address = ${address},
         gender = ${gender},
@@ -130,7 +142,7 @@ export async function updateProfile(req, res) {
     req.session.user = result[0];
 
     res.render('success', {
-      message: ' Profile updated successfully.',
+      message: 'Profile updated successfully.',
       backLink: '/profile'
     });
   } catch (err) {
@@ -278,21 +290,27 @@ export async function changeUserRole(req, res) {
 export async function renderUserPage(req, res) {
   const { id } = req.params;
 
+  // make sure userid valid
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) {
+    return res.status(400).send('Invalid user ID');
+  }
+
   try {
-    // get basic user info
-    const result = await sql`SELECT * FROM users WHERE userID = ${id}`;
+    // get baisc info from user
+    const result = await sql`SELECT * FROM users WHERE userID = ${parsedId}`;
     const user = result[0];
     if (!user) return res.status(404).send('User not found');
 
-    // get product id from user
-    const products = await sql`SELECT * FROM product WHERE sellerid = ${id}`;
+    // get user product
+    const products = await sql`SELECT * FROM product WHERE sellerid = ${parsedId}`;
 
-    // get reviews 
+    // get user comment
     const reviews = await sql`
       SELECT r.*, p.productname
       FROM reviews r
       JOIN product p ON r.productid = p.productid
-      WHERE p.sellerid = ${id}
+      WHERE p.sellerid = ${parsedId}
       ORDER BY r.createdat DESC
     `;
 

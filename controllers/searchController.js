@@ -1,13 +1,4 @@
-import pg from 'pg';
-const { Pool } = pg;
-
-const pool = new Pool({
-  user: 'postgres',
-  host: 'host.docker.internal',
-  database: 'eco_campus',
-  password: 'password',
-  port: 5432,
-});
+import sql from '../db.js';
 
 export async function searchProducts(req, res) {
   const { keyword = '', category, minPrice, maxPrice, minRating, sort } = req.query;
@@ -59,11 +50,11 @@ export async function searchProducts(req, res) {
   }
 
   try {
-    const result = await pool.query(queryText, values);
-    const product = result.rows.map(p => ({
+    const result = await sql.unsafe(queryText, values);
+    const product = result.map(p => ({
       ...p,
-      productPrice: parseFloat(p.productprice),
-      avgRating: parseFloat(p.avgrating)
+      productPrice: parseFloat(p.productPrice),
+      avgRating: parseFloat(p.avgRating)
     }));
 
     res.render('search', {

@@ -9,12 +9,12 @@
   <!-- Navigation Bar -->
   <nav class="navbar">
     <div class="nav-title">
-
       <a href="/product" style="text-decoration: none; color: inherit;">EcoCampus</a>
     </div>
     <div class="nav-right">
       <% if (user && user.name) { %>
         <a href="/profile"><button class="nav-button"><%= user.name %></button></a>
+        <a href="/logout"><button class="nav-button btn-red">Logout</button></a>
       <% } else { %>
         <a href="/login"><button class="nav-button">Login</button></a>
       <% } %>
@@ -52,10 +52,23 @@
           <input type="text" name="phone" value="<%= user.phone || '' %>" />
         </div>
 
+        <% if (user.avatar) { %>
+          <div class="form-row">
+            <label>Current Avatar:</label>
+            <img src="/<%= user.avatar %>" alt="Avatar" style="height: 80px; border-radius: 8px;">
+          </div>
+        <% } else { %>
+          <div class="form-row">
+            <label>Current Avatar:</label>
+            <img src="/default-avatar.png" alt="Default Avatar" style="height: 80px; border-radius: 8px;">
+          </div>
+        <% } %>
+
         <div class="form-row">
-          <label>Avatar URL:</label>
-          <input type="text" name="avatar" value="<%= user.avatar || '' %>" />
+          <label>Avatar:</label>
+          <input type="file" name="avatar" accept="image/*" />
         </div>
+        
 
         <div class="form-row">
           <label>Bio:</label>
