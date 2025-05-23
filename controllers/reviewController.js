@@ -20,7 +20,7 @@ export async function getProductDetails(req, res) {
       product,
       reviews: reviewResult,
       seller,
-      user: req.user
+      user: req.session?.user || null 
     });
   } catch (err) {
     console.error('Error fetching product details:', err.message);
