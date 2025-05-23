@@ -82,14 +82,4 @@ router.get('/messages/chat/:productid/:buyerid', async (req, res) => {
   }
 });
 
-// Defensive route to handle /messages/send without :id
-router.get('/messages/send', (req, res) => {
-  res.status(400).send('Missing product ID');
-});
-
-router.get('/messages/send/:id', (req, res) => {
-  const { id } = req.params;
-  return res.redirect(`/messages/${id}`);
-});
-
 export default router;
