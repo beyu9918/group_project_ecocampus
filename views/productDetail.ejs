@@ -126,40 +126,11 @@
         <button type="submit" class="back-button-btn">Back</button>
       </form>
 
-      <script>
-        async function handleAddToCart(loggedIn, productID, buyerID) {
-          if (!loggedIn) {
-            window.location.href = '/login';
-            return;
-          }
-      
-          try {
-            const response = await fetch('/api/cart', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                productID: productID,
-                buyerID: buyerID,
-                quantity: 1
-              })
-            });
-      
-            if (!response.ok) {
-              throw new Error('Failed to add to cart');
-            }
-      
-            const result = await response.json();
-            alert('Added to cart successfully!');
-            console.log(result);
-          } catch (error) {
-            console.error('Add to cart error:', error);
-            alert('Error adding to cart');
-          }
-        }
-      </script>
-      
+      <!-- Contact to Seller Button -->
+      <a href="/messages/<%= product.productid %>">
+        <button class="back-button-btn" type="button">Contact to Seller</button>
+      </a>
+
       <!-- Add to Cart Button -->
       <button
         class="back-button-btn"
@@ -167,11 +138,44 @@
       >
         Add to Cart
       </button>
-      
-      
     </div>
   </div>
 
+  <script>
+    async function handleAddToCart(loggedIn, productID, buyerID) {
+      if (!loggedIn) {
+        window.location.href = '/login';
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/cart', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            productID: productID,
+            buyerID: buyerID,
+            quantity: 1
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to add to cart');
+        }
+
+        const result = await response.json();
+        alert('Added to cart successfully!');
+        console.log(result);
+      } catch (error) {
+        console.error('Add to cart error:', error);
+        alert('Error adding to cart');
+      }
+    }
+  </script>
+
 </body>
 </html>
+
 
