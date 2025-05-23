@@ -41,8 +41,6 @@ router.get('/index', async (req, res) => {
   }
 });
 
-// POST /cart/add → add item to cart
-router.post('/cart/add', addCartItem);
 
 export default router;
 

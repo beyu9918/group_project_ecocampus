@@ -88,7 +88,7 @@ app.use('/', userRoutes);
 app.use('/', productRoutes);
 app.use('/search', searchRoutes);
 app.use('/', messageRoutes);
-app.use('/review', reviewRoutes);
+app.use('/product', reviewRoutes);
 app.use('/', indexRoutes);
 
 
@@ -184,8 +184,8 @@ app.use((err, req, res, next) => {
 
 // Socket.IO logic
 io.on('connection', (socket) => {
-  //const cart = cartController.getCartInstance();
-  //socket.emit('cartUpdated', cart.getCart());
+  const cart = cartController.getCartInstance();
+  socket.emit('cartUpdated', cart.getCart());
 
   socket.on('joinRoom', (userId) => {
     socket.join(`user_${userId}`);
@@ -235,3 +235,4 @@ const PORT = 3000;
 server.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
+export default app;
