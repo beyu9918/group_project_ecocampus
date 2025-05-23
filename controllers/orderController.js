@@ -8,47 +8,68 @@ export async function placeOrderHandler(req, res) {
     return res.redirect('/login');
   }
 
-  const { productID, totalAmount } = req.body;
-  if (!productID || !totalAmount) {
-    return res.status(400).send('productID and totalAmount required');
-  }
-
   try {
-    const [order] = await sql`
-      INSERT INTO orders (buyerid, productid, totalamount)
-      VALUES (${buyerID}, ${productID}, ${totalAmount})
-      RETURNING orderid, placed_at
+    // 1. 获取购物车中的所有商品
+    const cartItems = await sql`
+      SELECT
+        c.productid,
+        c.quantity,
+        p.productname,
+        p.productprice,
+        p.productpicture
+      FROM cart c
+      JOIN product p ON c.productid = p.productid
+      WHERE c.buyerid = ${buyerID}
     `;
 
-    await sql`DELETE FROM cart WHERE buyerid = ${buyerID} AND productid = ${productID}`;
+    if (cartItems.length === 0) {
+      return res.status(400).send('Your cart is empty.');
+    }
 
-    eventBus.emit('orderProcessed', {
-      orderID: order.orderid,
-      buyerID,
-      productID,
-      timestamp: new Date().toISOString()
-    });
+    const insertedOrderIDs = [];
 
-    const [product] = await sql`
-      SELECT productname, productprice, productpicture
-      FROM product
-      WHERE productid = ${productID}
-    `;
+    // 2. 插入每个商品作为一条订单记录
+    for (const item of cartItems) {
+      const total = parseFloat(item.productprice) * item.quantity;
 
-    const items = [{
-      productName: product.productname,
-      productPrice: product.productprice,
-      productPicture: product.productpicture,
-      quantity: 1
-    }];
+      const [order] = await sql`
+        INSERT INTO orders (buyerid, productid, totalamount)
+        VALUES (${buyerID}, ${item.productid}, ${total})
+        RETURNING orderid, placed_at
+      `;
 
+      eventBus.emit('orderProcessed', {
+        orderID: order.orderid,
+        buyerID,
+        productID: item.productid,
+        timestamp: new Date().toISOString()
+      });
+
+      insertedOrderIDs.push(order.orderid);
+    }
+
+    // 3. 清空该用户的购物车
+    await sql`DELETE FROM cart WHERE buyerid = ${buyerID}`;
+
+    // 4. 计算总价
+    const totalAmount = cartItems.reduce((sum, item) => {
+      return sum + parseFloat(item.productprice) * item.quantity;
+    }, 0);
+
+    // 5. 渲染订单确认页
     res.render('order', {
-      orderID: order.orderid,
-      items,
-      total: parseFloat(totalAmount),
+      orderID: insertedOrderIDs[0], // 展示一个订单号即可
+      items: cartItems.map(item => ({
+        productName: item.productname,
+        productPrice: item.productprice,
+        productPicture: item.productpicture,
+        quantity: item.quantity
+      })),
+      total: totalAmount,
       confirmed: false,
       user: req.session.user
     });
+
   } catch (err) {
     console.error('Error placing order:', err);
     res.status(500).send('Internal server error');
