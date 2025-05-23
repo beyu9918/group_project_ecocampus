@@ -6,12 +6,12 @@ const BASE = 'http://localhost:3000';
 
 const dummy = {
   email: `test${Date.now()}@example.com`,
-  password: '123456',
+  password: 'abc12345',
   name: 'TestUser'
 };
 
 describe('User Controller', () => {
-  
+
   test('registers new user via EJS form', async () => {
     const res = await fetch(`${BASE}/register`, {
       method: 'POST',
@@ -30,23 +30,68 @@ describe('User Controller', () => {
       body: new URLSearchParams(dummy)
     });
     const text = await res.text();
-    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.status, 200);s
     assert.match(text, /Email already registered/);
   });
 
-  test('logs in successfully with valid credentials', async () => {
-  const res = await fetch(`${BASE}/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    redirect: 'manual',
-    body: new URLSearchParams({
-      email: dummy.email,
-      password: dummy.password
-    })
+  test('fails registration with short password', async () => {
+    const res = await fetch(`${BASE}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        email: `fail1_${Date.now()}@example.com`,
+        password: 'a1b2',  // too short
+        name: 'FailUser'
+      })
+    });
+    const text = await res.text();
+    assert.strictEqual(res.status, 200);
+    assert.match(text, /Password must be at least 8 characters/);
   });
-  assert.strictEqual(res.status, 302);
-  assert.ok(res.headers.get('location').endsWith('/product'));
-});
+
+  test('fails registration with password missing letters', async () => {
+    const res = await fetch(`${BASE}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        email: `fail2_${Date.now()}@example.com`,
+        password: '12345678',
+        name: 'FailUser'
+      })
+    });
+    const text = await res.text();
+    assert.strictEqual(res.status, 200);
+    assert.match(text, /Password must be at least 8 characters/);
+  });
+
+  test('fails registration with invalid email', async () => {
+    const res = await fetch(`${BASE}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        email: `invalid-email`,
+        password: 'abc12345',
+        name: 'FailUser'
+      })
+    });
+    const text = await res.text();
+    assert.strictEqual(res.status, 200);
+    assert.match(text, /Invalid email format/);
+  });
+
+  test('logs in successfully with valid credentials', async () => {
+    const res = await fetch(`${BASE}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      redirect: 'manual',
+      body: new URLSearchParams({
+        email: dummy.email,
+        password: dummy.password
+      })
+    });
+    assert.strictEqual(res.status, 302);
+    assert.ok(res.headers.get('location').endsWith('/product'));
+  });
 
   test('fails login with wrong password', async () => {
     const res = await fetch(`${BASE}/login`, {
@@ -100,4 +145,5 @@ describe('User Controller', () => {
     const res = await fetch(`${BASE}/user/999999`, { method: 'GET' });
     assert.ok([404, 500].includes(res.status));
   });
+
 });
