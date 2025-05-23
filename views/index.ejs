@@ -7,14 +7,27 @@
   <style>
     /* undo the flex-centering on body */
     body {
-      display: block      ;
-      justify-content: flex-start ;
-      align-items:     flex-start ;
-      height: auto       ;
+      display: block      !important;
+      justify-content: flex-start !important;
+      align-items:     flex-start !important;
+      height: auto       !important;
     }
     /* undo the global h1 centering */
     h1 {
-      text-align: left   ;
+      text-align: left   !important;
+    }
+    /* simple spacing for share icons */
+    #socialShare a, #socialShare button {
+      margin-right: 10px;
+      text-decoration: none;
+      padding: 6px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.9em;
+      background: #f9f9f9;
+    }
+    #socialShare a:hover, #socialShare button:hover {
+      background: #eee;
     }
   </style>
 </head>
@@ -22,7 +35,6 @@
   <!-- Navigation Bar -->
   <nav class="navbar">
     <div class="nav-title">
-
       <a href="/product" style="text-decoration: none; color: inherit;">EcoCampus</a>
     </div>
     <div class="nav-right">
@@ -77,16 +89,19 @@
 
   <% if (user) { %>
     <form action="/order" method="POST" style="margin-top: 20px;">
-      <input type="hidden" name="productID" value="<%= cart[0].productID %>">
-      <input type="hidden" name="totalAmount" value="<%= (cart[0].productPrice * cart[0].quantity).toFixed(2) %>">
-      <button type="submit">Place Order</button>
+      <button
+        type="submit"
+        <% if (cart.length === 0) { %> disabled <% } %>
+      >
+        Place Order
+      </button>
     </form>
   <% } else { %>
-   <a href="/login">
+    <a href="/login">
       <button type="button" style="margin-top: 20px;">
         Place Order
       </button>
-   </a>
+    </a>
   <% } %>
 
   <!-- Share Cart Button -->
@@ -103,6 +118,15 @@
     Copy to Clipboard
   </button>
 
+  <!-- Social-media share links -->
+  <div id="socialShare" style="display:none; margin-top:10px;">
+    <a id="twitterShare" href="#" target="_blank">Share on Twitter</a>
+    <a id="facebookShare" href="#" target="_blank">Share on Facebook</a>
+    <a id="whatsappShare" href="#" target="_blank">Share on WhatsApp</a>
+    <!-- Web Share API fallback -->
+    <button id="webShareBtn" style="display:none;">Share…</button>
+  </div>
+
   <!-- Embed cart data for JS -->
   <script>
     const cartData = <%- JSON.stringify(cart.map(item => ({
@@ -111,19 +135,42 @@
       price: parseFloat(item.productPrice).toFixed(2)
     }))) %>;
 
-    const shareBtn = document.getElementById('shareBtn');
-    const shareBox = document.getElementById('shareBox');
-    const copyBtn  = document.getElementById('copyBtn');
+    const shareBtn     = document.getElementById('shareBtn');
+    const shareBox     = document.getElementById('shareBox');
+    const copyBtn      = document.getElementById('copyBtn');
+    const socialShare  = document.getElementById('socialShare');
+    const twitterShare = document.getElementById('twitterShare');
+    const fbShare      = document.getElementById('facebookShare');
+    const waShare      = document.getElementById('whatsappShare');
+    const webShareBtn  = document.getElementById('webShareBtn');
 
     shareBtn.addEventListener('click', () => {
       // Build the text summary
       const lines = cartData.map(it =>
         `${it.name} x${it.quantity} – $${it.price}`
       );
-      shareBox.value = lines.join('\n');
+      const text = lines.join('\n');
+      shareBox.value = text;
       shareBox.style.display = 'block';
       copyBtn.style.display  = 'inline-block';
+      socialShare.style.display = 'block';
       shareBox.select();
+
+      // Build URLs
+      const pageUrl = window.location.href;
+      twitterShare.href = 
+        'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text);
+      fbShare.href = 
+        'https://www.facebook.com/sharer/sharer.php?u=' 
+        + encodeURIComponent(pageUrl)
+        + '&quote=' + encodeURIComponent(text);
+      waShare.href = 
+        'https://api.whatsapp.com/send?text=' + encodeURIComponent(text);
+
+      // Web Share API
+      if (navigator.share) {
+        webShareBtn.style.display = 'inline-block';
+      }
     });
 
     copyBtn.addEventListener('click', () => {
@@ -135,6 +182,16 @@
         .catch(err => {
           console.error('Copy failed:', err);
         });
+    });
+
+    webShareBtn.addEventListener('click', () => {
+      if (navigator.share) {
+        navigator.share({
+          title: 'My Shopping Cart',
+          text: shareBox.value,
+          url: window.location.href
+        }).catch(console.error);
+      }
     });
   </script>
 </body>

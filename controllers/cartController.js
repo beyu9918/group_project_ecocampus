@@ -29,7 +29,7 @@ export async function getCart(req, res) {
   }
 }
 
-// controllers/cartController.js
+
 export async function addCartItem(req, res) {
   const { buyerID, productID, quantity = 1 } = req.body;
   try {

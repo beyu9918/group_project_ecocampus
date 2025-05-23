@@ -88,7 +88,7 @@ app.use('/', userRoutes);
 app.use('/', productRoutes);
 app.use('/search', searchRoutes);
 app.use('/', messageRoutes);
-app.use('/review', reviewRoutes);
+app.use('/product', reviewRoutes);
 app.use('/', indexRoutes);
 
 
