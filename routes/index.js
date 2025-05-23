@@ -1,6 +1,6 @@
 // routes/index.js
 import express from 'express';
-import { getCart } from '../controllers/cartController.js';
+import { getCart, addCartItem } from '../controllers/cartController.js';
 
 const router = express.Router();
 const BUYER_ID = 1;  // or pull from session
@@ -30,5 +30,8 @@ router.get('/index', async (req, res) => {
     res.status(500).send(err.message);
   }
 });
+
+// POST /cart/add → add item to cart
+router.post('/cart/add', addCartItem);
 
 export default router;

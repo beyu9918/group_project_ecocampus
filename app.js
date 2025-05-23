@@ -119,6 +119,23 @@ app.get('/cart', async (req, res) => {
   }
 });
 
+app.post('/cart/add', async (req, res) => {
+  const { buyerID, productID, quantity = 1 } = req.body;
+  try {
+    const [item] = await sql`
+      INSERT INTO cart (buyerid, productid, quantity, added_at)
+      VALUES (${buyerID}, ${productID}, ${quantity}, DEFAULT)
+      ON CONFLICT (buyerid, productid) DO UPDATE
+        SET quantity = cart.quantity + EXCLUDED.quantity
+      RETURNING cartid, buyerid, productid, quantity
+    `;
+    res.status(201).json(item);
+  } catch (err) {
+    console.error('Error adding to cart:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Update quantity in cart
 app.post('/cart/update', async (req, res) => {
   if (!req.session.user) return res.redirect('/login');
@@ -222,16 +239,16 @@ io.on('connection', (socket) => {
 });
 
 // Helper for SSR cart
-// async function getCartData(buyerID) {
-//   const req = { query: { buyerID } };
-//   let items;
-//   const res = {
-//     json(data) { items = data; },
-//     status() { return { json() {} }; }
-//   };
-//   await getCart(req, res);
-//   return items;
-// }
+async function getCartData(buyerID) {
+  const req = { query: { buyerID } };
+  let items;
+  const res = {
+    json(data) { items = data; },
+    status() { return { json() {} }; }
+  };
+  await getCart(req, res);
+  return items;
+}
 
 const PORT = 3000;
 server.listen(PORT, () => {

@@ -115,10 +115,10 @@
               <p><strong>Category:</strong> <%= product.category || 'N/A' %></p>
               <p><strong>Description:</strong> <%= product.description %></p>
               <div style="margin-top: 10px; display: flex; gap: 10px;">
-                <a href="/messages/send/<%= product.sellerid %>">
-                  <button class="nav-button">Contact Seller</button>
+                <a href="/messages/<%= product.productid %>">
+                  <button type="button" class="back-button-btn">Contact Seller</button>
                 </a>
-                <form>
+                <div>
                   <button
                     type="button"
                     class="back-button-btn"
@@ -126,7 +126,7 @@
                   >
                     Add to Cart
                   </button>
-                </form>
+                </div>
               </div>
             </div>
           </div>
@@ -149,7 +149,7 @@
 
         if (res.ok) {
           alert('Item added to cart!');
-          window.location.href = `/index?buyerID=${buyerID}`;
+          window.location.href = '/index';
         } else {
           const data = await res.json();
           alert('Failed to add: ' + data.error);

@@ -1,4 +1,4 @@
-import sql from '../db.js';
+import sql from '../../db.js';
 
 async function runTestInsert() {
   try {
