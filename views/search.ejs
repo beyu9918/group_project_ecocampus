@@ -40,30 +40,24 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       display: flex;
       align-items: flex-start;
+      transition: background-color 0.2s ease;
     }
 
-    .item h2 a {
+    .item:hover {
+      background-color: #b5dbc0;
+    }
+
+    .item h2 {
+      margin-top: 0;
+    }
+
+    .item a {
       text-decoration: none;
-      color: #2c3e50;
+      color: inherit;
     }
 
-    .item h2 a:hover {
+    .item h2:hover {
       text-decoration: underline;
-      color: #1d872d;
-    }
-
-    .back-button-btn {
-      padding: 10px 16px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    .back-button-btn:hover {
-      background-color: #388e3c;
     }
   </style>
 </head>
@@ -107,58 +101,20 @@
         </div>
       <% } else { %>
         <% product.forEach(product => { %>
-          <div class="item">
-            <img src="<%= product.productPicture %>" alt="<%= product.productname %>" style="width: 150px; height: auto; border-radius: 8px;">
-            <div style="margin-left: 20px;">
-              <h2><a href="/product/<%= product.productid %>"><%= product.productname %></a></h2>
-              <p><strong>Price:</strong> ¥<%= product.productPrice.toFixed(2) %></p>
-              <p><strong>Category:</strong> <%= product.category || 'N/A' %></p>
-              <p><strong>Description:</strong> <%= product.description %></p>
-              <div style="margin-top: 10px; display: flex; gap: 10px;">
-                <a href="/messages">
-                  <button type="button" class="back-button-btn">Contact Seller</button>
-                </a>
-                <div>
-                  <button
-                    type="button"
-                    class="back-button-btn"
-                    onclick="handleAddToCart(<%= user ? 'true' : 'false' %>, <%= product.productid %>, <%= user ? user.userid : 1 %>)"
-                  >
-                    Add to Cart
-                  </button>
-                </div>
+          <a href="/product/<%= product.productid %>" style="text-decoration: none; color: inherit;">
+            <div class="item">
+              <img src="<%= product.productPicture %>" alt="<%= product.productname %>" style="width: 150px; height: auto; border-radius: 8px;">
+              <div style="margin-left: 20px;">
+                <h2><%= product.productname %></h2>
+                <p><strong>Price:</strong> ¥<%= product.productPrice.toFixed(2) %></p>
+                <p><strong>Category:</strong> <%= product.category || 'N/A' %></p>
+                <p><strong>Description:</strong> <%= product.description %></p>
               </div>
             </div>
-          </div>
+          </a>
         <% }) %>
       <% } %>
     </div>
   </div>
-
-<script>
-  async function handleAddToCart(loggedIn, productID, buyerID) {
-    if (!loggedIn) {
-      window.location.href = '/login';
-    } else {
-      try {
-        const res = await fetch('/cart/add', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ buyerID, productID, quantity: 1 })
-        });
-
-        if (res.ok) {
-          alert('Item added to cart!');
-          window.location.href = '/index';
-        } else {
-          const data = await res.json();
-          alert('Failed to add: ' + data.error);
-        }
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
-    }
-  }
-</script>
 </body>
 </html>
