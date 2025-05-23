@@ -1,6 +1,6 @@
 // routes/index.js
 import express from 'express';
-import { getCart } from '../controllers/cartController.js';
+import { getCart, addCartItem } from '../controllers/cartController.js';
 
 const router = express.Router();
 
@@ -40,6 +40,7 @@ router.get('/index', async (req, res) => {
     res.status(500).send(err.message);
   }
 });
+
 
 export default router;
 

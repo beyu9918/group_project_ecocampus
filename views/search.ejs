@@ -35,19 +35,35 @@
 
     .item {
       background-color: #cce6d3;
-      padding: 15px;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: background-color 0.2s ease;
     }
 
-    .item h2 a {
+    .item:hover {
+      background-color: #b5dbc0;
+    }
+
+    .item a {
       text-decoration: none;
-      color: #2c3e50;
+      color: inherit;
+      display: flex;
+      padding: 15px;
+      align-items: flex-start;
     }
 
-    .item h2 a:hover {
+    .item h2:hover {
       text-decoration: underline;
-      color: #1d872d;
+    }
+
+    .item img {
+      width: 150px;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .item-content {
+      margin-left: 20px;
     }
   </style>
 </head>
@@ -75,23 +91,32 @@
   <div class="results-container">
     <h1>EcoCampus Search Results</h1>
 
+    <form action="/search" method="get" class="search-bar" style="text-align: center; margin-bottom: 20px;">
+      <input type="text" name="keyword" placeholder="Search products..." value="<%= query.keyword || '' %>" style="padding: 8px; width: 300px;">
+      <button type="submit" style="padding: 8px 12px;">Search</button>
+    </form>
+
     <% if (query && query.keyword && query.keyword.trim() !== '') { %>
       <h2>Results for "<%= query.keyword %>"</h2>
     <% } %>
 
-
     <div class="item-list">
       <% if (product && product.length === 0) { %>
-        <div class="item">
+        <div class="item" style="padding: 15px;">
           <p>No matching results.</p>
-
         </div>
       <% } else { %>
         <% product.forEach(product => { %>
           <div class="item">
-            <h2><a href="/product/<%= product.productid %>"><%= product.productname %></a></h2>
-            <p><%= product.description %></p>
-            <p>Price: ¥<%= product.productPrice.toFixed(2) %> | Rating: <%= product.avgRating %>★</p>
+            <a href="/product/<%= product.productid %>">
+              <img src="<%= product.productPicture %>" alt="<%= product.productname %>">
+              <div class="item-content">
+                <h2><%= product.productname %></h2>
+                <p><strong>Price:</strong> ¥<%= product.productPrice.toFixed(2) %></p>
+                <p><strong>Category:</strong> <%= product.category || 'N/A' %></p>
+                <p><strong>Description:</strong> <%= product.description %></p>
+              </div>
+            </a>
           </div>
         <% }) %>
       <% } %>

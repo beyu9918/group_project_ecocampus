@@ -66,7 +66,7 @@ app.use(session({
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 // Inject `user` into all views
 app.use((req, res, next) => {
   res.locals.user = req.session?.user || null;
@@ -158,9 +158,10 @@ app.get('/profile', (req, res) => {
   res.render('profile'); //  { user:    req.session.user }
 
 });
-// Root redirect
-app.get('/', (req, res) => res.redirect('/product'));
 
+//search to product details
+app.get('/', showProductPage);
+app.get('/product/:productid', showProductDetail);
 
 //past order,clear history
 app.get('/orders', getOrdersPage);
@@ -184,8 +185,8 @@ app.use((err, req, res, next) => {
 
 // Socket.IO logic
 io.on('connection', (socket) => {
-  const cart = cartController.getCartInstance();
-  socket.emit('cartUpdated', cart.getCart());
+  //const cart = cartController.getCartInstance();
+  //socket.emit('cartUpdated', cart.getCart());
 
   socket.on('joinRoom', (userId) => {
     socket.join(`user_${userId}`);
