@@ -93,11 +93,13 @@
   <!-- Navigation Bar -->
   <nav class="navbar">
     <div class="nav-title">
-        <a href="/product" style="text-decoration: none; color: inherit;">EcoCampus</a>
+
+      <a href="/product" style="text-decoration: none; color: inherit;">EcoCampus</a>
     </div>
     <div class="nav-right">
       <% if (user && user.name) { %>
         <a href="/profile"><button class="nav-button"><%= user.name %></button></a>
+        <a href="/logout"><button class="nav-button btn-red">Logout</button></a>
       <% } else { %>
         <a href="/login"><button class="nav-button">Login</button></a>
       <% } %>
