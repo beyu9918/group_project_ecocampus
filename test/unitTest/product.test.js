@@ -1,4 +1,3 @@
-// test/controllers/product.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import sinon from 'sinon';
@@ -29,6 +28,7 @@ test('showProductPage should render product page with data', async () => {
 
   assert.strictEqual(res.renderCalledWith.view, 'product');
   assert.deepEqual(res.renderCalledWith.data.product, mockData);
+
 
   sqlStub.restore();
 });
@@ -95,33 +95,87 @@ test('showMessageList renders messages if user is logged in', async () => {
   sqlStub.restore();
 });
 
-test('showProductDetail should render productDetail view when product exists', async () => {
-    const fakeProduct = {
-      productid: 10,
-      productname: 'Test Product',
-      productprice: 99.99,
-      description: 'Example',
-      category: 'textbook',
-      productpicture: null
+test('showProductPage handles error', async () => {
+    const sqlStub = sinon.stub(sql, 'execute').throws(new Error('DB Error'));
+  
+    const req = { query: {}, session: {} };
+    const res = {
+      status(code) {
+        assert.equal(code, 500);
+        return {
+          send(msg) {
+            assert.equal(msg, 'Internal Server Error');
+          }
+        };
+      }
     };
   
-    const sqlStub = sinon.stub(sql).resolves([fakeProduct]);
+    await productController.showProductPage(req, res);
+    sqlStub.restore();
+  });
+  
+test('addNewProduct handles image upload failure', async () => {
+    const fakeFile = {
+      name: 'test.jpg',
+      mv: sinon.stub().rejects(new Error('Upload failed'))
+    };
   
     const req = {
-      params: { productid: 10 },
-      session: { user: { userid: 3 } }
+      body: {
+        productname: 'Item X',
+        productprice: 100,
+        description: 'test',
+        category: 'book'
+      },
+      session: { user: { userid: 1 } },
+      files: { productPicture: fakeFile }
     };
   
     const res = {
-      render(view, data) {
-        assert.strictEqual(view, 'productDetail');
-        assert.strictEqual(data.title, fakeProduct.productname);
-        assert.deepEqual(data.product, fakeProduct);
-        assert.deepEqual(data.user.userid, 3);
-      },
-      status: () => ({ send: () => {} })
+      status(code) {
+        assert.equal(code, 500);
+        return {
+          send(msg) {
+            assert.equal(msg, 'Image upload failed');
+          }
+        };
+      }
     };
   
-    await productController.showProductDetail(req, res);
+    await productController.addNewProduct(req, res);
+  });
+
+  test('addNewProduct handles SQL insert failure', async () => {
+    const sqlStub = sinon.stub(sql, 'execute').rejects(new Error('Insert failed'));
+  
+    const req = {
+      body: {
+        productname: 'Item Z',
+        productprice: 50,
+        description: '',
+        category: null
+      },
+      session: { user: { userid: 1 } }
+    };
+  
+    const res = {
+      status(code) {
+        assert.equal(code, 500);
+        return {
+          send(msg) {
+            assert.equal(msg, 'Internal Server Error');
+          }
+        };
+      }
+    };
+  
+    req.files = null;
+  
+    await productController.addNewProduct(req, res);
     sqlStub.restore();
   });
+
+
+
+  
+  

@@ -21,7 +21,7 @@ async function getCartData(buyerID) {
 
 // GET /index → render the cart template
 router.get('/index', async (req, res) => {
-  // ✅ 使用 session 中的 user ID
+
   const buyerID = req.session?.user?.userid;
 
   if (!buyerID) {
@@ -33,7 +33,7 @@ router.get('/index', async (req, res) => {
     res.render('index', {
       title: 'My Cart',
       cart: items,
-      user: req.session.user // 可选，用于 navbar 显示用户信息
+      user: req.session.user 
     });
   } catch (err) {
     console.error('Error loading /index:', err);
