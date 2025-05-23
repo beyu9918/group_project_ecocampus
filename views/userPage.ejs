@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 <body>
-    <!-- Navigation Bar -->
+  <!-- Navigation Bar -->
   <nav class="navbar">
     <div class="nav-title">
       <a href="/product" style="text-decoration: none; color: inherit;">EcoCampus</a>
@@ -28,7 +28,7 @@
   </nav>
   <div class="form-wrapper">
     <h2><%= user.name %>'s Profile</h2>
-    <img src="<%= user.avatar %>" alt="Avatar" style="width:100px; height:100px; border-radius:50%;">
+    <img src="<%= user.avatar || '/uploads/default-avatar.png' %>" alt="Avatar" style="width:100px; height:100px; border-radius:50%;">
     <p><strong>Bio:</strong> <%= user.bio || 'No bio provided.' %></p>
 
     <h3>Products</h3>
@@ -37,7 +37,17 @@
     <% } else { %>
       <ul>
         <% products.forEach(p => { %>
-          <li><strong><%= p.productname %></strong> - $<%= p.productprice %></li>
+          <li style="margin-bottom: 20px;">
+            <strong><%= p.productname %></strong> - $<%= p.productprice %><br>
+            <% if (p.productpicture) { %>
+              <img src="<%= p.productpicture %>" style="height: 80px; margin-top: 5px;"><br>
+            <% } %>
+            <em><%= p.category || 'Uncategorized' %></em><br>
+            <small><%= p.description || 'No description.' %></small><br>
+            <% if (p.avgrating) { %>
+              <span>Rating: <%= p.avgrating %>★</span>
+            <% } %>
+          </li>
         <% }) %>
       </ul>
     <% } %>
@@ -48,7 +58,13 @@
     <% } else { %>
       <ul>
         <% reviews.forEach(r => { %>
-          <li><%= r.rating %>★ - <%= r.comment %></li>
+          <li style="margin-bottom: 15px;">
+            <strong><%= r.rating %>★</strong> - <%= r.comment %><br>
+            <% if (r.productname) { %>
+              <em>Product: <%= r.productname %></em><br>
+            <% } %>
+            <small>Reviewed on <%= new Date(r.createdat).toLocaleDateString() %></small>
+          </li>
         <% }) %>
       </ul>
     <% } %>
