@@ -20,7 +20,7 @@
       top: 0;
       left: 0;
       right: 0;
-      background-color: #2c3e50;
+      background-color: #2c3e50;   
       color: white;
       height: 50px;
       display: flex;
@@ -127,25 +127,47 @@
       </form>
 
       <script>
-        function handleAddToCart(loggedIn) {
+        async function handleAddToCart(loggedIn, productID, buyerID) {
           if (!loggedIn) {
             window.location.href = '/login';
-          } else {
-            // TODO: Implement real add-to-cart logic
-            alert('Item added to cart!'); // placeholder
+            return;
+          }
+      
+          try {
+            const response = await fetch('/api/cart', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                productID: productID,
+                buyerID: buyerID,
+                quantity: 1
+              })
+            });
+      
+            if (!response.ok) {
+              throw new Error('Failed to add to cart');
+            }
+      
+            const result = await response.json();
+            alert('Added to cart successfully!');
+            console.log(result);
+          } catch (error) {
+            console.error('Add to cart error:', error);
+            alert('Error adding to cart');
           }
         }
       </script>
       
-      <form>
-        <button
-          type="button"
-          class="back-button-btn"
-          onclick="handleAddToCart(<%= user ? 'true' : 'false' %>)"
-        >
-          Add to Cart
-        </button>
-      </form>
+      <!-- Add to Cart Button -->
+      <button
+        class="back-button-btn"
+        onclick="handleAddToCart(<%= user ? 'true' : 'false' %>, <%= product.productid %>, <%= user?.userid || 0 %>)"
+      >
+        Add to Cart
+      </button>
+      
       
     </div>
   </div>

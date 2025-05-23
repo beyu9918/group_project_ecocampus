@@ -7,14 +7,14 @@
   <style>
     /* undo the flex-centering on body */
     body {
-      display: block      !important;
-      justify-content: flex-start !important;
-      align-items:     flex-start !important;
-      height: auto       !important;
+      display: block      ;
+      justify-content: flex-start ;
+      align-items:     flex-start ;
+      height: auto       ;
     }
     /* undo the global h1 centering */
     h1 {
-      text-align: left   !important;
+      text-align: left   ;
     }
   </style>
 </head>
@@ -67,8 +67,7 @@
 
     <p><strong>Total: $<%= total.toFixed(2) %></strong></p>
 
-    <form action="/order/checkout" method="POST" style="margin-top:16px;">
-      <input type="hidden" name="orderID" value="<%= orderID %>">
+    <form action="/payment" method="GET" style="margin-top:16px;">
       <button type="submit" <% if (!items || items.length === 0) { %> disabled <% } %>>
         Checkout
       </button>

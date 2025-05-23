@@ -1,112 +1,124 @@
 import sql from '../db.js';
 import eventBus from './eventBus.js';
 
-//show order summary page
+// Place Order (with HTML response)
 export async function placeOrderHandler(req, res) {
-  const buyerID = 1; 
+  const buyerID = req.session?.user?.userid;
+  if (!buyerID) {
+    return res.redirect('/login');
+  }
+
+  const { productID, totalAmount } = req.body;
+  if (!productID || !totalAmount) {
+    return res.status(400).send('productID and totalAmount required');
+  }
 
   try {
-    // 1) Fetch cart items + product info
-    const items = await sql`
-      SELECT
-        c.productid   AS "productID",
-        c.quantity,
-        p.productname AS "productName",
-        p.productprice AS "productPrice"
-      FROM cart AS c
-      JOIN product AS p ON p.productid = c.productid
-      WHERE c.buyerid = ${buyerID}
+    const [order] = await sql`
+      INSERT INTO orders (buyerid, productid, totalamount)
+      VALUES (${buyerID}, ${productID}, ${totalAmount})
+      RETURNING orderid, placed_at
     `;
 
-    if (items.length === 0) {
-      return res.status(400).send('Your cart is empty—cannot place order.');
-    }
+    await sql`DELETE FROM cart WHERE buyerid = ${buyerID} AND productid = ${productID}`;
 
-    // 2) Compute total for display
-    const total = items.reduce(
-      (sum, it) => sum + parseFloat(it.productPrice) * it.quantity,
-      0
-    );
-
-    // 3) Insert one order row per product
-    for (const it of items) {
-      const [order] = await sql`
-        INSERT INTO orders (buyerid, productid, totalamount)
-        VALUES (${buyerID}, ${it.productID}, ${parseFloat(it.productPrice) * it.quantity})
-        RETURNING orderid AS "orderID", placed_at AS "placedAt"
-      `;
-      eventBus.emit('orderProcessed', { order, timestamp: new Date().toISOString() });
-    }
-
-    // 4) Clear the cart
-    await sql`DELETE FROM cart WHERE buyerid = ${buyerID}`;
-
-    // 5) Render the order review page
-    res.render('order', {
-      items,
-      total,
-      confirmed: false,
-      orderID: null 
+    eventBus.emit('orderProcessed', {
+      orderID: order.orderid,
+      buyerID,
+      productID,
+      timestamp: new Date().toISOString()
     });
 
+    const [product] = await sql`
+      SELECT productname, productprice, productpicture
+      FROM product
+      WHERE productid = ${productID}
+    `;
+
+    const items = [{
+      productName: product.productname,
+      productPrice: product.productprice,
+      productPicture: product.productpicture,
+      quantity: 1
+    }];
+
+    res.render('order', {
+      orderID: order.orderid,
+      items,
+      total: parseFloat(totalAmount),
+      confirmed: false,
+      user: req.session.user
+    });
   } catch (err) {
-    console.error('❌ Error placing order:', err);
-    res.status(500).send(`Failed to place order: ${err.message}`);
+    console.error('Error placing order:', err);
+    res.status(500).send('Internal server error');
   }
 }
 
-// POST /order/checkout — show confirmation page
+// Pay / Checkout
 export async function payOrderHandler(req, res) {
+  const buyerID = req.session?.user?.userid;
+  if (!buyerID) {
+    return res.status(401).json({ error: 'Please log in to checkout' });
+  }
+
+  const { orderID } = req.params;
   try {
-    res.render('order', { items: [], total: 0, confirmed: true });
+    await sql`
+      UPDATE orders
+      SET status = 'Done'
+      WHERE orderid = ${orderID}
+        AND buyerid = ${buyerID}
+    `;
+    res.json({ success: true });
   } catch (err) {
     console.error('Error during checkout:', err);
-    res.status(500).send(err.message);
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
 
-// GET /orders — list past purchases
+// Show Past Orders Page
 export async function getOrdersPage(req, res) {
-  const buyerID = 1; 
+  const buyerID = req.session?.user?.userid;
+  if (!buyerID) {
+    return res.redirect('/login?message=please+login');
+  }
+
   try {
     const orders = await sql`
       SELECT
-        o.orderid     AS "orderID",
-        o.productid   AS "productID",
+        o.orderid    AS "orderID",
+        o.productid  AS "productID",
         p.productname AS "productName",
-        o.placed_at   AS "placedAt"
-      FROM orders AS o
-      JOIN product AS p ON p.productid = o.productid
+        o.totalamount AS "totalAmount",
+        o.placed_at  AS "placedAt"
+      FROM orders o
+      JOIN product p ON p.productid = o.productid
       WHERE o.buyerid = ${buyerID}
       ORDER BY o.placed_at DESC
     `;
     res.render('pastOrders', { orders });
   } catch (err) {
     console.error('Error fetching order list:', err);
-    res.status(500).send('Failed to load orders');
+    res.status(500).send('Failed to load orders.');
   }
 }
 
-// POST /orders/clear — clear this user’s history and reset IDs
+// Clear Order History
 export async function clearOrderHistory(req, res) {
-  const buyerID = 1;
+  const buyerID = req.session?.user?.userid;
+  if (!buyerID) {
+    return res.redirect('/login?message=please+login');
+  }
+
   try {
-    // Delete only this user’s orders
     await sql`
       DELETE FROM orders
       WHERE buyerid = ${buyerID}
     `;
-    // Reset sequence so next orderID = max(orderid)+1
-    await sql`
-      SELECT setval(
-        pg_get_serial_sequence('orders','orderid'),
-        COALESCE((SELECT MAX(orderid) FROM orders), 0) + 1,
-        false
-      )
-    `;
     res.redirect('/orders');
   } catch (err) {
     console.error('Error clearing order history:', err);
-    res.status(500).send('Failed to clear order history');
+    res.status(500).send('Failed to clear history.');
   }
 }

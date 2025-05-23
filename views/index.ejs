@@ -7,14 +7,14 @@
   <style>
     /* undo the flex-centering on body */
     body {
-      display: block      !important;
-      justify-content: flex-start !important;
-      align-items:     flex-start !important;
-      height: auto       !important;
+      display: block      ;
+      justify-content: flex-start ;
+      align-items:     flex-start ;
+      height: auto       ;
     }
     /* undo the global h1 centering */
     h1 {
-      text-align: left   !important;
+      text-align: left   ;
     }
   </style>
 </head>
@@ -77,12 +77,9 @@
 
   <% if (user) { %>
     <form action="/order" method="POST" style="margin-top: 20px;">
-      <button
-        type="submit"
-        <% if (cart.length === 0) { %> disabled <% } %>
-      >
-        Place Order
-      </button>
+      <input type="hidden" name="productID" value="<%= cart[0].productID %>">
+      <input type="hidden" name="totalAmount" value="<%= (cart[0].productPrice * cart[0].quantity).toFixed(2) %>">
+      <button type="submit">Place Order</button>
     </form>
   <% } else { %>
    <a href="/login">
