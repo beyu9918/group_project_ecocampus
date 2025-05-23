@@ -184,8 +184,8 @@ app.use((err, req, res, next) => {
 
 // Socket.IO logic
 io.on('connection', (socket) => {
-  const cart = cartController.getCartInstance();
-  socket.emit('cartUpdated', cart.getCart());
+  //const cart = cartController.getCartInstance();
+  //socket.emit('cartUpdated', cart.getCart());
 
   socket.on('joinRoom', (userId) => {
     socket.join(`user_${userId}`);
