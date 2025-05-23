@@ -17,6 +17,14 @@ export async function register(req, res) {
       return res.status(400).json({ msg: 'Email already exists' });
     }
 
+    // add password validation
+    const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!passwordPattern.test(password)) {
+      return res.status(400).json({
+        msg: 'Password must be at least 8 characters long and include both letters and numbers.'
+      });
+    }
+
     const hashedPassword = bcrypt.hashSync(password, 10);
 
     await sql`
@@ -62,6 +70,14 @@ export async function registerForm(req, res) {
     const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
     if (existing.length > 0) {
       return res.render('success', { message: '⚠️ Email already registered.' });
+    }
+
+    // add password validation
+    const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!passwordPattern.test(password)) {
+      return res.render('success', {
+        message: '⚠️ Password must be at least 8 characters long and include both letters and numbers.'
+      });
     }
 
     const hashedPassword = bcrypt.hashSync(password, 10);
