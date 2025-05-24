@@ -8,44 +8,57 @@
 
 const BASE_URL = 'http://localhost:3000';
 
-async function testSearchNoKeyword() {
+async function test(description, url, expectedText = 'EcoCampus') {
   try {
-    const response = await fetch(`${BASE_URL}/search`);
-    const text = await response.text();
-
-    if (!response.ok) throw new Error(`Status ${response.status}`);
-
-    if (text.includes('EcoCampus')) {
-      console.log('✅ GET /search without keyword works correctly');
+    const res = await fetch(`${BASE_URL}${url}`);
+    const text = await res.text();
+    if (!res.ok) throw new Error(`Status ${res.status}`);
+    if (text.includes(expectedText)) {
+      console.log(` ${description}`);
     } else {
-      console.error('❌ GET /search without keyword did not return expected content');
+      console.error(` ${description} - unexpected content`);
     }
-  } catch (error) {
-    console.error('❌ Error testing /search without keyword:', error.message);
-  }
-}
-
-async function testSearchWithKeyword() {
-  try {
-    const response = await fetch(`${BASE_URL}/search?keyword=Physics`);
-    const text = await response.text();
-
-    if (!response.ok) throw new Error(`Status ${response.status}`);
-
-    if (text.includes('Physics')) {
-      console.log('✅ GET /search with keyword "Physics" works correctly');
-    } else {
-      console.error('❌ GET /search with keyword "Physics" did not return expected content');
-    }
-  } catch (error) {
-    console.error('❌ Error testing /search with keyword:', error.message);
+  } catch (err) {
+    console.error(` ${description} - error: ${err.message}`);
   }
 }
 
 async function runTests() {
-  console.log('🔍 Running EcoCampus search endpoint tests...');
-  await testSearchNoKeyword();
-  await testSearchWithKeyword();
+  console.log('🔍 Running /search branch coverage tests...');
+
+  
+  await test('No filters - no query', '/search');
+
+  
+  await test('Keyword only', '/search?keyword=pen');
+  await test('Category only', '/search?category=Stationery');
+  await test('MinPrice only', '/search?minPrice=10');
+  await test('MaxPrice only', '/search?maxPrice=999');
+  await test('MinRating only', '/search?minRating=4');
+
+  
+  await test('Sort by price', '/search?sort=price');
+  await test('Sort by rating', '/search?sort=rating');
+  await test('Sort unknown (default no ORDER BY)', '/search?sort=unknown');
+  await test('No sort at all (else fallback)', '/search?keyword=abc');
+  await test('Keyword is empty string', '/search?keyword=');
+  await test('Keyword is spaces only', '/search?keyword=   ');
+
+  
+  await test('All filters combined', '/search?keyword=test&category=Misc&minPrice=1&maxPrice=999&minRating=3.5&sort=price');
+
+  
+  await test('Picture starts with /uploads/', '/search?keyword=Upload');
+
+  
+  await test('Picture without /uploads/', '/search?keyword=Book');
+
+  
+  await test('Picture fallback to default.png', '/search?keyword=NoImage');
+
+  
+  await test('Invalid minPrice', '/search?minPrice=abc');
+  await test('Invalid minRating', '/search?minRating=xyz');
 }
 
 runTests();
