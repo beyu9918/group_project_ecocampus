@@ -67,9 +67,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
+
 // Inject `user` into all views
 app.use((req, res, next) => {
   res.locals.user = req.session?.user || null;
+  req.user = req.session?.user || null; 
   next();
 });
 
