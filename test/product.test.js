@@ -175,7 +175,84 @@ test('addNewProduct handles image upload failure', async () => {
     sqlStub.restore();
   });
 
-
-
   
+  test('showMessageList redirects to login if user not logged in', async () => {
+    const req = { session: {} };
+    const res = {
+      redirect(path) {
+        assert.equal(path, '/login');
+      }
+    };
+  
+    await productController.showMessageList(req, res);
+  });
+  
+  test('addNewProduct returns 400 if productprice is missing', async () => {
+    const req = {
+      body: {
+        productname: 'Only Name',
+        productprice: '', 
+        description: 'abc',
+        category: 'books'
+      },
+      session: { user: { userid: 3 } }
+    };
+  
+    const res = {
+      status(code) {
+        assert.equal(code, 400);
+        return {
+          send(msg) {
+            assert.equal(msg, 'Missing required fields');
+          }
+        };
+      }
+    };
+  
+    await productController.addNewProduct(req, res);
+  });
+  
+
+  test('addNewProduct handles image object without mv function', async () => {
+    const req = {
+      body: {
+        productname: 'InvalidImageProduct',
+        productprice: 5,
+        description: '',
+        category: 'other'
+      },
+      session: { user: { userid: 4 } },
+      files: {
+        productPicture: { name: 'x.jpg' }  // 缺少 mv 方法
+      }
+    };
+  
+    const res = {
+      status(code) {
+        assert.equal(code, 500);
+        return {
+          send(msg) {
+            assert.equal(msg, 'Image upload failed');
+          }
+        };
+      }
+    };
+  
+    await productController.addNewProduct(req, res);
+  });
+  
+  
+
+  test('showAddProductPage works without user session', () => {
+    const req = { session: {} };
+    const res = {
+      render(view, data) {
+        assert.equal(view, 'addProduct');
+        assert.deepEqual(data.user, null);
+        assert.equal(data.title, 'Add New Product');
+      }
+    };
+  
+    productController.showAddProductPage(req, res);
+  });
   
