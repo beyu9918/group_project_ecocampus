@@ -1,3 +1,4 @@
+
 import pg from 'pg';
 const { Pool } = pg;
 
@@ -9,10 +10,12 @@ const pool = new Pool({
   port: 5432,
 });
 
+
 async function testSQL() {
   try {
     // Insert user
     console.log('\n== INSERT USER ==');
+
     await pool.query(`
       INSERT INTO users (userID, email, password, name, role, phone, avatar, bio, address, gender, birthday)
       VALUES (1, 'testuser@example.com', 'password123', 'Test User', 'user', '1234567890', '', 'Test bio', '123 Test St', 'Other', '2000-01-01')
@@ -32,10 +35,12 @@ async function testSQL() {
     // Insert review
     console.log('\n== INSERT REVIEW ==');
     const insertResult = await pool.query(`
+
       INSERT INTO reviews (reviewID, productID, reviewerID, rating, comment)
       VALUES (1, 1, 1, 5, 'This is a test review from SQL script')
       ON CONFLICT (reviewID) DO NOTHING
       RETURNING *;
+
     `);
     const review = insertResult.rows[0];
     console.log('Review inserted or already exists:', review);
@@ -74,3 +79,4 @@ async function testSQL() {
 }
 
 testSQL();
+

@@ -8,6 +8,7 @@
 
 const BASE_URL = 'http://localhost:3000';
 
+
 async function test(description, url, expectedText = 'EcoCampus') {
   try {
     const res = await fetch(`${BASE_URL}${url}`);
@@ -59,6 +60,7 @@ async function runTests() {
   
   await test('Invalid minPrice', '/search?minPrice=abc');
   await test('Invalid minRating', '/search?minRating=xyz');
+
 }
 
 runTests();
