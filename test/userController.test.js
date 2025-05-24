@@ -1,8 +1,7 @@
-import { test, describe } from 'node:test';
-import assert from 'node:assert';
-import fetch from 'node-fetch';
-
-const BASE = 'http://localhost:3000';
+import test, { describe } from 'node:test';
+import assert from 'node:assert/strict';
+import request from 'supertest';
+import app from '../app.js';
 
 const dummy = {
   email: `test${Date.now()}@example.com`,
@@ -13,136 +12,120 @@ const dummy = {
 describe('User Controller', () => {
 
   test('registers new user via EJS form', async () => {
-    const res = await fetch(`${BASE}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(dummy)
-    });
-    const text = await res.text();
-    assert.strictEqual(res.status, 200);
-    assert.match(text, /Registered successfully!/);
+    const res = await request(app)
+      .post('/register')
+      .type('form')
+      .send(dummy);
+    assert.equal(res.status, 200);
+    assert.match(res.text, /Registered successfully!/);
   });
 
   test('prevents duplicate registration', async () => {
-    const res = await fetch(`${BASE}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(dummy)
-    });
-    const text = await res.text();
-    assert.strictEqual(res.status, 200);s
-    assert.match(text, /Email already registered/);
+    const res = await request(app)
+      .post('/register')
+      .type('form')
+      .send(dummy);
+    assert.equal(res.status, 200);
+    assert.match(res.text, /Email already registered/);
   });
 
   test('fails registration with short password', async () => {
-    const res = await fetch(`${BASE}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
+    const res = await request(app)
+      .post('/register')
+      .type('form')
+      .send({
         email: `fail1_${Date.now()}@example.com`,
-        password: 'a1b2',  // too short
+        password: 'a1b2',
         name: 'FailUser'
-      })
-    });
-    const text = await res.text();
-    assert.strictEqual(res.status, 200);
-    assert.match(text, /Password must be at least 8 characters/);
+      });
+    assert.equal(res.status, 200);
+    assert.match(res.text, /Password must be at least 8 characters/);
   });
 
   test('fails registration with password missing letters', async () => {
-    const res = await fetch(`${BASE}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
+    const res = await request(app)
+      .post('/register')
+      .type('form')
+      .send({
         email: `fail2_${Date.now()}@example.com`,
         password: '12345678',
         name: 'FailUser'
-      })
-    });
-    const text = await res.text();
-    assert.strictEqual(res.status, 200);
-    assert.match(text, /Password must be at least 8 characters/);
+      });
+    assert.equal(res.status, 200);
+    assert.match(res.text, /Password must be at least 8 characters/);
   });
 
   test('fails registration with invalid email', async () => {
-    const res = await fetch(`${BASE}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        email: `invalid-email`,
+    const res = await request(app)
+      .post('/register')
+      .type('form')
+      .send({
+        email: 'invalid-email',
         password: 'abc12345',
         name: 'FailUser'
-      })
-    });
-    const text = await res.text();
-    assert.strictEqual(res.status, 200);
-    assert.match(text, /Invalid email format/);
+      });
+    assert.equal(res.status, 200);
+    assert.match(res.text, /Invalid email format/);
   });
 
   test('logs in successfully with valid credentials', async () => {
-    const res = await fetch(`${BASE}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      redirect: 'manual',
-      body: new URLSearchParams({
+    const res = await request(app)
+      .post('/login')
+      .type('form')
+      .redirects(0)
+      .send({
         email: dummy.email,
         password: dummy.password
-      })
-    });
-    assert.strictEqual(res.status, 302);
-    assert.ok(res.headers.get('location').endsWith('/product'));
+      });
+    assert.equal(res.status, 302);
+    assert.ok(res.headers.location.endsWith('/product'));
   });
 
   test('fails login with wrong password', async () => {
-    const res = await fetch(`${BASE}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
+    const res = await request(app)
+      .post('/login')
+      .type('form')
+      .send({
         email: dummy.email,
         password: 'wrongpass'
-      })
-    });
-    const text = await res.text();
-    assert.strictEqual(res.status, 200);
-    assert.match(text, /Invalid email or password/);
+      });
+    assert.equal(res.status, 200);
+    assert.match(res.text, /Invalid email or password/);
   });
 
   test('renders EJS registration page with duplicate email', async () => {
-    const res = await fetch(`${BASE}/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(dummy)
-    });
-    assert.strictEqual(res.status, 200);
+    const res = await request(app)
+      .post('/register')
+      .type('form')
+      .send(dummy);
+    assert.equal(res.status, 200);
   });
 
   test('renders EJS login page with wrong password', async () => {
-    const res = await fetch(`${BASE}/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
+    const res = await request(app)
+      .post('/login')
+      .type('form')
+      .send({
         email: dummy.email,
         password: 'wrongpass'
-      })
-    });
-    assert.strictEqual(res.status, 200);
+      });
+    assert.equal(res.status, 200);
   });
 
   test('handles /profile redirect when not logged in', async () => {
-    const res = await fetch(`${BASE}/profile`, {
-      method: 'GET',
-      redirect: 'manual'
-    });
-    assert.strictEqual(res.status, 302);
+    const res = await request(app)
+      .get('/profile')
+      .redirects(0);
+    assert.equal(res.status, 302);
   });
 
   test('admin page access denied when not logged in', async () => {
-    const res = await fetch(`${BASE}/admin/users`, { method: 'GET' });
-    assert.strictEqual(res.status, 403);
+    const res = await request(app).get('/admin/users');
+    assert.equal(res.status, 403);
   });
 
   test('view non-existent user profile (404)', async () => {
-    const res = await fetch(`${BASE}/user/999999`, { method: 'GET' });
+    const res = await request(app).get('/user/999999');
     assert.ok([404, 500].includes(res.status));
   });
 
