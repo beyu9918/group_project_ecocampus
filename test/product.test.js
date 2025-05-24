@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import sinon from 'sinon';
-import * as productController from '../../controllers/product.js';
-import sql from '../../db.js';
+import * as productController from '../controllers/product.js';
+import sql from '../db.js';
 
 
 test('showProductPage should render product page with data', async () => {
