@@ -70,14 +70,14 @@ export async function registerForm(req, res) {
   try {
     const existing = await sql`SELECT * FROM users WHERE email = ${email}`;
     if (existing.length > 0) {
-      return res.render('success', { message: '⚠️ Email already registered.' });
+      return res.render('success', { message: 'Email already registered.' });
     }
 
     // add password validation
     const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!passwordPattern.test(password)) {
       return res.render('success', {
-        message: '⚠️ Password must be at least 8 characters long and include both letters and numbers.'
+        message: 'Password must be at least 8 characters long and include both letters and numbers.'
       });
     }
 

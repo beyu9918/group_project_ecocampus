@@ -25,6 +25,7 @@ import messageRoutes from './routes/message.js';
 
 import { registerForm, loginForm } from './controllers/userController.js';
 
+import eventBus from './controllers/eventBus.js';
 
 
 import {

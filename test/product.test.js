@@ -223,7 +223,7 @@ test('addNewProduct handles image upload failure', async () => {
       },
       session: { user: { userid: 4 } },
       files: {
-        productPicture: { name: 'x.jpg' }  // 缺少 mv 方法
+        productPicture: { name: 'x.jpg' } 
       }
     };
   
